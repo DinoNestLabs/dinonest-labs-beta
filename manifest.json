@@ -1,0 +1,19 @@
+{
+"name": "DinoNest Labs (Free Beta) — K–8 Chibi Dino Learning",
+"short_name": "DinoNest Beta",
+"description": "Free Open Beta of DinoNest Labs — Neurodivergent-first K–8 adaptive learning across Math, Reading, Science, and Social Studies.",
+"start_url": "./index.html",
+"display": "standalone",
+"orientation": "any",
+"background_color": "#F7FAF5",
+"theme_color": "#0284C7",
+"categories": ["education", "kids"],
+"icons": [
+{
+"src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 116 116'%3E%3Crect width='116' height='116' rx='28' fill='%23E0F2FE'/%3E%3Cellipse cx='58' cy='82' rx='25' ry='22' fill='%237DD3FC' stroke='%231E293B' stroke-width='3'/%3E%3Crect x='31' y='24' width='54' height='44' rx='22' fill='%237DD3FC' stroke='%231E293B' stroke-width='3'/%3E%3Ccircle cx='45' cy='47' r='5' fill='%231E293B'/%3E%3Ccircle cx='71' cy='47' r='5' fill='%231E293B'/%3E%3Cpath d='M 52 57 Q 58 63 64 57' fill='none' stroke='%231E293B' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E",
+"sizes": "512x512",
+"type": "image/svg+xml",
+"purpose": "any maskable"
+}
+]
+}
