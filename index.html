@@ -1,0 +1,3344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DinoNest Labs (Free Beta) — Neurodivergent-First K–8 Chibi Dino Learning</title>
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#2E9E63" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="DinoNest Beta" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #F7FAF5;
+      --bg-card: #FFFFFF;
+      --bg-soft: #ECF6E9;
+      --text-main: #1E3A2F;
+      --text-muted: #527364;
+      --border-soft: #DCF0D8;
+      --accent-primary: #2E9E63;
+      --accent-amber: #F59E0B;
+      --accent-sky: #0EA5E9;
+      --accent-purple: #8B5CF6;
+      --base-font-scale: 1;
+    }
+
+    body.calm-mode {
+      --bg-primary: #F1F3F2;
+      --bg-card: #FAFBF9;
+      --bg-soft: #E5E9E7;
+      --text-main: #2A3834;
+      --text-muted: #5A6B66;
+      --border-soft: #D6DDD9;
+      --accent-primary: #56826E;
+      --accent-amber: #BA9352;
+      --accent-sky: #658FB5;
+      --accent-purple: #82789E;
+    }
+
+    body.focus-mode {
+      --bg-primary: #141B18;
+      --bg-card: #FFFFFF;
+      --border-soft: #38BDF8;
+    }
+    body.focus-mode header,
+    body.focus-mode aside,
+    body.focus-mode .focus-dim {
+      opacity: 0.45;
+      transition: opacity 0.3s ease;
+    }
+    body.focus-mode header:hover,
+    body.focus-mode aside:hover {
+      opacity: 1;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      transition: background-color 0.35s ease, color 0.35s ease;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, .font-display {
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    body.dyslexia-mode,
+    body.dyslexia-mode h1,
+    body.dyslexia-mode h2,
+    body.dyslexia-mode h3,
+    body.dyslexia-mode .font-display,
+    body.dyslexia-mode button,
+    body.dyslexia-mode p,
+    body.dyslexia-mode span {
+      font-family: 'Atkinson Hyperlegible', sans-serif !important;
+      letter-spacing: 0.055em !important;
+      word-spacing: 0.16em !important;
+      line-height: 1.75 !important;
+    }
+
+    body.text-sm-mode .scalable-text { font-size: 0.92rem; }
+    body.text-md-mode .scalable-text { font-size: 1.05rem; }
+    body.text-lg-mode .scalable-text { font-size: 1.25rem; }
+
+    #reading-ruler {
+      position: fixed;
+      left: 0;
+      right: 0;
+      height: 54px;
+      background: rgba(253, 224, 71, 0.22);
+      border-top: 2px solid rgba(234, 179, 8, 0.65);
+      border-bottom: 2px solid rgba(234, 179, 8, 0.65);
+      pointer-events: none;
+      z-index: 45;
+      transition: top 0.05s linear;
+    }
+
+    @keyframes dinoFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-6px) rotate(1.5deg); }
+    }
+    @keyframes dinoJump {
+      0% { transform: translateY(0) scale(1, 1); }
+      30% { transform: translateY(-20px) scale(0.95, 1.07); }
+      60% { transform: translateY(0) scale(1.06, 0.94); }
+      80% { transform: translateY(-7px) scale(0.98, 1.02); }
+      100% { transform: translateY(0) scale(1, 1); }
+    }
+    @keyframes dinoWobble {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-5deg); }
+      75% { transform: rotate(5deg); }
+    }
+    @keyframes eggShake {
+      0%, 100% { transform: rotate(0deg); }
+      20% { transform: rotate(-7deg); }
+      40% { transform: rotate(7deg); }
+      60% { transform: rotate(-4deg); }
+      80% { transform: rotate(4deg); }
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.9) translateY(6px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .dino-idle { animation: dinoFloat 3.6s ease-in-out infinite; }
+    .dino-cheer { animation: dinoJump 0.7s ease-out 2; }
+    .dino-think { animation: dinoWobble 1.8s ease-in-out infinite; }
+    .egg-ready { animation: eggShake 1.5s ease-in-out infinite; }
+    .animate-pop { animation: popIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+    body.calm-mode .dino-idle,
+    body.calm-mode .dino-cheer,
+    body.calm-mode .dino-think,
+    body.calm-mode .egg-ready {
+      animation: none !important;
+    }
+
+    .card-shadow {
+      box-shadow: 0 10px 25px -5px rgba(30, 58, 47, 0.07), 0 4px 10px -4px rgba(30, 58, 47, 0.04);
+    }
+
+    .choice-btn {
+      transition: all 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .choice-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+
+    .vocab-word {
+      background-color: #FEF08A;
+      color: #713F12;
+      padding: 0 5px;
+      border-radius: 6px;
+      border-bottom: 2px dashed #CA8A04;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background-color 0.2s;
+    }
+    .vocab-word:hover {
+      background-color: #FDE047;
+    }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col text-md-mode">
+
+  <!-- Reading Ruler Guide -->
+  <div id="reading-ruler" class="hidden" style="top: 240px;"></div>
+
+  <!-- Confetti Canvas Overlay -->
+  <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+  <!-- ==================== SENSORY & ACCESSIBILITY RIBBON ==================== -->
+  <div class="bg-emerald-950 text-emerald-50 px-3 py-2 text-xs font-bold border-b border-emerald-800 no-print">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="uppercase tracking-wider text-emerald-300 mr-1 hidden sm:inline">Sensory Studio:</span>
+
+        <button onclick="toggleCalmMode()" id="btn-calm" class="px-2.5 py-1 rounded-xl bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-700 flex items-center gap-1 transition" title="Low-arousal pastel colors, no timers, no shake animations">
+          <span>🌿</span> <span>Calm Mode</span>
+        </button>
+
+        <button onclick="toggleFocusMode()" id="btn-focus" class="px-2.5 py-1 rounded-xl bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-700 flex items-center gap-1 transition" title="Dims surrounding UI to reduce visual clutter">
+          <span>🎯</span> <span>Focus Mode</span>
+        </button>
+
+        <button onclick="toggleReadingRuler()" id="btn-ruler" class="px-2.5 py-1 rounded-xl bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-700 flex items-center gap-1 transition" title="Horizontal line-focus guide that follows your pointer">
+          <span>📏</span> <span>Reading Ruler</span>
+        </button>
+
+        <button onclick="toggleDyslexiaFont()" id="btn-dyslexia" class="px-2.5 py-1 rounded-xl bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-700 flex items-center gap-1 transition" title="Atkinson Hyperlegible font with wider letter & word spacing">
+          <span>Aa</span> <span>Dyslexia Font</span>
+        </button>
+
+        <!-- Text Size S / M / L -->
+        <div class="flex items-center bg-emerald-900/80 border border-emerald-700 rounded-xl overflow-hidden">
+          <button onclick="setTextSize('sm')" id="txt-sm" class="px-2 py-1 hover:bg-emerald-800">A-</button>
+          <button onclick="setTextSize('md')" id="txt-md" class="px-2 py-1 bg-emerald-700 text-white">A</button>
+          <button onclick="setTextSize('lg')" id="txt-lg" class="px-2 py-1 hover:bg-emerald-800">A+</button>
+        </div>
+
+        <!-- TTS Speech Rate -->
+        <button onclick="cycleSpeechRate()" id="btn-tts-rate" class="px-2.5 py-1 rounded-xl bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-700 flex items-center gap-1 transition" title="Adjust Read-Aloud voice speed">
+          <span>🗣️</span> <span id="tts-rate-label">1.0x Voice</span>
+        </button>
+      </div>
+
+      <!-- Right: Calming Corner + Free Beta Badge + Profile Switcher -->
+      <div class="flex items-center gap-2">
+        <button onclick="switchView('calm')" class="px-3 py-1 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-extrabold flex items-center gap-1.5 shadow-sm transition">
+          <span>🫧</span> <span>Calming Corner</span>
+        </button>
+
+        <button onclick="openBetaFeedbackModal()" class="px-3 py-1 rounded-xl bg-sky-400 hover:bg-sky-300 text-slate-950 font-extrabold flex items-center gap-1.5 shadow-sm transition" title="All K–8 features unlocked for Beta Testing">
+          <span>🧪</span> <span>Open Beta • All K–8 Free</span>
+        </button>
+
+        <button onclick="openProfileModal()" class="px-3 py-1 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold flex items-center gap-1.5 shadow-sm transition">
+          <span>👤</span> <span id="active-profile-name">Beta Explorer</span>
+          <span id="cloud-sync-dot" class="w-2 h-2 rounded-full bg-emerald-950" title="Sync Status"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MAIN NAVIGATION HEADER ==================== -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-emerald-100 px-4 py-3 no-print">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('learn')">
+        <div id="header-logo-dino" class="w-11 h-11 rounded-2xl bg-emerald-100 flex items-center justify-center shadow-inner"></div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="font-display text-2xl font-bold tracking-tight text-emerald-950">DinoNest Labs</span>
+            <span class="text-xs font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-sky-100 text-sky-900 border border-sky-200">K–8 Free Beta</span>
+          </div>
+          <p class="text-xs text-emerald-700 font-semibold -mt-0.5">All Grades, Dinos & Mini-Games Unlocked for Testing</p>
+        </div>
+      </div>
+
+      <!-- 6 Primary Studio Tabs -->
+      <nav class="flex items-center gap-1 sm:gap-1.5 bg-emerald-50/90 p-1.5 rounded-2xl border border-emerald-100 overflow-x-auto max-w-full">
+        <button onclick="switchView('learn')" id="nav-learn" class="px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 bg-white text-emerald-950 shadow-sm whitespace-nowrap">
+          <span>🎯</span> <span>Learn</span>
+        </button>
+        <button onclick="switchView('calm')" id="nav-calm" class="px-3 py-2 rounded-xl text-sm font-bold text-teal-800 hover:bg-white/60 transition flex items-center gap-1.5 whitespace-nowrap">
+          <span>🫧</span> <span>Calming Corner</span>
+        </button>
+        <button onclick="switchView('story')" id="nav-story" class="px-3 py-2 rounded-xl text-sm font-bold text-emerald-800 hover:bg-white/60 transition flex items-center gap-1.5 whitespace-nowrap">
+          <span>📚</span> <span>Story Studio</span>
+        </button>
+        <button onclick="switchView('games')" id="nav-games" class="px-3 py-2 rounded-xl text-sm font-bold text-emerald-800 hover:bg-white/60 transition flex items-center gap-1.5 whitespace-nowrap">
+          <span>🎮</span> <span>Mini-Games</span>
+        </button>
+        <button onclick="switchView('nest')" id="nav-nest" class="px-3 py-2 rounded-xl text-sm font-bold text-emerald-800 hover:bg-white/60 transition flex items-center gap-1.5 relative whitespace-nowrap">
+          <span>🥚</span> <span>Dino Nest</span>
+          <span id="nest-badge" class="hidden ml-1 px-1.5 py-0.2 text-xs bg-amber-500 text-white rounded-full font-extrabold">!</span>
+        </button>
+        <button onclick="switchView('parent')" id="nav-parent" class="px-3 py-2 rounded-xl text-sm font-bold text-emerald-800 hover:bg-white/60 transition flex items-center gap-1.5 whitespace-nowrap">
+          <span>📊</span> <span>Parent Hub</span>
+        </button>
+      </nav>
+
+      <!-- Star Wallet + Sound Mute -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-2xl" title="Dino Stars earned for hatching eggs & buying accessories">
+          <span class="text-base">⭐</span>
+          <span id="star-count" class="font-display font-bold text-amber-950 text-base">0</span>
+        </div>
+        <button onclick="toggleSound()" id="sound-btn" class="w-9 h-9 rounded-2xl border border-emerald-100 bg-white hover:bg-emerald-50 flex items-center justify-center text-base transition" title="Toggle Gentle Sound Effects">
+          🔊
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+    <!-- ==================== TAB 1: ADAPTIVE 4-SUBJECT CORE PRACTICE ==================== -->
+    <section id="view-learn" class="space-y-5">
+      <!-- Free Beta Welcome Banner -->
+      <div class="bg-gradient-to-r from-sky-50 via-emerald-50 to-teal-50 border border-sky-200 rounded-3xl px-5 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 no-print">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">🧪</span>
+          <p class="text-xs sm:text-sm font-bold text-slate-900">
+            <strong>DinoNest Labs Free Beta:</strong> Every grade (K–8), all 4 subjects, all 12 Chibi Dinosaurs, all 4 Mini-Games, and unlimited AI Stories are <strong>100% free & unlocked</strong> during beta testing!
+          </p>
+        </div>
+        <button onclick="openBetaFeedbackModal()" class="px-4 py-2 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-display font-bold text-xs sm:text-sm shadow-sm whitespace-nowrap transition">
+          📝 Share Beta Notes
+        </button>
+      </div>
+
+      <!-- Grade & 4-Subject Bar -->
+      <div class="bg-white rounded-3xl p-4 card-shadow border border-emerald-100/80 space-y-4 focus-dim">
+        <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="setSubject('math')" id="subj-math" class="px-4 py-2.5 rounded-2xl font-display font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow-sm transition">
+              <span>🧮</span> Math
+            </button>
+            <button onclick="setSubject('reading')" id="subj-reading" class="px-4 py-2.5 rounded-2xl font-display font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 bg-sky-50 text-sky-900 hover:bg-sky-100 transition">
+              <span>📖</span> Reading
+            </button>
+            <button onclick="setSubject('science')" id="subj-science" class="px-4 py-2.5 rounded-2xl font-display font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 bg-amber-50 text-amber-900 hover:bg-amber-100 transition">
+              <span>🔬</span> Science
+            </button>
+            <button onclick="setSubject('social')" id="subj-social" class="px-4 py-2.5 rounded-2xl font-display font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 bg-purple-50 text-purple-900 hover:bg-purple-100 transition">
+              <span>🌍</span> Social Studies
+            </button>
+            <button onclick="startPlacementTest()" class="px-3.5 py-2.5 rounded-2xl font-bold text-xs bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 transition flex items-center gap-1.5">
+              <span>🧭</span> 4-Subject Placement
+            </button>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <div id="placement-banner" class="hidden items-center gap-2 bg-sky-100 text-sky-900 px-3.5 py-1.5 rounded-2xl text-xs font-extrabold border border-sky-200">
+              <span>🧭 Placement Q<span id="placement-q-num">1</span>/8</span>
+              <button onclick="cancelPlacementTest()" class="underline text-sky-700 ml-1">Exit</button>
+            </div>
+
+            <div class="flex items-center gap-1.5 bg-purple-50 border border-purple-200 px-3.5 py-1.5 rounded-2xl">
+              <span class="text-xs font-extrabold uppercase text-purple-700">Mastery:</span>
+              <span id="tier-badge" class="font-display font-bold text-sm text-amber-800">🥉 Bronze</span>
+            </div>
+
+            <div id="streak-pill" class="flex items-center gap-1.5 bg-orange-50 border border-orange-200 px-3.5 py-1.5 rounded-2xl">
+              <span class="text-sm">🔥</span>
+              <span class="text-xs font-extrabold text-orange-800">Streak: <span id="streak-count">0</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- K–8 Grade Selector -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1" id="grade-selector"></div>
+      </div>
+
+      <!-- Practice Workspace Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Left Companion & Egg Progress -->
+        <aside class="lg:col-span-4 space-y-5">
+          <div class="bg-white rounded-3xl p-5 card-shadow border border-emerald-100/80 text-center relative">
+            <div class="flex items-center justify-between mb-2">
+              <span id="dino-name-tag" class="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-100 text-emerald-900">Pip the T-Rex</span>
+              <button onclick="cycleBuddy()" class="text-xs font-bold text-emerald-700 hover:text-emerald-950 bg-emerald-50 px-2.5 py-1 rounded-xl transition">
+                🔄 Swap Buddy
+              </button>
+            </div>
+
+            <div class="my-2 flex justify-center items-center h-44 relative">
+              <div id="dino-stage" class="w-40 h-40 dino-idle"></div>
+              <div id="dino-emote" class="hidden absolute top-1 right-6 bg-white border-2 border-amber-300 rounded-2xl px-2.5 py-1 text-lg shadow-md animate-pop">⭐</div>
+            </div>
+
+            <div class="bg-emerald-50/90 border border-emerald-200/80 rounded-2xl p-3.5">
+              <p id="dino-speech" class="text-sm font-bold text-emerald-950 leading-relaxed">
+                Rawr! Pick any grade from K to 8—everything is unlocked in Beta!
+              </p>
+            </div>
+          </div>
+
+          <!-- Egg Hatching Card -->
+          <div class="bg-white rounded-3xl p-5 card-shadow border border-amber-100">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-display font-bold text-base text-amber-950 flex items-center gap-1.5">
+                <span>🥚</span> Next Dino Egg
+              </h3>
+              <span id="egg-progress-text" class="text-xs font-extrabold text-amber-900 bg-amber-100 px-2.5 py-0.5 rounded-full">0 / 5 Stars</span>
+            </div>
+
+            <div class="flex items-center gap-4 my-3">
+              <div id="mini-egg-preview" class="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-amber-50 rounded-2xl border border-amber-200"></div>
+              <div class="flex-1 space-y-2">
+                <div class="w-full h-3.5 bg-amber-100 rounded-full overflow-hidden p-0.5">
+                  <div id="egg-progress-bar" class="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+                <p id="egg-status-hint" class="text-xs font-semibold text-slate-600">
+                  Earn 5 stars from lessons, stories, or games to hatch a chibi dino!
+                </p>
+              </div>
+            </div>
+
+            <button id="hatch-now-btn" onclick="openHatchModal()" class="hidden w-full py-2.5 rounded-2xl font-display font-bold text-sm bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-md hover:brightness-105 transition">
+              🎉 Hatch Your Egg Now!
+            </button>
+          </div>
+        </aside>
+
+        <!-- Right Active Question Card -->
+        <div class="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-8 card-shadow border-2 border-emerald-100 space-y-6">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4">
+            <div>
+              <span id="problem-grade-label" class="text-xs font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-lg">Kindergarten • Math</span>
+              <h2 id="problem-skill-title" class="font-display text-xl sm:text-2xl font-bold text-slate-900 mt-1.5">Counting Dino Eggs</h2>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="readCurrentProblemAloud()" class="flex items-center gap-1.5 px-3.5 py-2.5 rounded-2xl bg-sky-100 hover:bg-sky-200 text-sky-950 font-extrabold text-sm transition" title="Read Question Aloud">
+                <span>🔊</span> Read Aloud
+              </button>
+              <button onclick="showDinoHint()" id="hint-btn" class="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-extrabold text-sm transition">
+                <span>💡</span> Dino Hint
+              </button>
+            </div>
+          </div>
+
+          <!-- Reading Passage Box -->
+          <div id="reading-passage-box" class="hidden bg-sky-50/80 border border-sky-200 rounded-2xl p-5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span id="passage-genre" class="text-xs font-extrabold uppercase tracking-wider text-sky-800">Dino Story</span>
+              <button onclick="speakText(document.getElementById('passage-body').innerText)" class="text-xs font-extrabold bg-white px-2.5 py-1 rounded-xl border border-sky-200 text-sky-900 hover:bg-sky-100">
+                🔊 Read Passage
+              </button>
+            </div>
+            <h3 id="passage-title" class="font-display font-bold text-lg text-sky-950"></h3>
+            <p id="passage-body" class="scalable-text leading-relaxed text-slate-800 font-medium"></p>
+          </div>
+
+          <!-- Visual Manipulative Area -->
+          <div id="problem-visual-area" class="hidden bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 flex flex-col items-center justify-center"></div>
+
+          <!-- Question Prompt -->
+          <div class="space-y-2">
+            <p id="question-text" class="font-display scalable-text text-xl sm:text-2xl font-semibold text-slate-900 leading-snug">
+              Loading question...
+            </p>
+          </div>
+
+          <!-- Step-by-Step Hint Drawer -->
+          <div id="hint-drawer" class="hidden bg-amber-50/95 border-2 border-amber-200 rounded-2xl p-4 sm:p-5 space-y-3 animate-pop">
+            <div class="flex items-center justify-between">
+              <span class="font-display font-bold text-amber-950 flex items-center gap-2">
+                <span>🦕💡</span> Step-by-Step Visual Scaffold
+              </span>
+              <div class="flex items-center gap-2">
+                <button onclick="speakText(document.getElementById('hint-explanation').innerText)" class="text-xs font-extrabold bg-white px-2 py-0.5 rounded-lg border border-amber-300 text-amber-900">🔊</button>
+                <span id="hint-step-indicator" class="text-xs font-extrabold text-amber-800 bg-amber-200/70 px-2.5 py-0.5 rounded-full">Step 1</span>
+              </div>
+            </div>
+            <div id="hint-visual-container" class="flex justify-center py-1"></div>
+            <p id="hint-explanation" class="scalable-text font-bold text-amber-950 leading-relaxed"></p>
+            <div id="hint-next-step-wrap" class="hidden pt-1">
+              <button onclick="advanceHintStep()" class="text-xs font-extrabold bg-amber-500 text-white px-3.5 py-1.5 rounded-xl hover:bg-amber-600 transition">
+                Next Scaffold Step →
+              </button>
+            </div>
+          </div>
+
+          <!-- Answer Choices -->
+          <div id="choices-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1"></div>
+
+          <!-- Instant Feedback Bar -->
+          <div id="feedback-bar" class="hidden rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 animate-pop">
+            <div class="flex items-center gap-3">
+              <span id="feedback-icon" class="text-3xl">🎉</span>
+              <div>
+                <h4 id="feedback-title" class="font-display font-bold text-lg">Awesome job!</h4>
+                <p id="feedback-detail" class="text-sm font-semibold opacity-95">+1 Star earned!</p>
+              </div>
+            </div>
+            <button onclick="nextQuestion()" id="next-btn" class="w-full sm:w-auto px-6 py-3 rounded-2xl font-display font-bold text-base bg-emerald-600 hover:bg-emerald-700 text-white shadow-md transition flex items-center justify-center gap-2">
+              <span>Next Question</span> <span>➔</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== DEDICATED INTERACTIVE CALMING CORNER ==================== -->
+    <section id="view-calm" class="hidden space-y-6 animate-pop">
+      <div class="bg-gradient-to-r from-teal-50 via-sky-50 to-emerald-50 rounded-3xl p-6 card-shadow border border-teal-200/80 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div id="calm-corner-dino" class="w-20 h-20 flex-shrink-0 dino-idle"></div>
+          <div>
+            <span class="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-teal-100 text-teal-900">Always 100% Free • No Timers • Safe Space</span>
+            <h2 class="font-display text-2xl sm:text-3xl font-bold text-teal-950 mt-1">Bram & Anky’s Calming Corner</h2>
+            <p class="text-sm font-semibold text-teal-800 mt-0.5">
+              Take all the time you need to breathe, fidget, draw in kinetic sand, or check in with your feelings.
+            </p>
+          </div>
+        </div>
+        <button onclick="switchView('learn')" class="px-5 py-2.5 rounded-2xl bg-white hover:bg-teal-100 text-teal-950 border border-teal-200 font-display font-bold text-sm shadow-sm transition whitespace-nowrap">
+          ← Back to Learning
+        </button>
+      </div>
+
+      <!-- 5 Interactive Calming Activity Tabs -->
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+        <button onclick="selectCalmTool('breath')" id="ctab-breath" class="p-3.5 rounded-2xl bg-teal-600 text-white font-display font-bold text-sm shadow-sm transition flex flex-col items-center gap-1">
+          <span class="text-xl">🫁</span> <span>Belly Breathing</span>
+        </button>
+        <button onclick="selectCalmTool('popit')" id="ctab-popit" class="p-3.5 rounded-2xl bg-white hover:bg-teal-50 text-slate-800 border border-teal-100 font-display font-bold text-sm transition flex flex-col items-center gap-1">
+          <span class="text-xl">🫧</span> <span>Sensory Pop-It</span>
+        </button>
+        <button onclick="selectCalmTool('sand')" id="ctab-sand" class="p-3.5 rounded-2xl bg-white hover:bg-teal-50 text-slate-800 border border-teal-100 font-display font-bold text-sm transition flex flex-col items-center gap-1">
+          <span class="text-xl">🏝️</span> <span>Dino Zen Sand</span>
+        </button>
+        <button onclick="selectCalmTool('jar')" id="ctab-jar" class="p-3.5 rounded-2xl bg-white hover:bg-teal-50 text-slate-800 border border-teal-100 font-display font-bold text-sm transition flex flex-col items-center gap-1">
+          <span class="text-xl">✨</span> <span>Starlight Jar</span>
+        </button>
+        <button onclick="selectCalmTool('feelings')" id="ctab-feelings" class="p-3.5 rounded-2xl bg-white hover:bg-teal-50 text-slate-800 border border-teal-100 font-display font-bold text-sm transition flex flex-col items-center gap-1 col-span-2 sm:col-span-1">
+          <span class="text-xl">💛</span> <span>Feelings Check-In</span>
+        </button>
+      </div>
+
+      <!-- Calming Activity Workspace -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 card-shadow border border-teal-100">
+        <!-- Tool 1: Guided Belly Breathing -->
+        <div id="ctool-breath" class="text-center space-y-6 max-w-xl mx-auto">
+          <div class="flex flex-wrap items-center justify-center gap-2">
+            <span class="text-xs font-extrabold uppercase text-slate-500">Pace:</span>
+            <button onclick="setBreathPace('gentle')" id="bpace-gentle" class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700">Gentle (3-3-3)</button>
+            <button onclick="setBreathPace('classic')" id="bpace-classic" class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-teal-600 text-white">Classic (4-4-4)</button>
+            <button onclick="setBreathPace('deep')" id="bpace-deep" class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700">Deep Rest (4-7-8)</button>
+          </div>
+
+          <div class="relative w-56 h-56 mx-auto flex items-center justify-center">
+            <div id="sanctuary-breath-ring" class="w-36 h-36 rounded-full bg-teal-200/50 border-4 border-teal-400 flex items-center justify-center transition-all duration-[4000ms] ease-in-out">
+              <div id="sanctuary-breath-dino" class="w-28 h-28"></div>
+            </div>
+          </div>
+
+          <div class="bg-teal-50/80 border border-teal-200 rounded-2xl p-4">
+            <p id="sanctuary-breath-cue" class="font-display text-2xl font-bold text-teal-950">Breathe In Slowly...</p>
+            <p class="text-xs font-semibold text-teal-700 mt-1">Imagine filling a warm, glowing balloon in your tummy.</p>
+          </div>
+        </div>
+
+        <!-- Tool 2: Interactive Sensory Pop-It -->
+        <div id="ctool-popit" class="hidden text-center space-y-5 max-w-2xl mx-auto">
+          <div class="flex items-center justify-between">
+            <div class="text-left">
+              <h3 class="font-display text-xl font-bold text-slate-900">Pastel Dino-Egg Sensory Pop-It</h3>
+              <p class="text-xs font-semibold text-slate-500">Tap bubbles at your own rhythm for soft tactile pops & gentle chimes.</p>
+            </div>
+            <button onclick="resetPopItBoard()" class="px-4 py-2 rounded-2xl bg-teal-100 hover:bg-teal-200 text-teal-950 font-extrabold text-xs transition">
+              🔄 Flip & Reset Board
+            </button>
+          </div>
+          <div id="popit-grid" class="grid grid-cols-6 sm:grid-cols-8 gap-3 bg-teal-50/70 p-5 rounded-3xl border-2 border-teal-200"></div>
+        </div>
+
+        <!-- Tool 3: Kinetic Sand & Dino Zen Garden -->
+        <div id="ctool-sand" class="hidden space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="font-display text-xl font-bold text-slate-900">Kinetic Sand & Dino Zen Garden</h3>
+              <p class="text-xs font-semibold text-slate-500">Drag your mouse or finger to rake calming ripples in the warm sand, or stamp cute garden items!</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button onclick="setSandTool('rake')" id="stool-rake" class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-amber-500 text-slate-950">🌊 Sand Rake</button>
+              <button onclick="setSandTool('dino')" id="stool-dino" class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700">🦕 Mini Dino</button>
+              <button onclick="setSandTool('fern')" id="stool-fern" class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700">🌿 Fern</button>
+              <button onclick="setSandTool('stone')" id="stool-stone" class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700">🪨 River Stone</button>
+              <button onclick="clearZenSand()" class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-teal-100 text-teal-900">✨ Smooth Sand</button>
+            </div>
+          </div>
+          <div class="w-full h-72 rounded-3xl overflow-hidden border-4 border-amber-200 bg-[#F5E6C8] relative cursor-crosshair">
+            <canvas id="zen-sand-canvas" class="w-full h-full block touch-none"></canvas>
+          </div>
+        </div>
+
+        <!-- Tool 4: Starlight Firefly Jar & 5-4-3-2-1 Grounding -->
+        <div id="ctool-jar" class="hidden grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+          <div class="md:col-span-6 flex flex-col items-center space-y-3">
+            <div class="w-full h-72 rounded-3xl overflow-hidden border-4 border-indigo-200 bg-slate-950 relative cursor-pointer" onclick="swirlStarlightJar()" title="Tap or click to swirl the starlight">
+              <canvas id="starlight-jar-canvas" class="w-full h-full block"></canvas>
+              <span class="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs font-extrabold bg-white/15 backdrop-blur-sm text-indigo-100 px-3 py-1 rounded-full">
+                ✨ Tap Jar to Gently Swirl Fireflies
+              </span>
+            </div>
+          </div>
+          <div class="md:col-span-6 space-y-3">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full">5-4-3-2-1 Sensory Grounding</span>
+            <h3 class="font-display text-xl font-bold text-slate-900">Look Around Your Cozy Space</h3>
+            <p class="text-xs font-semibold text-slate-500">Tap each step as you notice things around you—there is no right or wrong answer:</p>
+            <div id="grounding-steps-list" class="space-y-2"></div>
+          </div>
+        </div>
+
+        <!-- Tool 5: Feelings Check-In & Dino Comfort Cards -->
+        <div id="ctool-feelings" class="hidden space-y-6 max-w-3xl mx-auto text-center">
+          <div>
+            <h3 class="font-display text-xl font-bold text-slate-900">How is your body & brain feeling right now?</h3>
+            <p class="text-xs font-semibold text-slate-500 mt-0.5">All feelings are welcome here. Tap a card for a gentle note from a dino friend.</p>
+          </div>
+          <div id="feelings-cards-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+          <div id="feeling-response-box" class="hidden bg-teal-50 border-2 border-teal-200 rounded-3xl p-5 flex flex-col sm:flex-row items-center gap-4 text-left animate-pop">
+            <div id="feeling-dino-avatar" class="w-24 h-24 flex-shrink-0"></div>
+            <div class="space-y-1">
+              <h4 id="feeling-response-title" class="font-display text-lg font-bold text-teal-950"></h4>
+              <p id="feeling-response-msg" class="text-sm font-semibold text-teal-900 leading-relaxed"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: AI & ALGORITHMIC K–8 STORY STUDIO ==================== -->
+    <section id="view-story" class="hidden space-y-6 animate-pop">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Left Story Generator Controls -->
+        <div class="lg:col-span-4 bg-white rounded-3xl p-6 card-shadow border border-emerald-100 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-purple-100 text-purple-800">AI + Offline Engine</span>
+            <span class="text-xs font-extrabold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full">🧪 Unlimited Beta Access</span>
+          </div>
+          <div>
+            <h2 class="font-display text-2xl font-bold text-slate-900">Dino Story Studio</h2>
+            <p class="text-xs font-semibold text-slate-600 mt-0.5">
+              Create unlimited Fiction, Science Explorer, or Historical Time-Travel stories across K–8!
+            </p>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="block text-xs font-extrabold uppercase text-slate-500 mb-1">Story Genre Mode</label>
+              <select id="story-genre-mode" class="w-full p-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-bold text-sm text-slate-800">
+                <option value="Fiction Adventure">📖 Fiction Adventure</option>
+                <option value="Science Explorer">🔬 Science Explorer</option>
+                <option value="Historical Time-Travel">🌍 Historical Time-Travel</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-extrabold uppercase text-slate-500 mb-1">Reading Grade Level</label>
+              <select id="story-grade-select" class="w-full p-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-bold text-sm text-slate-800">
+                <option value="0">Kindergarten (Early Phonics & Sight Words)</option>
+                <option value="1">Grade 1 (Beginning Reader)</option>
+                <option value="2">Grade 2 (Growing Chapter Reader)</option>
+                <option value="3">Grade 3 (Confident Explorer)</option>
+                <option value="4">Grade 4 (Rich Vocabulary)</option>
+                <option value="5">Grade 5 (Descriptive Narrative)</option>
+                <option value="6">Grade 6 (Middle School Adventure)</option>
+                <option value="7">Grade 7 (Complex Inference)</option>
+                <option value="8">Grade 8 (Advanced Literature & Science)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-extrabold uppercase text-slate-500 mb-1">Chibi Dino Hero</label>
+              <select id="story-hero-select" class="w-full p-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-bold text-sm text-slate-800"></select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-extrabold uppercase text-slate-500 mb-1">Special Interest Topic</label>
+              <select id="story-topic-select" onchange="toggleCustomTopicInput()" class="w-full p-2.5 rounded-2xl border border-slate-200 bg-slate-50 font-bold text-sm text-slate-800">
+                <option value="Space Exploration & Starships">🚀 Space Exploration & Starships</option>
+                <option value="Ecosystems, Frogs & Rainforests">🐸 Ecosystems, Frogs & Rainforests</option>
+                <option value="Ancient Pyramids & World Maps">🏛️ Ancient Pyramids & World Maps</option>
+                <option value="Baking & Cozy Dino Café">🧁 Baking & Cozy Dino Café</option>
+                <option value="Trains, Electricity & Inventions">🚂 Trains, Electricity & Inventions</option>
+                <option value="Volcanoes, Plate Tectonics & Crystals">🌋 Volcanoes, Plate Tectonics & Crystals</option>
+                <option value="custom">✨ Custom Topic (Type your own!)</option>
+              </select>
+              <input id="story-custom-topic" type="text" placeholder="e.g. Underwater submarines, origami, weather..." class="hidden mt-2 w-full p-2.5 rounded-2xl border border-emerald-300 bg-white font-semibold text-sm" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-extrabold uppercase text-slate-500 mb-1">Story Length</label>
+              <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="setStoryLength('Short')" id="len-Short" class="story-len-btn py-2 rounded-xl text-xs font-extrabold bg-emerald-600 text-white">Short</button>
+                <button type="button" onclick="setStoryLength('Medium')" id="len-Medium" class="story-len-btn py-2 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700">Medium</button>
+                <button type="button" onclick="setStoryLength('Long')" id="len-Long" class="story-len-btn py-2 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700">Long</button>
+              </div>
+            </div>
+
+            <button onclick="generateCustomStory()" id="generate-story-btn" class="w-full py-3.5 rounded-2xl font-display font-bold text-base bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-105 text-white shadow-md transition flex items-center justify-center gap-2">
+              <span>✨</span> <span>Create My Story</span>
+            </button>
+          </div>
+
+          <!-- Saved Story Library Drawer -->
+          <div class="pt-3 border-t border-slate-100 space-y-2">
+            <h3 class="font-display font-bold text-sm text-slate-800 flex items-center justify-between">
+              <span>📖 My Saved Story Library</span>
+              <span id="saved-stories-count" class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">0</span>
+            </h3>
+            <div id="saved-stories-list" class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+              <p class="text-xs text-slate-400 font-semibold">Generated stories save automatically here!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Interactive Story Reader & Quiz -->
+        <div class="lg:col-span-8 bg-white rounded-3xl p-6 sm:p-8 card-shadow border border-emerald-100 space-y-6">
+          <div id="story-scene-banner" class="w-full h-36 rounded-2xl overflow-hidden bg-gradient-to-r from-sky-100 via-emerald-100 to-amber-100 border border-emerald-200 flex items-center justify-center relative"></div>
+
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <span id="story-badge-meta" class="text-xs font-extrabold uppercase tracking-wider text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg">Grade 2 • Space Exploration</span>
+              <h2 id="story-display-title" class="font-display text-2xl sm:text-3xl font-bold text-slate-900 mt-1">Pip’s Moonbeam Greenhouse</h2>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="readStoryAloud()" class="px-4 py-2.5 rounded-2xl bg-sky-100 hover:bg-sky-200 text-sky-950 font-extrabold text-sm transition flex items-center gap-1.5">
+                <span>🔊</span> Read Story Aloud
+              </button>
+              <button onclick="stopSpeech()" class="px-3 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition" title="Stop Voice">
+                ⏹️
+              </button>
+            </div>
+          </div>
+
+          <div id="vocab-definition-banner" class="hidden bg-amber-50 border-2 border-amber-300 rounded-2xl p-3.5 flex items-center justify-between gap-3 animate-pop">
+            <div>
+              <span class="text-xs font-extrabold uppercase text-amber-700">Vocabulary Word Clue:</span>
+              <p id="vocab-definition-text" class="text-sm font-bold text-amber-950"></p>
+            </div>
+            <button onclick="document.getElementById('vocab-definition-banner').classList.add('hidden')" class="text-xs font-extrabold text-amber-800 px-2 py-1">✕</button>
+          </div>
+
+          <div id="story-display-body" class="scalable-text space-y-4 text-slate-800 leading-relaxed font-medium bg-slate-50/70 p-5 rounded-2xl border border-slate-100"></div>
+
+          <div class="space-y-4 pt-2 border-t border-slate-100">
+            <div class="flex items-center justify-between">
+              <h3 class="font-display text-xl font-bold text-slate-900">🧠 Story Check-In (+2 Stars!)</h3>
+              <span id="story-quiz-score" class="text-xs font-extrabold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full">Answer all questions below</span>
+            </div>
+            <div id="story-questions-container" class="space-y-4"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: INTERACTIVE EDUCATIONAL MINI-GAMES ==================== -->
+    <section id="view-games" class="hidden space-y-6 animate-pop">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <button onclick="selectMiniGame('fossil')" id="gcard-fossil" class="text-left bg-white rounded-3xl p-4 card-shadow border-2 border-emerald-500 transition hover:-translate-y-0.5">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xl">🦴</span>
+            <span class="text-xs font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Unlocked • Best: <span id="hi-fossil">0</span></span>
+          </div>
+          <h3 class="font-display font-bold text-base text-slate-900">Fossil Number Line</h3>
+          <p class="text-xs font-semibold text-slate-500 mt-0.5">Spatial math, fractions & integers</p>
+        </button>
+
+        <button onclick="selectMiniGame('wordlab')" id="gcard-wordlab" class="text-left bg-white rounded-3xl p-4 card-shadow border-2 border-transparent hover:border-sky-300 transition hover:-translate-y-0.5">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xl">☄️</span>
+            <span class="text-xs font-extrabold bg-sky-100 text-sky-800 px-2 py-0.5 rounded-full">Unlocked • Best: <span id="hi-wordlab">0</span></span>
+          </div>
+          <h3 class="font-display font-bold text-base text-slate-900">Egg & Meteor Word Lab</h3>
+          <p class="text-xs font-semibold text-slate-500 mt-0.5">Phonics, roots, synonyms & grammar</p>
+        </button>
+
+        <button onclick="selectMiniGame('sciencelab')" id="gcard-sciencelab" class="text-left bg-white rounded-3xl p-4 card-shadow border-2 border-transparent hover:border-amber-300 transition hover:-translate-y-0.5">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xl">🔬</span>
+            <span class="text-xs font-extrabold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Unlocked • Best: <span id="hi-sciencelab">0</span></span>
+          </div>
+          <h3 class="font-display font-bold text-base text-slate-900">Dino Habitat & Science Lab</h3>
+          <p class="text-xs font-semibold text-slate-500 mt-0.5">Matter, ecosystems, cells & forces</p>
+        </button>
+
+        <button onclick="selectMiniGame('mapquest')" id="gcard-mapquest" class="text-left bg-white rounded-3xl p-4 card-shadow border-2 border-transparent hover:border-purple-300 transition hover:-translate-y-0.5">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xl">🧭</span>
+            <span class="text-xs font-extrabold bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">Unlocked • Best: <span id="hi-mapquest">0</span></span>
+          </div>
+          <h3 class="font-display font-bold text-base text-slate-900">Time-Travel Map Quest</h3>
+          <p class="text-xs font-semibold text-slate-500 mt-0.5">Geography, civics & world history</p>
+        </button>
+      </div>
+
+      <!-- Active Mini-Game Arena -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 card-shadow border border-emerald-100 space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div class="flex items-center gap-3">
+            <div id="game-dino-helper" class="w-12 h-12"></div>
+            <div>
+              <h2 id="active-game-title" class="font-display text-2xl font-bold text-slate-900">Fossil Number Line Dig</h2>
+              <p id="active-game-subtitle" class="text-xs font-bold text-slate-500">Untimed Zen Arcade • Earn 1 Dino Star every 2 points!</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <label class="text-xs font-extrabold text-slate-600 flex items-center gap-1.5">
+              <span>Grade:</span>
+              <select id="game-grade-select" onchange="initCurrentMiniGame()" class="p-2 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-800">
+                <option value="0">K</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+              </select>
+            </label>
+            <div class="bg-emerald-50 border border-emerald-200 px-4 py-2 rounded-2xl font-display font-bold text-emerald-900">
+              Score: <span id="active-game-score">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="mini-game-stage" class="min-h-[320px] flex flex-col justify-between space-y-5"></div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: MY DINO NEST & ACCESSORY SHOP ==================== -->
+    <section id="view-nest" class="hidden space-y-6 animate-pop">
+      <div class="bg-white rounded-3xl p-6 card-shadow border border-emerald-100 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+        <div class="lg:col-span-5 flex flex-col items-center text-center bg-gradient-to-b from-sky-50 to-emerald-50 rounded-3xl p-5 border border-emerald-100">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-800 bg-white px-3 py-1 rounded-full shadow-sm">Active Companion Habitat</span>
+          <div id="nest-active-dino-stage" class="w-44 h-44 my-2 dino-idle cursor-pointer" onclick="petActiveDino()" title="Click to pet your dino!"></div>
+          <h3 id="nest-active-dino-name" class="font-display text-xl font-bold text-slate-900">Pip the T-Rex</h3>
+          <p id="nest-habitat-status" class="text-xs font-bold text-emerald-800 mt-1">Happy & well-fed! Click to pet or give a berry snack.</p>
+          <div class="flex gap-2 mt-3">
+            <button onclick="petActiveDino()" class="px-4 py-2 rounded-2xl bg-pink-100 hover:bg-pink-200 text-pink-900 font-extrabold text-xs transition">
+              💖 Pet Dino
+            </button>
+            <button onclick="feedActiveDino()" class="px-4 py-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs transition">
+              🍓 Feed Berry
+            </button>
+          </div>
+        </div>
+
+        <div class="lg:col-span-7 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-display text-xl font-bold text-slate-900">🎀 Chibi Dino Accessory Boutique</h3>
+              <p class="text-xs font-semibold text-slate-500">Unlock cute wearables with your earned Dino Stars!</p>
+            </div>
+            <button id="nest-hatch-btn" onclick="openHatchModal()" class="hidden px-4 py-2.5 rounded-2xl font-display font-bold text-xs bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-md">
+              🎉 Hatch Ready Egg!
+            </button>
+          </div>
+          <div id="accessory-shop-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="font-display text-2xl font-bold text-slate-900">🥚 All 12 Chibi Dinosaurs (All Hatchable in Beta!)</h3>
+          <span id="nest-count-label" class="text-sm font-extrabold text-amber-900 bg-amber-100 px-3.5 py-1 rounded-full">1 / 12 Hatched</span>
+        </div>
+        <div id="dino-nest-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 5: PARENT HUB & BETA TESTER REPORTS ==================== -->
+    <section id="view-parent" class="hidden space-y-6 animate-pop">
+      <!-- Free Beta Status Banner -->
+      <div class="bg-gradient-to-r from-sky-950 via-teal-950 to-emerald-950 text-white rounded-3xl p-6 sm:p-7 card-shadow flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 no-print">
+        <div class="space-y-1.5 max-w-2xl">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-sky-400 text-slate-950">🧪 Free Open Beta Edition</span>
+            <span class="text-xs font-bold text-teal-200">All Grades K–8 • All 12 Dinos • 4 Child Profiles Unlocked</span>
+          </div>
+          <h2 class="font-display text-2xl sm:text-3xl font-bold">DinoNest Labs — Beta Testing Program</h2>
+          <p class="text-xs sm:text-sm text-sky-100 font-medium leading-relaxed">
+            Thank you for testing <strong>DinoNest Labs</strong>! Every K–8 subject, mini-game, story mode, and calming activity is 100% free during beta. Enter a parent email below to receive automated progress reports upon every completed level.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <button onclick="openBetaFeedbackModal()" class="px-6 py-3.5 rounded-2xl bg-sky-400 hover:bg-sky-300 text-slate-950 font-display font-bold text-base shadow-lg transition">
+            📝 Send Beta Tester Feedback
+          </button>
+        </div>
+      </div>
+
+      <!-- Automated Parent Email Progress Report Settings & Log -->
+      <div class="bg-white rounded-3xl p-6 card-shadow border border-indigo-100 space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-display text-xl font-bold text-slate-900">📧 Automated Level-Completion Email Reports</h3>
+              <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Active</span>
+            </div>
+            <p class="text-xs font-semibold text-slate-600 mt-1">
+              Automatically dispatches a progress summary to the parent’s email each time <strong id="email-learner-target">Beta Explorer</strong> masters a tier (Silver/Gold) or completes a grade level.
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 no-print">
+            <input id="parent-report-email-input" type="email" placeholder="parent@example.com" class="p-2.5 rounded-xl border border-slate-300 bg-slate-50 text-xs font-bold w-56" />
+            <button onclick="saveParentReportEmail()" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-display font-bold text-xs transition">
+              Save Email
+            </button>
+            <button onclick="triggerLevelCompletionEmailReport('Manual Beta Check-In', true)" class="px-4 py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 font-display font-bold text-xs transition">
+              ✉️ Send Sample Report Now
+            </button>
+          </div>
+        </div>
+
+        <!-- Sent / Queued Email Reports Log -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-500">Recent Level-Completion Email Dispatches</span>
+            <span id="email-log-count" class="text-xs font-bold text-indigo-700">0 Reports Sent</span>
+          </div>
+          <div id="parent-email-log-list" class="space-y-2 max-h-56 overflow-y-auto">
+            <p class="text-xs font-semibold text-slate-400">No level-completion emails dispatched yet. Complete a mastery level or click "Send Sample Report Now" to preview!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Report Header -->
+      <div class="bg-white rounded-3xl p-6 card-shadow border border-emerald-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="font-display text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <span>📊</span> Learner Progress Report
+          </h2>
+          <p class="text-sm font-semibold text-slate-600 mt-1">
+            Detailed analytics for <strong id="report-learner-name" class="text-emerald-800">Beta Explorer</strong> across K–8 curriculum & sensory tools.
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 no-print">
+          <button onclick="exportProgressJSON()" class="px-4 py-2.5 rounded-2xl bg-sky-50 hover:bg-sky-100 text-sky-900 border border-sky-200 font-bold text-sm transition">
+            📥 Export JSON
+          </button>
+          <button onclick="window.print()" class="px-4 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition">
+            🖨️ Print Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Summary KPI Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="bg-white rounded-3xl p-5 card-shadow border border-emerald-100">
+          <span class="text-xs font-extrabold uppercase text-slate-400">Questions Solved</span>
+          <div id="stat-total-q" class="font-display text-3xl font-bold text-slate-900 mt-1">0</div>
+          <span class="text-xs font-bold text-emerald-600">K–8 adaptive lessons</span>
+        </div>
+        <div class="bg-white rounded-3xl p-5 card-shadow border border-emerald-100">
+          <span class="text-xs font-extrabold uppercase text-slate-400">Accuracy</span>
+          <div id="stat-accuracy" class="font-display text-3xl font-bold text-emerald-600 mt-1">0%</div>
+          <span class="text-xs font-bold text-slate-500">Mastery rate</span>
+        </div>
+        <div class="bg-white rounded-3xl p-5 card-shadow border border-emerald-100">
+          <span class="text-xs font-extrabold uppercase text-slate-400">Stories Read</span>
+          <div id="stat-stories-read" class="font-display text-3xl font-bold text-purple-600 mt-1">0</div>
+          <span class="text-xs font-bold text-slate-500">Custom K–8 library</span>
+        </div>
+        <div class="bg-white rounded-3xl p-5 card-shadow border border-emerald-100">
+          <span class="text-xs font-extrabold uppercase text-slate-400">Mini-Game Points</span>
+          <div id="stat-game-points" class="font-display text-3xl font-bold text-amber-500 mt-1">0</div>
+          <span class="text-xs font-bold text-slate-500">Across 4 games</span>
+        </div>
+        <div class="bg-white rounded-3xl p-5 card-shadow border border-emerald-100">
+          <span class="text-xs font-extrabold uppercase text-slate-400">Dinos Hatched</span>
+          <div id="stat-dinos-hatched" class="font-display text-3xl font-bold text-sky-600 mt-1">1 / 12</div>
+          <span class="text-xs font-bold text-slate-500">Collection rewards</span>
+        </div>
+      </div>
+
+      <!-- Sensory Preferences Summary -->
+      <div class="bg-white rounded-3xl p-6 card-shadow border border-emerald-100 space-y-3">
+        <h3 class="font-display text-lg font-bold text-slate-900">🌿 Active Neurodivergent & Sensory Supports</h3>
+        <div id="sensory-summary-pills" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <!-- 4-Subject Grade-by-Grade Breakdown Table -->
+      <div class="bg-white rounded-3xl p-6 card-shadow border border-emerald-100 overflow-x-auto">
+        <h3 class="font-display text-xl font-bold text-slate-900 mb-4">K–8 Four-Subject Mastery Breakdown</h3>
+        <table class="w-full text-left border-collapse min-w-[760px]">
+          <thead>
+            <tr class="border-b-2 border-slate-100 text-xs font-extrabold uppercase text-slate-500">
+              <th class="py-3 px-3">Grade</th>
+              <th class="py-3 px-3 text-emerald-700">🧮 Math</th>
+              <th class="py-3 px-3 text-sky-700">📖 Reading</th>
+              <th class="py-3 px-3 text-amber-700">🔬 Science</th>
+              <th class="py-3 px-3 text-purple-700">🌍 Social Studies</th>
+            </tr>
+          </thead>
+          <tbody id="parent-grade-table" class="divide-y divide-slate-100 text-sm font-semibold"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== MODAL: BETA TESTER FEEDBACK & NOTES ==================== -->
+  <div id="beta-feedback-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 card-shadow animate-pop border-2 border-sky-200">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🧪</span>
+          <div>
+            <h3 class="font-display text-xl font-bold text-slate-900">DinoNest Labs — Beta Feedback</h3>
+            <p class="text-xs font-bold text-sky-700">All K–8 grades, dinos & stories are 100% free in this Beta build!</p>
+          </div>
+        </div>
+        <button onclick="closeBetaFeedbackModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">✕</button>
+      </div>
+      <div class="space-y-3 text-left">
+        <p class="text-xs font-semibold text-slate-600">
+          Spotted a bug, have an idea for a new mini-game, or want to share how a child responded to the Calming Corner or Sensory Studio? Log your notes below:
+        </p>
+        <textarea id="beta-feedback-text" rows="4" placeholder="Write your testing notes or feature ideas here..." class="w-full p-3 rounded-2xl border border-slate-300 bg-slate-50 text-sm font-semibold"></textarea>
+        <div id="beta-feedback-saved-msg" class="hidden text-xs font-extrabold text-emerald-700 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+          ✅ Beta note saved! You can also export all testing notes & progress anytime in Parent Hub → Export JSON.
+        </div>
+      </div>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeBetaFeedbackModal()" class="px-4 py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 font-bold text-sm text-slate-700">Close</button>
+        <button onclick="saveBetaFeedbackNote()" class="px-5 py-2.5 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-display font-bold text-sm">
+          Save Beta Note
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: PARENT EMAIL REPORT PREVIEW ==================== -->
+  <div id="email-preview-modal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 card-shadow animate-pop border-2 border-indigo-200">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📨</span>
+          <div>
+            <h3 class="font-display text-lg font-bold text-slate-900">Parent Level-Completion Email</h3>
+            <p id="email-preview-recipient" class="text-xs font-bold text-indigo-700">To: parent@example.com</p>
+          </div>
+        </div>
+        <button onclick="closeEmailPreviewModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">✕</button>
+      </div>
+      <div id="email-preview-body" class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs font-medium text-slate-800 space-y-2.5 max-h-80 overflow-y-auto leading-relaxed"></div>
+      <div class="flex justify-end">
+        <button onclick="closeEmailPreviewModal()" class="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-display font-bold text-sm">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 1: MULTI-LEARNER PROFILE SWITCHER ==================== -->
+  <div id="profile-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 space-y-5 card-shadow animate-pop">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div>
+          <h3 class="font-display text-2xl font-bold text-slate-900">👤 Learner Profiles</h3>
+          <p id="firebase-status-label" class="text-xs font-bold text-emerald-700">Connecting to cloud sync...</p>
+        </div>
+        <button onclick="closeProfileModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 font-bold text-slate-600">✕</button>
+      </div>
+
+      <div id="profiles-list" class="space-y-2 max-h-56 overflow-y-auto"></div>
+
+      <div class="bg-emerald-50/80 border border-emerald-200 rounded-2xl p-4 space-y-3">
+        <div class="flex items-center justify-between">
+          <h4 class="font-display font-bold text-sm text-emerald-950">+ Create New Learner Profile</h4>
+          <span id="profile-limit-tag" class="text-[11px] font-extrabold text-emerald-800">1 / 6 Beta Profiles</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <input id="new-profile-name" type="text" placeholder="Child's Name (e.g. Maya)" class="p-2.5 rounded-xl border border-emerald-200 bg-white text-sm font-bold" />
+          <select id="new-profile-grade" class="p-2.5 rounded-xl border border-emerald-200 bg-white text-sm font-bold">
+            <option value="0">Kindergarten</option>
+            <option value="1">Grade 1</option>
+            <option value="2" selected>Grade 2</option>
+            <option value="3">Grade 3</option>
+            <option value="4">Grade 4</option>
+            <option value="5">Grade 5</option>
+            <option value="6">Grade 6</option>
+            <option value="7">Grade 7</option>
+            <option value="8">Grade 8</option>
+          </select>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <select id="new-profile-dino" class="flex-1 p-2.5 rounded-xl border border-emerald-200 bg-white text-sm font-bold"></select>
+          <button onclick="createNewLearnerProfile()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-sm transition">
+            Create & Switch
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 3: EGG HATCHING CELEBRATION ==================== -->
+  <div id="hatch-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-7 text-center space-y-5 card-shadow animate-pop border-4 border-amber-300">
+      <span class="inline-block px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold uppercase tracking-wider">
+        🎉 New Chibi Dino Hatched!
+      </span>
+      <div id="hatched-dino-showcase" class="w-44 h-44 mx-auto flex items-center justify-center dino-cheer"></div>
+      <div>
+        <h3 id="hatched-dino-name" class="font-display text-2xl font-bold text-slate-900">Pip the T-Rex</h3>
+        <p id="hatched-dino-desc" class="text-sm font-semibold text-slate-600 mt-1"></p>
+      </div>
+      <div class="flex gap-3 pt-2">
+        <button onclick="equipHatchedDino()" class="flex-1 py-3 rounded-2xl font-display font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white transition">
+          Set as Active Buddy
+        </button>
+        <button onclick="closeHatchModal()" class="flex-1 py-3 rounded-2xl font-display font-bold text-sm bg-slate-100 hover:bg-slate-200 text-slate-800 transition">
+          Keep Exploring
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 4: INFO / PLACEMENT RESULT ==================== -->
+  <div id="info-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 text-center space-y-4 card-shadow animate-pop">
+      <div id="info-modal-icon" class="text-4xl">🧭</div>
+      <h3 id="info-modal-title" class="font-display text-2xl font-bold text-slate-900">Placement Complete!</h3>
+      <p id="info-modal-body" class="text-sm font-semibold text-slate-600 leading-relaxed"></p>
+      <div class="flex justify-center pt-2">
+        <button onclick="closeInfoModal()" class="px-6 py-2.5 rounded-2xl font-display font-bold text-sm bg-emerald-600 text-white hover:bg-emerald-700 transition">
+          Let's Go!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== APPLICATION LOGIC (FREE BETA EDITION) ==================== -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    /* =========================================================================
+       1. 12 CHIBI DINOSAURS, ACCESSORIES & CUSTOM SVG ARTWORK ENGINE
+       ========================================================================= */
+    const DINO_ROSTER = [
+      { id: 'trex', name: 'Pip the T-Rex', species: 'Tyrannosaurus', body: '#6EE7B7', belly: '#D1FAE5', accent: '#059669', desc: 'Tiny arms, huge curiosity, and always cheers for every step you take!' },
+      { id: 'triceratops', name: 'Trixie the Triceratops', species: 'Triceratops', body: '#C4B5FD', belly: '#EDE9FE', accent: '#7C3AED', desc: 'Loves shiny pebbles, three-horned puzzles, and cozy reading corners.' },
+      { id: 'brachio', name: 'Bram the Brachiosaurus', species: 'Brachiosaurus', body: '#7DD3FC', belly: '#E0F2FE', accent: '#0284C7', desc: 'Gentle tall friend who leads calming belly-breathing breaks.' },
+      { id: 'stego', name: 'Sunny the Stegosaurus', species: 'Stegosaurus', body: '#FDE047', belly: '#FEF9C3', accent: '#D97706', desc: 'Bright back plates glow whenever you spot a clever pattern!' },
+      { id: 'ptero', name: 'Pia the Pterodactyl', species: 'Pteranodon', body: '#FDA4AF', belly: '#FFE4E6', accent: '#E11D48', desc: 'Soars high through word clouds and loves imaginative stories.' },
+      { id: 'ankylo', name: 'Anky the Ankylosaurus', species: 'Ankylosaurus', body: '#FDBA74', belly: '#FFEDD5', accent: '#EA580C', desc: 'Steady, armored buddy who helps break big problems into small bites.' },
+      { id: 'parasaur', name: 'Pari the Parasaurolophus', species: 'Parasaurolophus', body: '#5EEAD4', belly: '#CCFBF1', accent: '#0D9488', desc: 'Musical crest hums gentle melodies while you explore.' },
+      { id: 'raptor', name: 'Veloci the Velociraptor', species: 'Velociraptor', body: '#F9A8D4', belly: '#FCE7F3', accent: '#DB2777', desc: 'Quick-thinking trailblazer who loves fossil number-line digs.' },
+      { id: 'plesio', name: 'Plesio the Plesiosaurus', species: 'Plesiosaurus', body: '#93C5FD', belly: '#DBEAFE', accent: '#2563EB', desc: 'Calm ocean swimmer who enjoys science and water-cycle mysteries.' },
+      { id: 'spino', name: 'Spike the Spinosaurus', species: 'Spinosaurus', body: '#86EFAC', belly: '#DCFCE7', accent: '#16A34A', desc: 'River explorer with a colorful sail who loves geography maps.' },
+      { id: 'diplodocus', name: 'Dippy the Diplodocus', species: 'Diplodocus', body: '#D8B4FE', belly: '#F3E8FF', accent: '#9333EA', desc: 'Long-tailed stargazer who collects space facts and constellations.' },
+      { id: 'pachy', name: 'Pachy the Pachycephalosaurus', species: 'Pachycephalosaurus', body: '#FCA5A5', belly: '#FEE2E2', accent: '#DC2626', desc: 'Smart dome-headed thinker who loves logic trails and riddles.' }
+    ];
+
+    const ACCESSORIES = [
+      { id: 'none', name: 'Natural Look', icon: '🌿', cost: 0 },
+      { id: 'crown', name: 'Golden Crown', icon: '👑', cost: 3 },
+      { id: 'bow', name: 'Cozy Bowtie', icon: '🎀', cost: 2 },
+      { id: 'glasses', name: 'Star Glasses', icon: '🕶️', cost: 4 },
+      { id: 'sprout', name: 'Leaf Sprout', icon: '🌱', cost: 2 },
+      { id: 'wizard', name: 'Galaxy Hat', icon: '🧙', cost: 5 },
+      { id: 'scarf', name: 'Comfy Scarf', icon: '🧣', cost: 3 },
+      { id: 'headphones', name: 'Quiet Phones', icon: '🎧', cost: 4 }
+    ];
+
+    function getChibiDinoSVG(dinoId = 'trex', mood = 'happy', accessory = 'none') {
+      const d = DINO_ROSTER.find(item => item.id === dinoId) || DINO_ROSTER[0];
+      const eyeExpr = mood === 'cheer'
+        ? `<path d="M 41 48 Q 45 42 49 48" fill="none" stroke="#1E293B" stroke-width="3" stroke-linecap="round"/>
+           <path d="M 67 48 Q 71 42 75 48" fill="none" stroke="#1E293B" stroke-width="3" stroke-linecap="round"/>`
+        : mood === 'think'
+        ? `<circle cx="45" cy="46" r="4.5" fill="#1E293B"/><circle cx="46.5" cy="44.5" r="1.6" fill="#FFF"/>
+           <circle cx="71" cy="45" r="4.5" fill="#1E293B"/><circle cx="72.5" cy="43.5" r="1.6" fill="#FFF"/>
+           <path d="M 40 39 L 49 41" stroke="#1E293B" stroke-width="2.2" stroke-linecap="round"/>`
+        : `<circle cx="45" cy="47" r="5" fill="#1E293B"/><circle cx="46.8" cy="45" r="1.8" fill="#FFF"/>
+           <circle cx="71" cy="47" r="5" fill="#1E293B"/><circle cx="72.8" cy="45" r="1.8" fill="#FFF"/>`;
+
+      const mouthExpr = mood === 'cheer'
+        ? `<path d="M 52 57 Q 58 66 64 57 Z" fill="#FB7185" stroke="#1E293B" stroke-width="2"/>`
+        : mood === 'think'
+        ? `<path d="M 54 59 Q 58 57 62 59" fill="none" stroke="#1E293B" stroke-width="2.3" stroke-linecap="round"/>`
+        : `<path d="M 52 57 Q 58 63 64 57" fill="none" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round"/>`;
+
+      const speciesDetails = d.id === 'triceratops'
+        ? `<path d="M 32 34 L 22 22 L 38 28 Z" fill="#FEF3C7" stroke="#1E293B" stroke-width="2"/>
+           <path d="M 84 34 L 94 22 L 78 28 Z" fill="#FEF3C7" stroke="#1E293B" stroke-width="2"/>`
+        : d.id === 'stego' || d.id === 'spino'
+        ? `<polygon points="34,26 42,14 50,25" fill="${d.accent}" stroke="#1E293B" stroke-width="2"/>
+           <polygon points="50,24 58,11 66,24" fill="${d.accent}" stroke="#1E293B" stroke-width="2"/>
+           <polygon points="66,25 74,14 82,26" fill="${d.accent}" stroke="#1E293B" stroke-width="2"/>`
+        : d.id === 'ptero'
+        ? `<path d="M 28 66 Q 8 54 16 74 Q 26 78 34 74 Z" fill="${d.accent}" stroke="#1E293B" stroke-width="2"/>
+           <path d="M 88 66 Q 108 54 100 74 Q 90 78 82 74 Z" fill="${d.accent}" stroke="#1E293B" stroke-width="2"/>`
+        : `<circle cx="48" cy="24" r="4" fill="${d.accent}"/><circle cx="58" cy="22" r="4.5" fill="${d.accent}"/><circle cx="68" cy="24" r="4" fill="${d.accent}"/>`;
+
+      const accSVG = accessory === 'crown'
+        ? `<polygon points="44,24 48,12 58,20 68,12 72,24" fill="#FACC15" stroke="#854D0E" stroke-width="2"/>`
+        : accessory === 'bow'
+        ? `<polygon points="58,72 47,66 47,78" fill="#F43F5E" stroke="#1E293B" stroke-width="1.8"/>
+           <polygon points="58,72 69,66 69,78" fill="#F43F5E" stroke="#1E293B" stroke-width="1.8"/>
+           <circle cx="58" cy="72" r="3.5" fill="#FFE4E6" stroke="#1E293B" stroke-width="1.8"/>`
+        : accessory === 'glasses'
+        ? `<rect x="37" y="41" width="16" height="11" rx="3" fill="#0EA5E9" fill-opacity="0.35" stroke="#1E293B" stroke-width="2.2"/>
+           <rect x="63" y="41" width="16" height="11" rx="3" fill="#0EA5E9" fill-opacity="0.35" stroke="#1E293B" stroke-width="2.2"/>
+           <line x1="53" y1="46" x2="63" y2="46" stroke="#1E293B" stroke-width="2.2"/>`
+        : accessory === 'sprout'
+        ? `<path d="M 58 24 Q 58 12 68 10 Q 66 20 58 24 Z" fill="#4ADE80" stroke="#166534" stroke-width="2"/>
+           <path d="M 58 24 Q 54 13 46 14 Q 50 22 58 24 Z" fill="#22C55E" stroke="#166534" stroke-width="2"/>`
+        : accessory === 'wizard'
+        ? `<polygon points="40,26 58,4 76,26" fill="#6366F1" stroke="#1E293B" stroke-width="2"/>
+           <ellipse cx="58" cy="26" rx="22" ry="4.5" fill="#4F46E5" stroke="#1E293B" stroke-width="2"/>
+           <text x="58" y="20" text-anchor="middle" font-size="9" fill="#FDE047">★</text>`
+        : accessory === 'scarf'
+        ? `<rect x="38" y="67" width="40" height="9" rx="4.5" fill="#FB7185" stroke="#1E293B" stroke-width="2"/>
+           <rect x="64" y="72" width="9" height="16" rx="3" fill="#F43F5E" stroke="#1E293B" stroke-width="2"/>`
+        : accessory === 'headphones'
+        ? `<path d="M 31 46 C 31 22, 85 22, 85 46" fill="none" stroke="#334155" stroke-width="4" stroke-linecap="round"/>
+           <rect x="25" y="40" width="9" height="16" rx="4" fill="#38BDF8" stroke="#1E293B" stroke-width="2"/>
+           <rect x="82" y="40" width="9" height="16" rx="4" fill="#38BDF8" stroke="#1E293B" stroke-width="2"/>`
+        : '';
+
+      return `
+        <svg viewBox="0 0 116 116" class="w-full h-full drop-shadow-sm">
+          <path d="M 78 86 Q 102 82 98 70 Q 90 74 78 76 Z" fill="${d.body}" stroke="#1E293B" stroke-width="2.5" stroke-linejoin="round"/>
+          ${speciesDetails}
+          <ellipse cx="58" cy="82" rx="25" ry="22" fill="${d.body}" stroke="#1E293B" stroke-width="2.5"/>
+          <ellipse cx="58" cy="84" rx="15" ry="15" fill="${d.belly}"/>
+          <ellipse cx="45" cy="102" rx="8" ry="5" fill="${d.body}" stroke="#1E293B" stroke-width="2.5"/>
+          <ellipse cx="71" cy="102" rx="8" ry="5" fill="${d.body}" stroke="#1E293B" stroke-width="2.5"/>
+          <rect x="31" y="24" width="54" height="44" rx="22" fill="${d.body}" stroke="#1E293B" stroke-width="2.5"/>
+          <ellipse cx="39" cy="54" rx="4.5" ry="2.8" fill="#FDA4AF" opacity="0.8"/>
+          <ellipse cx="77" cy="54" rx="4.5" ry="2.8" fill="#FDA4AF" opacity="0.8"/>
+          ${eyeExpr}
+          ${mouthExpr}
+          <path d="M 36 78 Q 28 82 34 86" fill="none" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M 80 78 Q 88 82 82 86" fill="none" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round"/>
+          ${accSVG}
+        </svg>
+      `;
+    }
+
+    function getEggSVG(dinoId = 'trex', ready = false) {
+      const d = DINO_ROSTER.find(item => item.id === dinoId) || DINO_ROSTER[0];
+      return `
+        <svg viewBox="0 0 80 92" class="w-14 h-16 ${ready ? 'egg-ready' : ''}">
+          <path d="M 40 8 C 60 8, 70 36, 70 58 C 70 76, 56 86, 40 86 C 24 86, 10 76, 10 58 C 10 36, 20 8, 40 8 Z"
+                fill="${d.belly}" stroke="#1E293B" stroke-width="3"/>
+          <circle cx="28" cy="46" r="6" fill="${d.body}"/>
+          <circle cx="52" cy="36" r="5" fill="${d.accent}" opacity="0.7"/>
+          <circle cx="46" cy="64" r="7" fill="${d.body}"/>
+          <circle cx="26" cy="68" r="4" fill="${d.accent}" opacity="0.7"/>
+          ${ready ? `<path d="M 24 44 L 34 50 L 42 42 L 50 51 L 58 44" fill="none" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round"/>` : ''}
+        </svg>
+      `;
+    }
+
+    /* =========================================================================
+       2. BETA SETTINGS, FEEDBACK NOTES & AUTOMATED PARENT EMAIL REPORTS
+       ========================================================================= */
+    let betaSettings = {
+      parentEmail: '',
+      emailLogs: [],
+      betaNotes: []
+    };
+
+    function formatDateShort(ts) {
+      if (!ts) return '';
+      return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function loadBetaSettings() {
+      try {
+        const saved = localStorage.getItem('dinonest_labs_beta_settings');
+        if (saved) betaSettings = { ...betaSettings, ...JSON.parse(saved) };
+      } catch (e) {}
+    }
+
+    async function saveBetaSettings() {
+      try {
+        localStorage.setItem('dinonest_labs_beta_settings', JSON.stringify(betaSettings));
+      } catch (e) {}
+      if (db && currentUser) {
+        try {
+          const ref = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'beta', 'settings');
+          await setDoc(ref, betaSettings, { merge: true });
+        } catch (e) {}
+      }
+    }
+
+    function openBetaFeedbackModal() {
+      document.getElementById('beta-feedback-saved-msg').classList.add('hidden');
+      document.getElementById('beta-feedback-modal').classList.remove('hidden');
+    }
+
+    function closeBetaFeedbackModal() {
+      document.getElementById('beta-feedback-modal').classList.add('hidden');
+    }
+
+    function saveBetaFeedbackNote() {
+      const txt = document.getElementById('beta-feedback-text').value.trim();
+      if (!txt) return;
+      betaSettings.betaNotes = [
+        { id: 'note_' + Date.now(), createdAt: Date.now(), learner: state.name, grade: state.grade, note: txt },
+        ...(betaSettings.betaNotes || [])
+      ];
+      saveBetaSettings();
+      document.getElementById('beta-feedback-text').value = '';
+      document.getElementById('beta-feedback-saved-msg').classList.remove('hidden');
+      playSound('correct');
+    }
+
+    function saveParentReportEmail() {
+      const val = document.getElementById('parent-report-email-input').value.trim();
+      if (!val || !val.includes('@')) return;
+      betaSettings.parentEmail = val;
+      saveBetaSettings();
+      renderBetaUI();
+      playSound('correct');
+    }
+
+    async function triggerLevelCompletionEmailReport(milestoneTitle, openPreview = false) {
+      const recipient = betaSettings.parentEmail || document.getElementById('parent-report-email-input')?.value.trim();
+      let totalQ = 0, totalCorrect = 0;
+      Object.values(state.stats || {}).forEach(s => {
+        totalQ += s.total || 0;
+        totalCorrect += s.correct || 0;
+      });
+      const acc = totalQ > 0 ? Math.round((totalCorrect / totalQ) * 100) : 100;
+      const gradeLabel = GRADES[state.grade]?.label || 'Kindergarten';
+      const subjLabels = { math: 'Math', reading: 'Reading', science: 'Science', social: 'Social Studies' };
+
+      const reportRecord = {
+        id: 'rep_' + Date.now(),
+        sentAt: Date.now(),
+        to: recipient || 'No parent email set yet',
+        learnerName: state.name || 'Beta Explorer',
+        milestone: milestoneTitle,
+        gradeLabel,
+        subjectLabel: subjLabels[state.subject] || 'All Subjects',
+        totalSolved: totalQ,
+        accuracy: acc,
+        stars: state.stars,
+        dinosHatched: state.unlockedDinos.length
+      };
+
+      betaSettings.emailLogs = [reportRecord, ...(betaSettings.emailLogs || [])].slice(0, 20);
+      await saveBetaSettings();
+
+      if (db && currentUser && recipient) {
+        try {
+          const mailRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'mailOutbox', reportRecord.id);
+          await setDoc(mailRef, {
+            to: recipient,
+            subject: `🦕 DinoNest Labs Beta Report: ${reportRecord.learnerName} completed ${milestoneTitle}!`,
+            html: `<h2>Great news! ${reportRecord.learnerName} just completed ${milestoneTitle}</h2>
+                   <p><strong>Grade Level:</strong> ${gradeLabel} (${reportRecord.subjectLabel})</p>
+                   <p><strong>Questions Solved:</strong> ${totalQ} | <strong>Accuracy:</strong> ${acc}%</p>
+                   <p><strong>Dino Stars Earned:</strong> ${state.stars} | <strong>Chibi Dinos Hatched:</strong> ${state.unlockedDinos.length}/12</p>`,
+            createdAt: reportRecord.sentAt
+          });
+        } catch (e) {}
+      }
+
+      renderEmailLogsList();
+      if (openPreview) {
+        openEmailPreviewModal(reportRecord);
+      }
+    }
+
+    function openEmailPreviewModal(rep) {
+      document.getElementById('email-preview-recipient').textContent = `To: ${rep.to} • ${new Date(rep.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      document.getElementById('email-preview-body').innerHTML = `
+        <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
+          <div class="font-display font-bold text-base text-emerald-900">🦕 DinoNest Labs (Beta) — Level Completion Report</div>
+          <p>Hi Parent/Guardian,</p>
+          <p><strong>${rep.learnerName}</strong> just achieved a new milestone: <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-950 font-bold">${rep.milestone}</span>!</p>
+          <div class="grid grid-cols-2 gap-2 bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 font-bold">
+            <div>📚 Current Grade: ${rep.gradeLabel}</div>
+            <div>🎯 Accuracy Rate: ${rep.accuracy}%</div>
+            <div>✅ Problems Solved: ${rep.totalSolved}</div>
+            <div>🥚 Dinos Hatched: ${rep.dinosHatched} / 12</div>
+          </div>
+          <p class="text-slate-500 pt-1">Keep encouraging ${rep.learnerName} at their own comfortable, sensory-friendly pace!</p>
+        </div>
+      `;
+      document.getElementById('email-preview-modal').classList.remove('hidden');
+    }
+
+    function closeEmailPreviewModal() {
+      document.getElementById('email-preview-modal').classList.add('hidden');
+    }
+
+    function renderEmailLogsList() {
+      const logs = betaSettings.emailLogs || [];
+      const countEl = document.getElementById('email-log-count');
+      const listEl = document.getElementById('parent-email-log-list');
+      if (countEl) countEl.textContent = `${logs.length} Report${logs.length === 1 ? '' : 's'} Dispatched`;
+      if (!listEl) return;
+
+      if (logs.length === 0) {
+        listEl.innerHTML = `<p class="text-xs font-semibold text-slate-400">No level-completion emails dispatched yet. Master a tier (Silver/Gold) or click "Send Sample Report Now" to preview!</p>`;
+        return;
+      }
+
+      listEl.innerHTML = logs.map((rep) => `
+        <div class="flex flex-wrap items-center justify-between gap-2 p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
+          <div>
+            <span class="font-extrabold text-slate-900">${rep.learnerName}: ${rep.milestone}</span>
+            <span class="text-slate-500 block font-semibold">Sent to <strong>${rep.to}</strong> • ${formatDateShort(rep.sentAt)}</span>
+          </div>
+          <button onclick='openEmailPreviewModal(${JSON.stringify(rep).replace(/'/g, "&#39;")})' class="px-3 py-1.5 rounded-xl bg-white hover:bg-indigo-50 border border-indigo-200 text-indigo-800 font-extrabold">
+            View Email
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function renderBetaUI() {
+      const emailInp = document.getElementById('parent-report-email-input');
+      const emailTarget = document.getElementById('email-learner-target');
+      if (emailInp && betaSettings.parentEmail && !emailInp.value) {
+        emailInp.value = betaSettings.parentEmail;
+      }
+      if (emailTarget) emailTarget.textContent = state.name || 'Beta Explorer';
+      renderEmailLogsList();
+    }
+
+    /* =========================================================================
+       3. GENTLE WEB AUDIO & WEB SPEECH API (TTS READ ALOUD)
+       ========================================================================= */
+    let audioCtx = null;
+    function playSound(type) {
+      if (!state.soundOn || state.calmMode) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (type === 'correct') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.setValueAtTime(659.25, now + 0.08);
+          osc.frequency.setValueAtTime(783.99, now + 0.16);
+          gain.gain.setValueAtTime(0.14, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.42);
+        } else if (type === 'wrong') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(290, now);
+          osc.frequency.linearRampToValueAtTime(235, now + 0.22);
+          gain.gain.setValueAtTime(0.09, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.26);
+        } else if (type === 'hatch') {
+          [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = 'triangle';
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.frequency.setValueAtTime(freq, now + i * 0.1);
+            g.gain.setValueAtTime(0.14, now + i * 0.1);
+            g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.32);
+            o.start(now + i * 0.1);
+            o.stop(now + i * 0.1 + 0.34);
+          });
+        }
+      } catch (e) {}
+    }
+
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = state.speechRate || 1.0;
+      utter.pitch = 1.05;
+      window.speechSynthesis.speak(utter);
+    }
+
+    function stopSpeech() {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    }
+
+    /* =========================================================================
+       4. MULTI-LEARNER PROFILES & FIREBASE CLOUD PERSISTENCE
+       ========================================================================= */
+    const GRADES = [
+      { id: 0, short: 'K', label: 'Kindergarten' },
+      { id: 1, short: '1', label: 'Grade 1' },
+      { id: 2, short: '2', label: 'Grade 2' },
+      { id: 3, short: '3', label: 'Grade 3' },
+      { id: 4, short: '4', label: 'Grade 4' },
+      { id: 5, short: '5', label: 'Grade 5' },
+      { id: 6, short: '6', label: 'Grade 6' },
+      { id: 7, short: '7', label: 'Grade 7' },
+      { id: 8, short: '8', label: 'Grade 8' }
+    ];
+
+    function createDefaultProfileData(id, name = 'Beta Explorer', grade = 2, dino = 'trex') {
+      return {
+        profileId: id,
+        name,
+        grade,
+        subject: 'math',
+        stars: 3,
+        eggStars: 2,
+        streak: 0,
+        bestStreak: 0,
+        wrongStreak: 0,
+        activeDino: dino,
+        unlockedDinos: [dino],
+        unlockedAccessories: ['none'],
+        equippedAccessory: 'none',
+        soundOn: true,
+        calmMode: false,
+        focusMode: false,
+        readingRuler: false,
+        dyslexiaMode: false,
+        textSize: 'md',
+        speechRate: 1.0,
+        stats: {},
+        gameHighScores: { fossil: 0, wordlab: 0, sciencelab: 0, mapquest: 0 },
+        savedStories: [],
+        updatedAt: Date.now()
+      };
+    }
+
+    let profilesMap = {
+      beta_explorer: createDefaultProfileData('beta_explorer', 'Beta Explorer', 2, 'trex')
+    };
+    let activeProfileId = 'beta_explorer';
+    let state = profilesMap[activeProfileId];
+
+    let db = null;
+    let auth = null;
+    let currentUser = null;
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'dinonest-labs-beta';
+
+    async function initFirebaseSync() {
+      try {
+        if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+          document.getElementById('firebase-status-label').textContent = 'Beta Local Storage Mode (Auto-Saved)';
+          return;
+        }
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+        currentUser = auth.currentUser;
+        if (!currentUser) return;
+
+        document.getElementById('firebase-status-label').textContent = `☁️ Beta Cloud Synced • Tester ${currentUser.uid.slice(0, 6)}`;
+        document.getElementById('cloud-sync-dot').className = 'w-2 h-2 rounded-full bg-emerald-500';
+
+        const betaRef = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'beta', 'settings');
+        onSnapshot(betaRef, (snap) => {
+          if (snap.exists()) {
+            betaSettings = { ...betaSettings, ...snap.data() };
+            renderBetaUI();
+          }
+        });
+
+        const profilesCol = collection(db, 'artifacts', appId, 'users', currentUser.uid, 'learnerProfiles');
+        onSnapshot(profilesCol, (snapshot) => {
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (data && data.profileId) {
+              profilesMap[data.profileId] = { ...createDefaultProfileData(data.profileId), ...data };
+            }
+          });
+          if (profilesMap[activeProfileId]) {
+            state = profilesMap[activeProfileId];
+            applySensoryClasses();
+            renderAllUI();
+          }
+          renderProfilesList();
+        }, (err) => {
+          console.warn('Firestore snapshot listener info:', err.message);
+        });
+      } catch (e) {
+        document.getElementById('firebase-status-label').textContent = 'Beta Local Auto-Save Active';
+      }
+    }
+
+    async function saveState() {
+      state.updatedAt = Date.now();
+      profilesMap[activeProfileId] = state;
+      try {
+        localStorage.setItem('dinonest_labs_beta_profiles', JSON.stringify(profilesMap));
+        localStorage.setItem('dinonest_labs_beta_active_id', activeProfileId);
+      } catch (e) {}
+
+      if (db && currentUser) {
+        try {
+          const ref = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'learnerProfiles', activeProfileId);
+          await setDoc(ref, state, { merge: true });
+        } catch (e) {}
+      }
+    }
+
+    function loadLocalProfiles() {
+      try {
+        const raw = localStorage.getItem('dinonest_labs_beta_profiles');
+        const savedActive = localStorage.getItem('dinonest_labs_beta_active_id');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Object.keys(parsed).length > 0) {
+            profilesMap = parsed;
+            if (savedActive && profilesMap[savedActive]) activeProfileId = savedActive;
+            else activeProfileId = Object.keys(profilesMap)[0];
+            state = { ...createDefaultProfileData(activeProfileId), ...profilesMap[activeProfileId] };
+          }
+        }
+      } catch (e) {}
+    }
+
+    function getSkillStat(grade, subject) {
+      const key = `${grade}_${subject}`;
+      if (!state.stats[key]) state.stats[key] = { correct: 0, total: 0, tier: 0 };
+      return state.stats[key];
+    }
+
+    /* =========================================================================
+       5. K–8 ALGORITHMIC MATH, READING, SCIENCE & SOCIAL STUDIES ENGINES
+       ========================================================================= */
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    function shuffle(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function makeNumericChoices(correctVal, spread = 4, allowNeg = false) {
+      const set = new Set([correctVal]);
+      let guard = 0;
+      while (set.size < 4 && guard < 60) {
+        guard++;
+        const delta = rand(1, Math.max(2, spread)) * (Math.random() < 0.5 ? 1 : -1);
+        const cand = Number((correctVal + delta).toFixed(2));
+        if (!allowNeg && cand < 0) continue;
+        set.add(cand);
+      }
+      while (set.size < 4) set.add(correctVal + set.size + 1);
+      return shuffle([...set]).map(String);
+    }
+
+    function renderTenFrameSVG(count) {
+      let cells = '';
+      for (let i = 0; i < 10; i++) {
+        const x = (i % 5) * 36 + 10;
+        const y = Math.floor(i / 5) * 36 + 10;
+        cells += `<rect x="${x}" y="${y}" width="32" height="32" rx="6" fill="#F8FAFC" stroke="#1E293B" stroke-width="2"/>`;
+        if (i < count) {
+          cells += `<circle cx="${x + 16}" cy="${y + 16}" r="10" fill="#4ADE80" stroke="#166534" stroke-width="1.5"/>`;
+        }
+      }
+      return `<svg viewBox="0 0 200 90" class="w-56 h-24">${cells}</svg>`;
+    }
+
+    function renderFractionBarSVG(num, den, color = '#38B06F') {
+      const w = 260;
+      const cellW = w / den;
+      let rects = '';
+      for (let i = 0; i < den; i++) {
+        rects += `<rect x="${i * cellW}" y="0" width="${cellW}" height="38" fill="${i < num ? color : '#F1F5F9'}" stroke="#1E293B" stroke-width="2"/>`;
+      }
+      return `<svg viewBox="0 0 ${w} 38" class="w-64 h-10 rounded-lg overflow-hidden">${rects}</svg>`;
+    }
+
+    function generateMathProblem(grade, tier) {
+      if (grade === 0) {
+        const count = rand(2, tier === 0 ? 7 : 10);
+        return {
+          grade: 0, subject: 'math',
+          skill: 'Ten-Frame Counting',
+          visual: renderTenFrameSVG(count),
+          question: 'How many green dino berries are in the ten-frame?',
+          choices: makeNumericChoices(count, 3),
+          answer: String(count),
+          hints: [
+            { text: `The top row holds 5 berries. Count the top row first, then count the bottom row!`, visual: renderTenFrameSVG(count) },
+            { text: `There are ${count} berries altogether.`, visual: '' }
+          ]
+        };
+      }
+      if (grade === 1) {
+        const a = rand(4, 12);
+        const b = rand(2, 8);
+        return {
+          grade: 1, subject: 'math',
+          skill: 'Addition Within 20',
+          question: `Pip collected ${a} fern leaves and Trixie brought ${b} more. How many leaves in total? (${a} + ${b})`,
+          choices: makeNumericChoices(a + b, 4),
+          answer: String(a + b),
+          hints: [
+            { text: `Start at ${a} and count forward ${b} steps: ${Array.from({ length: b }, (_, i) => a + i + 1).join(', ')}.` },
+            { text: `${a} + ${b} = ${a + b}.` }
+          ]
+        };
+      }
+      if (grade === 2) {
+        const tens = rand(2, 8);
+        const ones = rand(1, 9);
+        const val = tens * 10 + ones;
+        return {
+          grade: 2, subject: 'math',
+          skill: 'Place Value: Tens & Ones',
+          question: `Which number is equal to ${tens} tens + ${ones} ones?`,
+          choices: shuffle([String(val), String(ones * 10 + tens), String(tens + ones), String(val + 10)]),
+          answer: String(val),
+          hints: [
+            { text: `${tens} tens = ${tens * 10}.` },
+            { text: `Add ${ones} ones to ${tens * 10} to get ${val}.` }
+          ]
+        };
+      }
+      if (grade === 3) {
+        const den = pick([3, 4, 5, 6, 8]);
+        const num = rand(1, den - 1);
+        return {
+          grade: 3, subject: 'math',
+          skill: 'Visual Fraction Models',
+          visual: renderFractionBarSVG(num, den),
+          question: 'What fraction of the bar is shaded green?',
+          choices: shuffle([`${num}/${den}`, `${den - num}/${den}`, `${num}/${den + 1}`, `1/${den + 2}`]),
+          answer: `${num}/${den}`,
+          hints: [
+            { text: `Count all equal boxes in the bar: there are ${den} equal parts (denominator).`, visual: renderFractionBarSVG(num, den) },
+            { text: `${num} boxes are shaded out of ${den}, which is ${num}/${den}.` }
+          ]
+        };
+      }
+      if (grade === 4) {
+        const a = rand(14, 48);
+        const b = rand(3, 8);
+        return {
+          grade: 4, subject: 'math',
+          skill: 'Area Model Multiplication',
+          question: `Multiply: ${a} × ${b}`,
+          choices: makeNumericChoices(a * b, 12),
+          answer: String(a * b),
+          hints: [
+            { text: `Break ${a} into (${Math.floor(a / 10) * 10} + ${a % 10}) and multiply each part by ${b}.` },
+            { text: `${Math.floor(a / 10) * 10 * b} + ${(a % 10) * b} = ${a * b}.` }
+          ]
+        };
+      }
+      if (grade === 5) {
+        const l = rand(3, 7), w = rand(2, 5), h = rand(2, 5);
+        const vol = l * w * h;
+        return {
+          grade: 5, subject: 'math',
+          skill: 'Volume of Rectangular Prisms',
+          question: `A specimen crate is ${l} cm long, ${w} cm wide, and ${h} cm tall. What is its volume?`,
+          choices: makeNumericChoices(vol, 9).map(v => `${v} cm³`),
+          answer: `${vol} cm³`,
+          hints: [
+            { text: `Volume = Length × Width × Height (${l} × ${w} × ${h}).` },
+            { text: `${l * w} × ${h} = ${vol} cm³.` }
+          ]
+        };
+      }
+      if (grade === 6) {
+        const pct = pick([10, 20, 25, 50, 75]);
+        const base = pick([20, 40, 60, 80, 120]);
+        const ans = (pct / 100) * base;
+        return {
+          grade: 6, subject: 'math',
+          skill: 'Percentages & Proportions',
+          question: `What is ${pct}% of ${base}?`,
+          choices: makeNumericChoices(ans, 6),
+          answer: String(ans),
+          hints: [
+            { text: `Convert ${pct}% to ${pct / 100} and multiply by ${base}.` },
+            { text: `${pct}% of ${base} = ${ans}.` }
+          ]
+        };
+      }
+      if (grade === 7) {
+        const x = rand(2, 11), a = rand(2, 5), b = rand(3, 14);
+        const c = a * x + b;
+        return {
+          grade: 7, subject: 'math',
+          skill: 'Algebra Balance: Two-Step Equations',
+          question: `Solve for x:   ${a}x + ${b} = ${c}`,
+          choices: makeNumericChoices(x, 4),
+          answer: String(x),
+          hints: [
+            { text: `Subtract ${b} from both sides first: ${a}x = ${c - b}.` },
+            { text: `Divide both sides by ${a}: x = ${x}.` }
+          ]
+        };
+      }
+      const m = rand(2, 5), b = rand(-4, 8), x = rand(2, 5);
+      const y = m * x + b;
+      const bStr = b >= 0 ? `+ ${b}` : `− ${Math.abs(b)}`;
+      return {
+        grade: 8, subject: 'math',
+        skill: 'Linear Functions (y = mx + b)',
+        question: `For the linear function y = ${m}x ${bStr}, find y when x = ${x}.`,
+        choices: makeNumericChoices(y, 5, true),
+        answer: String(y),
+        hints: [
+          { text: `Substitute x = ${x}: y = ${m}(${x}) ${bStr}.` },
+          { text: `y = ${m * x} ${bStr} = ${y}.` }
+        ]
+      };
+    }
+
+    const CORE_READING_BANK = {
+      0: { skill: 'Phonics & Initial Sounds', genre: 'Rhyme Time', title: 'Bram’s Big Berry', passage: 'Bram the blue dino found a big berry bush by the brook.', question: 'Which word starts with the same /b/ sound as "Bram"?', choices: ['Berry', 'Dino', 'Found', 'The'], answer: 'Berry', hints: [{ text: 'Listen to the /b/ sound at the beginning of "Bram".' }, { text: '"Berry" starts with B!' }] },
+      1: { skill: 'Story Details', genre: 'Short Story', title: 'Trixie’s Shiny Pebble', passage: 'Trixie found a smooth purple pebble near the waterfall. She gave it to Pip for his rock collection.', question: 'Who did Trixie give the pebble to?', choices: ['Pip', 'Bram', 'Sunny', 'Pia'], answer: 'Pip', hints: [{ text: 'Check the second sentence of the story.' }, { text: 'She gave it to Pip!' }] },
+      2: { skill: 'Context Clues', genre: 'Word Detective', title: 'Glowing Crystals', passage: 'Deep inside the cavern, luminescent crystals glowed softly like tiny nightlights in the dark.', question: 'What does "luminescent" mean in this sentence?', choices: ['Giving off light / glowing', 'Cold and icy', 'Loud and noisy', 'Heavy like iron'], answer: 'Giving off light / glowing', hints: [{ text: 'Look at the clue right after: "glowed softly like tiny nightlights".' }, { text: 'Luminescent means giving off light!' }] },
+      3: { skill: 'Character Traits', genre: 'Dino Fable', title: 'The Shared Umbrella', passage: 'When rain began to fall, Pia stretched her wide wings over the baby turtles until the sun returned.', question: 'Which trait best describes Pia?', choices: ['Caring', 'Impatient', 'Forgetful', 'Boastful'], answer: 'Caring', hints: [{ text: 'Pia sheltered the turtles during the rain.' }, { text: 'Helping others stay dry shows she is caring.' }] },
+      4: { skill: 'Cause & Effect', genre: 'Earth Science', title: 'Amber Time Capsules', passage: 'Sticky tree resin sometimes trapped ancient insects. Over millions of years, the resin hardened into golden amber, preserving tiny details.', question: 'What caused the insects to be preserved in detail?', choices: ['Getting trapped in sticky resin that hardened into amber', 'Freezing in ocean water', 'Being painted on cave walls', 'Flying into clouds'], answer: 'Getting trapped in sticky resin that hardened into amber', hints: [{ text: 'Read how sticky resin changed over millions of years.' }, { text: 'The hardened resin became amber and preserved the insects.' }] },
+      5: { skill: 'Figurative Language', genre: 'Descriptive Tale', title: 'Canyon Echoes', passage: 'The canyon walls stood like ancient stone guardians watching over the winding silver river below.', question: 'What type of figurative language is "stood like ancient stone guardians"?', choices: ['Simile', 'Onomatopoeia', 'Alliteration', 'Hyperbole'], answer: 'Simile', hints: [{ text: 'Notice the comparison using the word "like".' }, { text: 'A comparison using "like" or "as" is a simile!' }] },
+      6: { skill: 'Inference', genre: 'Fossil Mystery', title: 'Nesting Circles', passage: 'Fossilized maiasaura nests were spaced evenly—about one adult body length apart—with crushed eggshells inside.', question: 'What do crushed eggshells inside the nests suggest?', choices: ['Baby dinosaurs stayed in the nest after hatching', 'The eggs were washed away by floods', 'No eggs ever hatched there', 'Adults ate the nests'], answer: 'Baby dinosaurs stayed in the nest after hatching', hints: [{ text: 'Think about how eggshells get crushed into tiny pieces over time.' }, { text: 'Hatchlings walking around inside the nest crushed the shells!' }] },
+      7: { skill: 'Author’s Tone', genre: 'Science Essay', title: 'Feathered Fossils', passage: 'Remarkable discoveries of feathered theropods transformed paleontology, bridging the evolutionary gap between dinosaurs and modern birds.', question: 'Which word best describes the author’s tone?', choices: ['Admiring and informative', 'Sarcastic and doubtful', 'Angry and critical', 'Melancholy'], answer: 'Admiring and informative', hints: [{ text: 'Look at positive words like "Remarkable discoveries".' }, { text: 'The author shares exciting scientific facts with admiration.' }] },
+      8: { skill: 'Evaluating Evidence', genre: 'Scientific Argument', title: 'Bone Histology', passage: 'Microscopic rings in dinosaur bones reveal rapid growth rates matching warm-blooded vertebrates rather than slow-growing modern reptiles.', question: 'What evidence supports the claim of rapid dinosaur growth?', choices: ['Microscopic growth rings in fossilized bones', 'Footprint depth in mudstone', 'Tooth enamel thickness', 'Volcanic ash layers'], answer: 'Microscopic growth rings in fossilized bones', hints: [{ text: 'Check the first half of the sentence.' }, { text: 'Microscopic bone rings provide direct growth-rate evidence.' }] }
+    };
+
+    function generateReadingProblem(grade) {
+      const item = CORE_READING_BANK[grade] || CORE_READING_BANK[2];
+      return {
+        grade, subject: 'reading',
+        skill: item.skill,
+        passageGenre: item.genre,
+        passageTitle: item.title,
+        passageBody: item.passage,
+        question: item.question,
+        choices: shuffle(item.choices),
+        answer: item.answer,
+        hints: item.hints
+      };
+    }
+
+    function renderStatesOfMatterSVG() {
+      return `
+        <svg viewBox="0 0 280 76" class="w-72 h-20">
+          <rect x="4" y="6" width="82" height="64" rx="10" fill="#E0F2FE" stroke="#0284C7" stroke-width="2"/>
+          <circle cx="30" cy="28" r="5" fill="#0284C7"/><circle cx="44" cy="28" r="5" fill="#0284C7"/><circle cx="58" cy="28" r="5" fill="#0284C7"/>
+          <circle cx="30" cy="42" r="5" fill="#0284C7"/><circle cx="44" cy="42" r="5" fill="#0284C7"/><circle cx="58" cy="42" r="5" fill="#0284C7"/>
+          <text x="45" y="62" text-anchor="middle" font-size="10" font-weight="bold" fill="#0369A1">Solid (Tight)</text>
+
+          <rect x="99" y="6" width="82" height="64" rx="10" fill="#DCFCE7" stroke="#16A34A" stroke-width="2"/>
+          <circle cx="118" cy="34" r="5" fill="#16A34A"/><circle cx="138" cy="44" r="5" fill="#16A34A"/><circle cx="158" cy="32" r="5" fill="#16A34A"/>
+          <circle cx="126" cy="48" r="5" fill="#16A34A"/><circle cx="150" cy="46" r="5" fill="#16A34A"/>
+          <text x="140" y="62" text-anchor="middle" font-size="10" font-weight="bold" fill="#15803D">Liquid (Flows)</text>
+
+          <rect x="194" y="6" width="82" height="64" rx="10" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+          <circle cx="212" cy="20" r="5" fill="#D97706"/><circle cx="256" cy="22" r="5" fill="#D97706"/><circle cx="234" cy="34" r="5" fill="#D97706"/>
+          <circle cx="216" cy="45" r="5" fill="#D97706"/><circle cx="260" cy="43" r="5" fill="#D97706"/>
+          <text x="235" y="62" text-anchor="middle" font-size="10" font-weight="bold" fill="#B45309">Gas (Spreads)</text>
+        </svg>`;
+    }
+
+    function renderFoodChainSVG() {
+      return `
+        <svg viewBox="0 0 300 66" class="w-72 h-16">
+          <rect x="4" y="10" width="60" height="44" rx="10" fill="#FEF08A" stroke="#CA8A04" stroke-width="2"/>
+          <text x="34" y="37" text-anchor="middle" font-size="11" font-weight="bold" fill="#713F12">☀️ Sun</text>
+          <text x="72" y="37" font-size="14" font-weight="bold" fill="#475569">→</text>
+          <rect x="86" y="10" width="62" height="44" rx="10" fill="#DCFCE7" stroke="#16A34A" stroke-width="2"/>
+          <text x="117" y="37" text-anchor="middle" font-size="11" font-weight="bold" fill="#14532D">🌿 Plant</text>
+          <text x="156" y="37" font-size="14" font-weight="bold" fill="#475569">→</text>
+          <rect x="170" y="10" width="124" height="44" rx="10" fill="#E0F2FE" stroke="#0284C7" stroke-width="2"/>
+          <text x="232" y="37" text-anchor="middle" font-size="11" font-weight="bold" fill="#0C4A6E">🦕 Herbivore</text>
+        </svg>`;
+    }
+
+    function renderCompassRoseSVG() {
+      return `
+        <svg viewBox="0 0 120 120" class="w-28 h-28">
+          <circle cx="60" cy="60" r="46" fill="#F8FAFC" stroke="#7C3AED" stroke-width="2.5"/>
+          <polygon points="60,16 68,52 60,46 52,52" fill="#7C3AED"/>
+          <polygon points="60,104 68,68 60,74 52,68" fill="#CBD5E1"/>
+          <polygon points="104,60 68,52 74,60 68,68" fill="#CBD5E1"/>
+          <polygon points="16,60 52,52 46,60 52,68" fill="#CBD5E1"/>
+          <text x="60" y="13" text-anchor="middle" font-size="12" font-weight="bold" fill="#5B21B6">N</text>
+          <text x="60" y="116" text-anchor="middle" font-size="11" font-weight="bold" fill="#475569">S</text>
+          <text x="113" y="64" text-anchor="middle" font-size="11" font-weight="bold" fill="#475569">E</text>
+          <text x="7" y="64" text-anchor="middle" font-size="11" font-weight="bold" fill="#475569">W</text>
+        </svg>`;
+    }
+
+    const CORE_SCIENCE_BANK = {
+      0: [
+        { skill: 'Living vs. Non-Living', question: 'Which of these is a LIVING thing that needs water and food to grow?', choices: ['A baby green fern plant', 'A smooth river pebble', 'A wooden toy train', 'A glass marble'], answer: 'A baby green fern plant', hints: [{ text: 'Living things grow, breathe, and need water or nutrients.' }, { text: 'A fern plant is alive and grows!' }] },
+        { skill: 'Weather & Seasons', question: 'Which season usually has the warmest weather and longest sunny days?', choices: ['Summer', 'Winter', 'Late Autumn', 'Frosty January'], answer: 'Summer', hints: [{ text: 'Think about when kids swim outside and wear shorts.' }, { text: 'Summer is the warmest season of the year!' }] }
+      ],
+      1: [
+        { skill: 'Plant Parts & Needs', question: 'Which part of a plant grows underground and absorbs water from the soil?', choices: ['Roots', 'Petals', 'Seeds', 'Fruit'], answer: 'Roots', hints: [{ text: 'This part anchors the plant beneath the dirt.' }, { text: 'Roots drink up water and minerals from the soil!' }] },
+        { skill: 'Day & Night Sky', question: 'What gives Earth light and warmth during the daytime?', choices: ['The Sun', 'The Moon', 'Comets', 'Clouds'], answer: 'The Sun', hints: [{ text: 'It is the closest star to planet Earth.' }, { text: 'The Sun lights and warms Earth every day!' }] }
+      ],
+      2: [
+        { skill: 'States of Matter', visual: renderStatesOfMatterSVG(), question: 'Which state of matter keeps its own firm shape without needing a container?', choices: ['Solid (like an ice cube)', 'Liquid (like juice)', 'Gas (like steam)', 'Fog'], answer: 'Solid (like an ice cube)', hints: [{ text: 'Look at the tightly packed particles in the first box.', visual: renderStatesOfMatterSVG() }, { text: 'Solids keep their own definite shape!' }] },
+        { skill: 'Animal Habitats', question: 'Why do desert cacti have thick waxy stems and sharp spines instead of wide leaves?', choices: ['To store water and prevent water loss in dry heat', 'To swim underwater', 'To attract polar bears', 'To grow in deep snow'], answer: 'To store water and prevent water loss in dry heat', hints: [{ text: 'Deserts get very little rain.' }, { text: 'Thick stems hold water safely in dry climates!' }] }
+      ],
+      3: [
+        { skill: 'Life Cycles & Metamorphosis', question: 'What is the correct order of a butterfly’s life cycle?', choices: ['Egg → Caterpillar (Larva) → Chrysalis (Pupa) → Adult Butterfly', 'Adult → Egg → Chrysalis → Larva', 'Seed → Sprout → Chrysalis → Butterfly', 'Chrysalis → Egg → Adult → Larva'], answer: 'Egg → Caterpillar (Larva) → Chrysalis (Pupa) → Adult Butterfly', hints: [{ text: 'A butterfly starts life as a tiny egg on a leaf.' }, { text: 'Egg → Caterpillar → Chrysalis → Adult Butterfly!' }] }
+      ],
+      4: [
+        { skill: 'Food Chains & Producers', visual: renderFoodChainSVG(), question: 'In a forest food chain, why are green plants called "producers"?', choices: ['They make their own food using sunlight, water, and air', 'They hunt smaller animals', 'They break down fallen logs', 'They live only in caves'], answer: 'They make their own food using sunlight, water, and air', hints: [{ text: 'Look at the arrow from the Sun to the Plant.', visual: renderFoodChainSVG() }, { text: 'Plants produce their own energy via photosynthesis!' }] }
+      ],
+      5: [
+        { skill: 'Earth’s Spheres & Water Cycle', question: 'When water vapor cools high in the atmosphere and turns back into tiny liquid cloud droplets, what is that step called?', choices: ['Condensation', 'Evaporation', 'Precipitation', 'Collection'], answer: 'Condensation', hints: [{ text: 'Think: Gas cooling back into liquid droplets ("Clouds Condense").' }, { text: 'Condensation forms clouds in the sky!' }] }
+      ],
+      6: [
+        { skill: 'Cell Biology', question: 'Which organelle acts as the "powerhouse" of eukaryotic cells, converting nutrients into usable energy (ATP)?', choices: ['Mitochondria', 'Cell wall', 'Vacuole', 'Ribosome'], answer: 'Mitochondria', hints: [{ text: 'Both plant and animal cells rely on this bean-shaped energy generator.' }, { text: 'Mitochondria release cellular energy!' }] }
+      ],
+      7: [
+        { skill: 'Photosynthesis', question: 'Which gas do green plants absorb from the atmosphere during photosynthesis to build glucose?', choices: ['Carbon dioxide (CO₂)', 'Nitrogen (N₂)', 'Helium (He)', 'Neon (Ne)'], answer: 'Carbon dioxide (CO₂)', hints: [{ text: 'Plants take in the gas that animals exhale, and release oxygen.' }, { text: 'Plants absorb carbon dioxide (CO₂)!' }] }
+      ],
+      8: [
+        { skill: 'Newton’s Laws of Motion', question: 'According to Newton’s Second Law (F = m × a), if you apply the same push force to a light cart and a heavy cart, which accelerates faster?', choices: ['The lighter cart (less mass)', 'The heavier cart (more mass)', 'Both accelerate identically', 'Neither can move'], answer: 'The lighter cart (less mass)', hints: [{ text: 'Rearrange F = m × a to a = F / m: smaller mass gives larger acceleration.' }, { text: 'Less mass means greater acceleration for the same force!' }] }
+      ]
+    };
+
+    const CORE_SOCIAL_BANK = {
+      0: [
+        { skill: 'Community Helpers', question: 'Which community helper drives a bright red truck and helps put out fires to keep neighborhoods safe?', choices: ['Firefighter', 'Librarian', 'Baker', 'Astronaut'], answer: 'Firefighter', hints: [{ text: 'They wear protective helmets and use water hoses.' }, { text: 'Firefighters keep our community safe from fires!' }] },
+        { skill: 'Rules & Fairness', question: 'Why do classrooms and playgrounds have rules like taking turns?', choices: ['So everyone stays safe and gets a fair chance to play', 'So nobody can smile', 'To make recess shorter', 'Because dinosaurs invented swings'], answer: 'So everyone stays safe and gets a fair chance to play', hints: [{ text: 'Rules help groups work and play kindly together.' }, { text: 'Rules keep everyone safe and treated fairly!' }] }
+      ],
+      1: [
+        { skill: 'Maps & Cardinal Directions', visual: renderCompassRoseSVG(), question: 'On a standard map compass rose, which direction is directly opposite of North?', choices: ['South', 'East', 'West', 'Northeast'], answer: 'South', hints: [{ text: 'Look at the bottom of the compass rose.', visual: renderCompassRoseSVG() }, { text: 'South is directly opposite North!' }] },
+        { skill: 'Needs vs. Wants', question: 'Which item is a basic human NEED rather than a want?', choices: ['Clean drinking water', 'A remote-control rocket', 'Sparkly stickers', 'Video game tokens'], answer: 'Clean drinking water', hints: [{ text: 'Needs are things people must have to stay alive and healthy.' }, { text: 'Clean water is an essential human need!' }] }
+      ],
+      2: [
+        { skill: 'Continents & Oceans', question: 'How many continents are there on Earth?', choices: ['7 continents', '3 continents', '12 continents', '50 continents'], answer: '7 continents', hints: [{ text: 'North America, South America, Europe, Africa, Asia, Australia, and Antarctica.' }, { text: 'There are 7 continents on Earth!' }] },
+        { skill: 'Goods & Services', question: 'When a dentist cleans and checks your teeth, are they providing a good or a service?', choices: ['A service (helpful work done for others)', 'A manufactured toy', 'A raw mineral', 'A farm crop'], answer: 'A service (helpful work done for others)', hints: [{ text: 'Goods are physical objects you buy; services are helpful actions people do for you.' }, { text: 'A dental checkup is a helpful service!' }] }
+      ],
+      3: [
+        { skill: 'Landforms & Geography', question: 'What do geographers call a piece of land completely surrounded by water on all sides?', choices: ['An island', 'A peninsula', 'A canyon', 'A plateau'], answer: 'An island', hints: [{ text: 'Unlike a peninsula (water on 3 sides), this has water all the way around.' }, { text: 'An island is surrounded by water on all sides!' }] }
+      ],
+      4: [
+        { skill: 'U.S. Branches of Government', question: 'Which branch of the U.S. government is responsible for making federal laws (Congress)?', choices: ['Legislative Branch', 'Executive Branch', 'Judicial Branch', 'State Parks Department'], answer: 'Legislative Branch', hints: [{ text: 'Think "L" for Laws and Legislative!' }, { text: 'The Legislative Branch (Senate + House) writes and passes laws.' }] }
+      ],
+      5: [
+        { skill: 'Early American History & Documents', question: 'What is the supreme law of the United States that outlines how the government works and protects citizens’ rights?', choices: ['The U.S. Constitution', 'The Farmer’s Almanac', 'The Oregon Trail Map', 'The Erie Canal Charter'], answer: 'The U.S. Constitution', hints: [{ text: 'Written in 1787, it begins with "We the People...".' }, { text: 'The U.S. Constitution is the supreme law of the land!' }] }
+      ],
+      6: [
+        { skill: 'Ancient Civilizations', question: 'Why did early civilizations like Mesopotamia and Ancient Egypt develop along major river valleys?', choices: ['Rivers provided fertile soil for farming, fresh water, and trade routes', 'Rivers prevented anyone from growing crops', 'Deserts had too much rain', 'Mountains blocked all sunlight'], answer: 'Rivers provided fertile soil for farming, fresh water, and trade routes', hints: [{ text: 'Seasonal river floods left rich silt ideal for agriculture.' }, { text: 'Fertile soil, fresh water, and transportation supported thriving cities!' }] }
+      ],
+      7: [
+        { skill: 'World Geography & Cultural Diffusion', question: 'How did the historic Silk Road network impact Europe and Asia?', choices: ['It connected distant regions for trading silk, spices, technologies, and ideas', 'It was a paved highway for modern cars', 'It isolated countries from trading', 'It crossed Antarctica'], answer: 'It connected distant regions for trading silk, spices, technologies, and ideas', hints: [{ text: 'Merchants traveled overland and by sea exchanging goods and inventions.' }, { text: 'The Silk Road fostered trade and cultural exchange across continents!' }] }
+      ],
+      8: [
+        { skill: 'Constitutional Amendments & Bill of Rights', question: 'Which amendment in the U.S. Bill of Rights protects freedom of speech, religion, press, assembly, and petition?', choices: ['First Amendment', 'Fifth Amendment', 'Tenth Amendment', 'Thirteenth Amendment'], answer: 'First Amendment', hints: [{ text: 'It is the very first amendment in the Bill of Rights (1791).' }, { text: 'The First Amendment protects these five core freedoms!' }] }
+      ]
+    };
+
+    function generateScienceProblem(grade) {
+      const list = CORE_SCIENCE_BANK[grade] || CORE_SCIENCE_BANK[2];
+      const item = pick(list);
+      return { grade, subject: 'science', skill: item.skill, visual: item.visual || '', question: item.question, choices: shuffle(item.choices), answer: item.answer, hints: item.hints };
+    }
+
+    function generateSocialProblem(grade) {
+      const list = CORE_SOCIAL_BANK[grade] || CORE_SOCIAL_BANK[2];
+      const item = pick(list);
+      return { grade, subject: 'social', skill: item.skill, visual: item.visual || '', question: item.question, choices: shuffle(item.choices), answer: item.answer, hints: item.hints };
+    }
+
+    /* =========================================================================
+       6. STORY STUDIO ENGINE (UNLIMITED IN BETA)
+       ========================================================================= */
+    let activeStoryObj = null;
+    let currentStoryLength = 'Short';
+
+    function toggleCustomTopicInput() {
+      const sel = document.getElementById('story-topic-select').value;
+      document.getElementById('story-custom-topic').classList.toggle('hidden', sel !== 'custom');
+    }
+
+    function setStoryLength(len) {
+      currentStoryLength = len;
+      ['Short', 'Medium', 'Long'].forEach(l => {
+        const btn = document.getElementById(`len-${l}`);
+        if (btn) {
+          btn.className = l === len
+            ? 'story-len-btn py-2 rounded-xl text-xs font-extrabold bg-emerald-600 text-white'
+            : 'story-len-btn py-2 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700';
+        }
+      });
+    }
+
+    function getStorySceneSVG(topic, heroId) {
+      const dinoSVG = getChibiDinoSVG(heroId, 'happy', state.equippedAccessory);
+      return `
+        <div class="w-full h-full flex items-center justify-between px-6 sm:px-10 relative overflow-hidden">
+          <div class="space-y-1 z-10 max-w-md">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-emerald-900 bg-white/80 px-2.5 py-0.5 rounded-full">Illustrated Tale</span>
+            <p class="font-display font-bold text-base sm:text-lg text-slate-900 line-clamp-1">${topic}</p>
+          </div>
+          <div class="w-28 h-28 flex-shrink-0 dino-idle z-10">${dinoSVG}</div>
+        </div>
+      `;
+    }
+
+    function buildAlgorithmicStory(grade, heroId, topic, length) {
+      const hero = DINO_ROSTER.find(d => d.id === heroId) || DINO_ROSTER[0];
+      const genreMode = document.getElementById('story-genre-mode')?.value || 'Fiction Adventure';
+      const vocabSet = grade <= 2
+        ? [{ word: 'curious', def: 'Eager to learn or explore something new' }, { word: 'observe', def: 'To watch and notice details carefully' }]
+        : grade <= 5
+        ? [{ word: 'expedition', def: 'An organized journey for exploration or discovery' }, { word: 'hypothesis', def: 'An educated scientific guess that can be tested' }]
+        : [{ word: 'phenomenon', def: 'A remarkable observable event in nature or science' }, { word: 'synthesize', def: 'To combine separate clues or ideas into a whole' }];
+
+      const p1 = `One bright morning, ${hero.name} packed a cozy canvas satchel for a ${genreMode.toLowerCase()} focused on ${topic}. Being naturally ${vocabSet[0].word}, ${hero.name} paused to ${vocabSet[1].word} every pattern along the winding forest trail.`;
+      const p2 = `Near a sunlit clearing, ${hero.name} discovered a crystal map tablet glowing with clues about ${topic}. By testing each step calmly and carefully, ${hero.name} solved the puzzle and shared the discovery with friends back at the Dino Nest.`;
+      const p3 = `Later that afternoon, ${hero.name} sketched diagrams in a field notebook so younger hatchlings could explore ${topic} at their own comfortable pace.`;
+      const p4 = `As golden twilight settled over the valley, ${hero.name} felt proud of staying patient, observant, and creative throughout the adventure.`;
+
+      const paragraphs = length === 'Short' ? [p1, p2] : length === 'Medium' ? [p1, p2, p3] : [p1, p2, p3, p4];
+      return {
+        id: 'story_' + Date.now(),
+        grade, heroId, topic, length,
+        title: `${hero.name} & the Secret of ${topic}`,
+        paragraphs,
+        vocab: vocabSet,
+        questions: [
+          { q: `What was the main focus of ${hero.name}'s adventure?`, choices: shuffle([topic, 'Underwater ice hockey', 'Baking mud pies', 'Sleeping all winter']), answer: topic },
+          { q: `How did ${hero.name} solve the glowing tablet puzzle?`, choices: shuffle(['By testing each step calmly and carefully', 'By rushing without looking', 'By guessing randomly', 'By hiding under a fern']), answer: 'By testing each step calmly and carefully' }
+        ]
+      };
+    }
+
+    async function generateCustomStory() {
+      const grade = parseInt(document.getElementById('story-grade-select').value, 10);
+      const genreMode = document.getElementById('story-genre-mode')?.value || 'Fiction Adventure';
+      const heroId = document.getElementById('story-hero-select').value;
+      const topicSel = document.getElementById('story-topic-select').value;
+      const customInp = document.getElementById('story-custom-topic').value.trim();
+      const topic = topicSel === 'custom' && customInp ? customInp : (topicSel === 'custom' ? 'Secret Dino Garden' : topicSel);
+
+      const btn = document.getElementById('generate-story-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> <span>Crafting Story...</span>';
+
+      let storyData = null;
+      try {
+        const heroName = (DINO_ROSTER.find(d => d.id === heroId) || DINO_ROSTER[0]).name;
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+        const prompt = `Write a neurodivergent-friendly, calming, engaging children's story in the genre "${genreMode}" for Grade ${grade === 0 ? 'Kindergarten' : grade}.
+Hero: ${heroName}. Topic: ${topic}. Length: ${currentStoryLength} (${currentStoryLength === 'Short' ? '2 paragraphs' : currentStoryLength === 'Medium' ? '3 paragraphs' : '4 paragraphs'}).
+Include 2 grade-appropriate vocabulary words (that appear verbatim inside the paragraphs) with simple definitions, and 3 multiple-choice comprehension questions.`;
+
+        const payload = {
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "OBJECT",
+              properties: {
+                title: { type: "STRING" },
+                paragraphs: { type: "ARRAY", items: { type: "STRING" } },
+                vocab: { type: "ARRAY", items: { type: "OBJECT", properties: { word: { type: "STRING" }, def: { type: "STRING" } } } },
+                questions: { type: "ARRAY", items: { type: "OBJECT", properties: { q: { type: "STRING" }, choices: { type: "ARRAY", items: { type: "STRING" } }, answer: { type: "STRING" } } } }
+              }
+            }
+          }
+        };
+
+        const res = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (res.ok) {
+          const json = await res.json();
+          const rawText = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (rawText) {
+            const parsed = JSON.parse(rawText);
+            if (parsed.title && Array.isArray(parsed.paragraphs) && parsed.paragraphs.length > 0) {
+              storyData = { id: 'story_' + Date.now(), grade, heroId, topic, length: currentStoryLength, title: parsed.title, paragraphs: parsed.paragraphs, vocab: parsed.vocab || [], questions: parsed.questions || [] };
+            }
+          }
+        }
+      } catch (e) {}
+
+      if (!storyData) storyData = buildAlgorithmicStory(grade, heroId, topic, currentStoryLength);
+
+      btn.disabled = false;
+      btn.innerHTML = '<span>✨</span> <span>Create My Story</span>';
+
+      state.savedStories = [storyData, ...(state.savedStories || [])].slice(0, 25);
+      saveState();
+      renderSavedStoriesList();
+      displayStory(storyData);
+    }
+
+    function displayStory(story) {
+      activeStoryObj = story;
+      const gradeLabel = GRADES[story.grade]?.label || 'Grade 2';
+      document.getElementById('story-scene-banner').innerHTML = getStorySceneSVG(story.topic, story.heroId);
+      document.getElementById('story-badge-meta').textContent = `${gradeLabel} • ${story.topic}`;
+      document.getElementById('story-display-title').textContent = story.title;
+      document.getElementById('vocab-definition-banner').classList.add('hidden');
+
+      const bodyEl = document.getElementById('story-display-body');
+      bodyEl.innerHTML = story.paragraphs.map(para => {
+        let html = para;
+        (story.vocab || []).forEach(v => {
+          if (!v.word) return;
+          const regex = new RegExp(`\\b(${v.word})\\b`, 'gi');
+          html = html.replace(regex, `<span class="vocab-word" onclick="showVocabDef('${v.word.replace(/'/g, "\\'")}', '${v.def.replace(/'/g, "\\'")}')">$1</span>`);
+        });
+        return `<p>${html}</p>`;
+      }).join('');
+
+      const qWrap = document.getElementById('story-questions-container');
+      qWrap.innerHTML = (story.questions || []).map((item, qIdx) => `
+        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2.5" id="sq-box-${qIdx}">
+          <p class="font-display font-bold text-base text-slate-900">${qIdx + 1}. ${item.q}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            ${item.choices.map((ch, cIdx) => `
+              <button onclick="answerStoryQuestion(${qIdx}, ${cIdx})" id="sq-${qIdx}-${cIdx}"
+                class="text-left p-3 rounded-xl border border-slate-200 bg-white hover:bg-emerald-50 hover:border-emerald-400 text-sm font-bold text-slate-800 transition">
+                ${ch}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function showVocabDef(word, def) {
+      playSound('correct');
+      const box = document.getElementById('vocab-definition-banner');
+      box.classList.remove('hidden');
+      document.getElementById('vocab-definition-text').textContent = `${word.toUpperCase()}: ${def}`;
+      speakText(`${word}: ${def}`);
+    }
+
+    function answerStoryQuestion(qIdx, cIdx) {
+      if (!activeStoryObj) return;
+      const qObj = activeStoryObj.questions[qIdx];
+      const chosen = qObj.choices[cIdx];
+      const isRight = chosen === qObj.answer;
+
+      qObj.choices.forEach((c, idx) => {
+        const b = document.getElementById(`sq-${qIdx}-${idx}`);
+        b.disabled = true;
+        if (c === qObj.answer) b.className = 'text-left p-3 rounded-xl border-2 border-emerald-500 bg-emerald-100 text-sm font-extrabold text-emerald-950';
+        else if (idx === cIdx && !isRight) b.className = 'text-left p-3 rounded-xl border-2 border-rose-400 bg-rose-100 text-sm font-bold text-rose-950';
+      });
+
+      if (isRight) {
+        playSound('correct');
+        state.stars += 1;
+        state.eggStars = Math.min(5, state.eggStars + 1);
+        saveState();
+        renderHeaderAndGrades();
+        updateEggProgressUI();
+      } else {
+        playSound('wrong');
+      }
+    }
+
+    function readStoryAloud() {
+      if (!activeStoryObj) return;
+      speakText(`${activeStoryObj.title}. ${activeStoryObj.paragraphs.join(' ')}`);
+    }
+
+    function renderSavedStoriesList() {
+      const list = state.savedStories || [];
+      document.getElementById('saved-stories-count').textContent = list.length;
+      const wrap = document.getElementById('saved-stories-list');
+      if (list.length === 0) {
+        wrap.innerHTML = `<p class="text-xs text-slate-400 font-semibold">Create a story above to build your library!</p>`;
+        return;
+      }
+      wrap.innerHTML = list.map((s, idx) => `
+        <button onclick="loadSavedStory(${idx})" class="w-full text-left p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 border border-slate-200 transition flex items-center justify-between">
+          <span class="text-xs font-extrabold text-slate-800 truncate pr-2">${s.title}</span>
+          <span class="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full flex-shrink-0">G${s.grade === 0 ? 'K' : s.grade}</span>
+        </button>
+      `).join('');
+    }
+
+    function loadSavedStory(idx) {
+      if (state.savedStories && state.savedStories[idx]) displayStory(state.savedStories[idx]);
+    }
+
+    /* =========================================================================
+       7. FOUR INTERACTIVE MINI-GAMES (ALL UNLOCKED IN BETA)
+       ========================================================================= */
+    let activeGameKey = 'fossil';
+    let currentGameScore = 0;
+
+    function selectMiniGame(key) {
+      activeGameKey = key;
+      ['fossil', 'wordlab', 'sciencelab', 'mapquest'].forEach(k => {
+        const card = document.getElementById(`gcard-${k}`);
+        if (!card) return;
+        card.className = k === key
+          ? 'text-left bg-white rounded-3xl p-4 card-shadow border-2 border-emerald-500 transition'
+          : 'text-left bg-white rounded-3xl p-4 card-shadow border-2 border-transparent hover:border-slate-300 transition';
+      });
+      initCurrentMiniGame();
+    }
+
+    function awardGamePoint(pts = 1) {
+      playSound('correct');
+      currentGameScore += pts;
+      document.getElementById('active-game-score').textContent = currentGameScore;
+      if (!state.gameHighScores) state.gameHighScores = { fossil: 0, wordlab: 0, sciencelab: 0, mapquest: 0 };
+      if (currentGameScore > (state.gameHighScores[activeGameKey] || 0)) {
+        state.gameHighScores[activeGameKey] = currentGameScore;
+        const hiEl = document.getElementById(`hi-${activeGameKey}`);
+        if (hiEl) hiEl.textContent = currentGameScore;
+      }
+      if (currentGameScore % 2 === 0) {
+        state.stars += 1;
+        state.eggStars = Math.min(5, state.eggStars + 1);
+        updateEggProgressUI();
+        renderHeaderAndGrades();
+      }
+      saveState();
+    }
+
+    function initCurrentMiniGame() {
+      const grade = parseInt(document.getElementById('game-grade-select').value, 10);
+      currentGameScore = 0;
+      document.getElementById('active-game-score').textContent = '0';
+      document.getElementById('game-dino-helper').innerHTML = getChibiDinoSVG(state.activeDino, 'happy', state.equippedAccessory);
+
+      const stage = document.getElementById('mini-game-stage');
+      if (activeGameKey === 'fossil') {
+        document.getElementById('active-game-title').textContent = '🦴 Fossil Number Line Dig (Math)';
+        document.getElementById('active-game-subtitle').textContent = 'Slide the excavator to dig up the buried fossil at the exact target value!';
+        renderFossilGameRound(stage, grade);
+      } else if (activeGameKey === 'wordlab') {
+        document.getElementById('active-game-title').textContent = '☄️ Egg & Meteor Word Lab (Reading)';
+        document.getElementById('active-game-subtitle').textContent = 'Sort the glowing meteor word into the matching language basket!';
+        renderWordLabRound(stage, grade);
+      } else if (activeGameKey === 'sciencelab') {
+        document.getElementById('active-game-title').textContent = '🔬 Dino Habitat & Science Lab (Science)';
+        document.getElementById('active-game-subtitle').textContent = 'Classify specimens, states of matter, ecosystems & physical forces!';
+        renderScienceLabRound(stage, grade);
+      } else if (activeGameKey === 'mapquest') {
+        document.getElementById('active-game-title').textContent = '🧭 Time-Travel Map Quest (Social Studies)';
+        document.getElementById('active-game-subtitle').textContent = 'Navigate continents, landforms, civics & historical landmarks!';
+        renderMapQuestRound(stage, grade);
+      }
+    }
+
+    function renderFossilGameRound(stage, grade) {
+      let min = 0, max = 10, step = 1, target = rand(1, 9), label = `${target}`;
+      if (grade >= 1 && grade <= 2) { max = 20; target = rand(2, 19); label = `${target}`; }
+      else if (grade >= 3 && grade <= 4) { const den = pick([4, 5, 8]); const num = rand(1, den - 1); min = 0; max = den; target = num; label = `${num}/${den}`; }
+      else if (grade >= 5 && grade <= 6) { min = 0; max = 10; target = rand(1, 9); label = (target / 10).toFixed(1); }
+      else if (grade >= 7) { min = -10; max = 10; target = rand(-9, 9); label = `${target}`; }
+
+      const startVal = Math.floor((min + max) / 2);
+      stage.innerHTML = `
+        <div class="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-6 text-center space-y-5">
+          <p class="font-display text-xl font-bold text-amber-950">
+            Sonar Radar: Dig at position <span class="px-3 py-1 rounded-xl bg-amber-400 text-slate-950 text-2xl">${label}</span>
+          </p>
+          <div class="max-w-xl mx-auto space-y-3 py-4">
+            <div class="flex justify-between text-xs font-extrabold text-slate-600 px-1">
+              <span>${grade >= 3 && grade <= 4 ? '0' : (grade >= 5 && grade <= 6 ? '0.0' : min)}</span>
+              <span>Current Spot: <strong id="fossil-slider-readout" class="text-emerald-700 text-base">${grade >= 3 && grade <= 4 ? `${startVal}/${max}` : (grade >= 5 && grade <= 6 ? (startVal / 10).toFixed(1) : startVal)}</strong></span>
+              <span>${grade >= 3 && grade <= 4 ? `${max}/${max} (1)` : (grade >= 5 && grade <= 6 ? '1.0' : max)}</span>
+            </div>
+            <input type="range" id="fossil-slider" min="${min}" max="${max}" step="${step}" value="${startVal}" oninput="updateFossilReadout(this.value, ${grade}, ${max})" class="w-full h-4 bg-amber-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" />
+          </div>
+          <div id="fossil-feedback" class="text-sm font-bold text-slate-600 h-6"></div>
+          <button onclick="checkFossilDig(${target}, ${grade})" class="px-8 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-lg shadow-md transition">⛏️ Dig Here!</button>
+        </div>
+      `;
+    }
+
+    function updateFossilReadout(val, grade, max) {
+      const v = parseInt(val, 10);
+      const out = document.getElementById('fossil-slider-readout');
+      if (grade >= 3 && grade <= 4) out.textContent = `${v}/${max}`;
+      else if (grade >= 5 && grade <= 6) out.textContent = (v / 10).toFixed(1);
+      else out.textContent = v;
+    }
+
+    function checkFossilDig(target, grade) {
+      const val = parseInt(document.getElementById('fossil-slider').value, 10);
+      const fb = document.getElementById('fossil-feedback');
+      if (val === target) {
+        fb.innerHTML = '<span class="text-emerald-700 font-extrabold">🦴✨ You unearthed a Golden Ammonite Fossil! +1 Point!</span>';
+        awardGamePoint(1);
+        setTimeout(() => renderFossilGameRound(document.getElementById('mini-game-stage'), grade), 900);
+      } else {
+        playSound('wrong');
+        fb.innerHTML = `<span class="text-amber-800">Close! Try sliding ${val < target ? 'to the RIGHT →' : '← to the LEFT'}.</span>`;
+      }
+    }
+
+    function renderWordLabRound(stage, grade) {
+      const banks = {
+        low: [
+          { word: 'Cat', target: 'Rhymes with Hat', opts: ['Rhymes with Hat', 'Rhymes with Dog', 'Rhymes with Sun'] },
+          { word: 'Jump', target: 'Action Word (Verb)', opts: ['Action Word (Verb)', 'Naming Word (Noun)', 'Color Word'] },
+          { word: 'Happy', target: 'Synonym: Joyful', opts: ['Synonym: Joyful', 'Opposite of Smile', 'A Type of Tree'] }
+        ],
+        mid: [
+          { word: 'Unhappy', target: 'Prefix "un-" (Not)', opts: ['Prefix "un-" (Not)', 'Suffix "-ful"', 'Compound Word'] },
+          { word: 'Swiftly', target: 'Adverb (Describes Action)', opts: ['Adverb (Describes Action)', 'Proper Noun', 'Conjunction'] },
+          { word: 'Enormous', target: 'Synonym: Gigantic', opts: ['Synonym: Gigantic', 'Antonym: Tall', 'Synonym: Tiny'] }
+        ],
+        high: [
+          { word: 'Chronology', target: 'Greek Root "chron" (Time)', opts: ['Greek Root "chron" (Time)', 'Latin Root "aqua" (Water)', 'Greek Root "bio" (Life)'] },
+          { word: 'Benevolent', target: 'Latin Root "bene" (Good/Well)', opts: ['Latin Root "bene" (Good/Well)', 'Root "mal" (Bad)', 'Root "scrib" (Write)'] },
+          { word: 'Metaphor', target: 'Direct Comparison (No Like/As)', opts: ['Direct Comparison (No Like/As)', 'Exaggeration (Hyperbole)', 'Sound Word (Onomatopoeia)'] }
+        ]
+      };
+      const pool = grade <= 2 ? banks.low : grade <= 5 ? banks.mid : banks.high;
+      const item = pick(pool);
+
+      stage.innerHTML = `
+        <div class="bg-sky-50/80 border-2 border-sky-200 rounded-3xl p-6 text-center space-y-6">
+          <div class="inline-block px-6 py-4 rounded-3xl bg-gradient-to-br from-amber-300 to-orange-400 border-4 border-amber-600 shadow-md">
+            <span class="block text-xs font-extrabold uppercase text-amber-950">Incoming Word Meteor</span>
+            <span class="font-display text-3xl font-bold text-slate-950">${item.word}</span>
+          </div>
+          <p class="font-bold text-slate-700">Tap the matching Word Basket to catch it safely:</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
+            ${shuffle(item.opts).map(opt => `
+              <button onclick="checkWordLabChoice('${opt.replace(/'/g, "\\'")}', '${item.target.replace(/'/g, "\\'")}', ${grade})"
+                class="p-4 rounded-2xl bg-white hover:bg-sky-100 border-2 border-sky-300 font-display font-bold text-base text-slate-900 shadow-sm transition">
+                🧺 ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div id="wordlab-fb" class="text-sm font-extrabold h-6"></div>
+        </div>
+      `;
+    }
+
+    function checkWordLabChoice(chosen, target, grade) {
+      const fb = document.getElementById('wordlab-fb');
+      if (chosen === target) {
+        fb.innerHTML = '<span class="text-emerald-700">🌟 Spot on! Safe landing! +1 Point!</span>';
+        awardGamePoint(1);
+        setTimeout(() => renderWordLabRound(document.getElementById('mini-game-stage'), grade), 800);
+      } else {
+        playSound('wrong');
+        fb.innerHTML = '<span class="text-rose-700">Not quite—look closely at the word parts and try again!</span>';
+      }
+    }
+
+    function renderScienceLabRound(stage, grade) {
+      const items = grade <= 2 ? [
+        { specimen: '🧊 Ice Cube', prompt: 'Which state of matter is this specimen?', ans: 'Solid', opts: ['Solid', 'Liquid', 'Gas'] },
+        { specimen: '🐸 Tree Frog', prompt: 'Which habitat is best for this amphibian?', ans: 'Rainforest / Wetland', opts: ['Rainforest / Wetland', 'Dry Sandy Desert', 'Arctic Ice Sheet'] }
+      ] : [
+        { specimen: '🧬 Mitochondria', prompt: 'What is this cell organelle’s primary function?', ans: 'Cellular Energy (ATP) Production', opts: ['Cellular Energy (ATP) Production', 'Photosynthesis in Animal Cells', 'Storing Tectonic Plates'] },
+        { specimen: '🏔️ Colliding Plates', prompt: 'Which boundary type builds folded mountain ranges?', ans: 'Convergent Boundary', opts: ['Convergent Boundary', 'Divergent Rift', 'Transform Fault'] }
+      ];
+      const item = pick(items);
+
+      stage.innerHTML = `
+        <div class="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-6 text-center space-y-6">
+          <div class="inline-block px-6 py-4 rounded-3xl bg-white border-2 border-amber-400 shadow-sm">
+            <span class="block text-xs font-extrabold uppercase text-amber-700">Lab Specimen Scanner</span>
+            <span class="font-display text-2xl sm:text-3xl font-bold text-slate-900">${item.specimen}</span>
+          </div>
+          <p class="font-display text-lg font-bold text-slate-800">${item.prompt}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
+            ${shuffle(item.opts).map(opt => `
+              <button onclick="checkScienceLabChoice('${opt.replace(/'/g, "\\'")}', '${item.ans.replace(/'/g, "\\'")}', ${grade})"
+                class="p-4 rounded-2xl bg-white hover:bg-amber-100 border-2 border-amber-300 font-display font-bold text-sm sm:text-base text-slate-900 shadow-sm transition">
+                🔬 ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div id="sciencelab-fb" class="text-sm font-extrabold h-6"></div>
+        </div>
+      `;
+    }
+
+    function checkScienceLabChoice(chosen, ans, grade) {
+      const fb = document.getElementById('sciencelab-fb');
+      if (chosen === ans) {
+        fb.innerHTML = '<span class="text-emerald-700">🔬✨ Lab experiment verified! +1 Point!</span>';
+        awardGamePoint(1);
+        setTimeout(() => renderScienceLabRound(document.getElementById('mini-game-stage'), grade), 800);
+      } else {
+        playSound('wrong');
+        fb.innerHTML = '<span class="text-rose-700">Check the specimen clues carefully and test another hypothesis!</span>';
+      }
+    }
+
+    function renderMapQuestRound(stage, grade) {
+      const quests = grade <= 2 ? [
+        { clue: '🧭 Opposite of East on a Map', prompt: 'Which compass direction points left on a standard map?', ans: 'West', opts: ['West', 'North', 'South'] },
+        { clue: '🌎 Earth’s Largest Landmasses', prompt: 'Which of these is one of Earth’s 7 continents?', ans: 'Africa', opts: ['Africa', 'Pacific', 'Amazon'] }
+      ] : [
+        { clue: '🏺 Fertile Crescent & Nile', prompt: 'Why did early civilizations flourish beside major rivers?', ans: 'Fertile silt for agriculture & trade routes', opts: ['Fertile silt for agriculture & trade routes', 'Constant volcanic eruptions', 'Sub-zero tundra climate'] },
+        { clue: '📜 U.S. Bill of Rights', prompt: 'Which amendment protects freedom of speech and the press?', ans: 'First Amendment', opts: ['First Amendment', 'Fourth Amendment', 'Tenth Amendment'] }
+      ];
+      const q = pick(quests);
+
+      stage.innerHTML = `
+        <div class="bg-purple-50/80 border-2 border-purple-200 rounded-3xl p-6 text-center space-y-6">
+          <div class="inline-block px-6 py-4 rounded-3xl bg-white border-2 border-purple-400 shadow-sm">
+            <span class="block text-xs font-extrabold uppercase text-purple-700">Navigator Beacon</span>
+            <span class="font-display text-2xl font-bold text-slate-900">${q.clue}</span>
+          </div>
+          <p class="font-display text-lg font-bold text-slate-800">${q.prompt}</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto">
+            ${shuffle(q.opts).map(opt => `
+              <button onclick="checkMapQuestChoice('${opt.replace(/'/g, "\\'")}', '${q.ans.replace(/'/g, "\\'")}', ${grade})"
+                class="p-4 rounded-2xl bg-white hover:bg-purple-100 border-2 border-purple-300 font-display font-bold text-sm sm:text-base text-slate-900 shadow-sm transition">
+                🧭 ${opt}
+              </button>
+            `).join('')}
+          </div>
+          <div id="mapquest-fb" class="text-sm font-extrabold h-6"></div>
+        </div>
+      `;
+    }
+
+    function checkMapQuestChoice(chosen, ans, grade) {
+      const fb = document.getElementById('mapquest-fb');
+      if (chosen === ans) {
+        fb.innerHTML = '<span class="text-emerald-700">🧭🌟 Landmark discovered! +1 Point!</span>';
+        awardGamePoint(1);
+        setTimeout(() => renderMapQuestRound(document.getElementById('mini-game-stage'), grade), 800);
+      } else {
+        playSound('wrong');
+        fb.innerHTML = '<span class="text-rose-700">Recalibrate your compass and try another route!</span>';
+      }
+    }
+
+    /* =========================================================================
+       8. DEDICATED CALMING CORNER INTERACTIVE ACTIVITIES
+       ========================================================================= */
+    let activeCalmTool = 'breath';
+    let sanctuaryBreathInterval = null;
+    let breathPaceMode = 'classic';
+    let sandBrushTool = 'rake';
+    let jarAnimationId = null;
+    let jarSwirlBoost = 1;
+
+    function initCalmingCorner() {
+      document.getElementById('calm-corner-dino').innerHTML = getChibiDinoSVG('brachio', 'happy', state.equippedAccessory);
+      document.getElementById('sanctuary-breath-dino').innerHTML = getChibiDinoSVG('brachio', 'happy');
+      selectCalmTool(activeCalmTool);
+    }
+
+    function selectCalmTool(tool) {
+      activeCalmTool = tool;
+      ['breath', 'popit', 'sand', 'jar', 'feelings'].forEach(t => {
+        const tab = document.getElementById(`ctab-${t}`);
+        const panel = document.getElementById(`ctool-${t}`);
+        if (tab) {
+          tab.className = t === tool
+            ? 'p-3.5 rounded-2xl bg-teal-600 text-white font-display font-bold text-sm shadow-sm transition flex flex-col items-center gap-1'
+            : 'p-3.5 rounded-2xl bg-white hover:bg-teal-50 text-slate-800 border border-teal-100 font-display font-bold text-sm transition flex flex-col items-center gap-1';
+        }
+        if (panel) panel.classList.toggle('hidden', t !== tool);
+      });
+
+      if (sanctuaryBreathInterval) clearTimeout(sanctuaryBreathInterval);
+      if (jarAnimationId) cancelAnimationFrame(jarAnimationId);
+
+      if (tool === 'breath') startSanctuaryBreathing();
+      else if (tool === 'popit') renderPopItBoard();
+      else if (tool === 'sand') initZenSandCanvas();
+      else if (tool === 'jar') initStarlightJar();
+      else if (tool === 'feelings') renderFeelingsCards();
+    }
+
+    function setBreathPace(pace) {
+      breathPaceMode = pace;
+      ['gentle', 'classic', 'deep'].forEach(p => {
+        const b = document.getElementById(`bpace-${p}`);
+        if (b) b.className = p === pace ? 'px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-teal-600 text-white' : 'px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700';
+      });
+      if (sanctuaryBreathInterval) clearTimeout(sanctuaryBreathInterval);
+      startSanctuaryBreathing();
+    }
+
+    function startSanctuaryBreathing() {
+      const ring = document.getElementById('sanctuary-breath-ring');
+      const cue = document.getElementById('sanctuary-breath-cue');
+      const configs = {
+        gentle: [{ t: 'Breathe In... (3s)', s: 'scale(1.32)', ms: 3000 }, { t: 'Hold Softly... (3s)', s: 'scale(1.32)', ms: 3000 }, { t: 'Breathe Out... (3s)', s: 'scale(0.95)', ms: 3000 }],
+        classic: [{ t: 'Breathe In... (4s)', s: 'scale(1.36)', ms: 4000 }, { t: 'Hold Calmly... (4s)', s: 'scale(1.36)', ms: 4000 }, { t: 'Breathe Out... (4s)', s: 'scale(0.95)', ms: 4000 }],
+        deep: [{ t: 'Deep Breath In... (4s)', s: 'scale(1.4)', ms: 4000 }, { t: 'Rest & Hold... (7s)', s: 'scale(1.4)', ms: 7000 }, { t: 'Long Slow Exhale... (8s)', s: 'scale(0.92)', ms: 8000 }]
+      };
+      const seq = configs[breathPaceMode] || configs.classic;
+      let idx = 0;
+      const step = () => {
+        const cur = seq[idx % seq.length];
+        ring.style.transitionDuration = `${cur.ms}ms`;
+        ring.style.transform = cur.s;
+        cue.textContent = cur.t;
+        idx++;
+        sanctuaryBreathInterval = setTimeout(step, cur.ms);
+      };
+      step();
+    }
+
+    function renderPopItBoard() {
+      const colors = ['bg-teal-300 border-teal-500', 'bg-sky-300 border-sky-500', 'bg-purple-300 border-purple-500', 'bg-amber-300 border-amber-500', 'bg-pink-300 border-pink-500', 'bg-emerald-300 border-emerald-500'];
+      const grid = document.getElementById('popit-grid');
+      grid.innerHTML = Array.from({ length: 24 }, (_, i) => {
+        const col = colors[Math.floor(i / 4) % colors.length];
+        return `<button onclick="togglePopBubble(this, ${i})" data-popped="0"
+          class="aspect-square rounded-full border-4 ${col} shadow-inner transition-transform duration-150 active:scale-90 flex items-center justify-center text-white font-bold">
+          </button>`;
+      }).join('');
+    }
+
+    function togglePopBubble(btn, idx) {
+      const popped = btn.dataset.popped === '1';
+      btn.dataset.popped = popped ? '0' : '1';
+      btn.style.transform = popped ? 'scale(1)' : 'scale(0.84)';
+      btn.style.opacity = popped ? '1' : '0.55';
+      if (state.soundOn) {
+        try {
+          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          if (audioCtx.state === 'suspended') audioCtx.resume();
+          const osc = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(popped ? 380 + (idx % 8) * 35 : 520 + (idx % 8) * 40, audioCtx.currentTime);
+          g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+          g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+          osc.connect(g); g.connect(audioCtx.destination);
+          osc.start(); osc.stop(audioCtx.currentTime + 0.13);
+        } catch (e) {}
+      }
+    }
+
+    function resetPopItBoard() { renderPopItBoard(); }
+
+    function setSandTool(t) {
+      sandBrushTool = t;
+      ['rake', 'dino', 'fern', 'stone'].forEach(k => {
+        const b = document.getElementById(`stool-${k}`);
+        if (b) b.className = k === t ? 'px-3 py-1.5 rounded-xl text-xs font-extrabold bg-amber-500 text-slate-950' : 'px-3 py-1.5 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-700';
+      });
+    }
+
+    function initZenSandCanvas() {
+      const canvas = document.getElementById('zen-sand-canvas');
+      if (!canvas) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = Math.max(300, rect.width);
+      canvas.height = Math.max(240, rect.height);
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#F5E6C8';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = 'rgba(180, 145, 95, 0.22)';
+      for (let i = 0; i < 400; i++) {
+        ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, 2, 2);
+      }
+
+      let drawing = false;
+      const getPos = (e) => {
+        const r = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - r.left, y: clientY - r.top };
+      };
+
+      const applySandAction = (pos, isClick = false) => {
+        if (sandBrushTool === 'rake') {
+          [-10, 0, 10].forEach(offset => {
+            ctx.beginPath();
+            ctx.arc(pos.x + offset, pos.y + offset * 0.4, 5, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(217, 185, 134, 0.55)';
+            ctx.fill();
+          });
+        } else if (isClick) {
+          ctx.font = '30px serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const stamp = sandBrushTool === 'dino' ? '🦕' : sandBrushTool === 'fern' ? '🌿' : '🪨';
+          ctx.fillText(stamp, pos.x, pos.y);
+        }
+      };
+
+      canvas.onmousedown = (e) => { drawing = true; applySandAction(getPos(e), true); };
+      canvas.onmousemove = (e) => { if (drawing && sandBrushTool === 'rake') applySandAction(getPos(e), false); };
+      window.onmouseup = () => { drawing = false; };
+      canvas.ontouchstart = (e) => { drawing = true; applySandAction(getPos(e), true); };
+      canvas.ontouchmove = (e) => { if (drawing && sandBrushTool === 'rake') applySandAction(getPos(e), false); };
+      canvas.ontouchend = () => { drawing = false; };
+    }
+
+    function clearZenSand() { initZenSandCanvas(); }
+
+    function swirlStarlightJar() { jarSwirlBoost = 5.5; }
+
+    function initStarlightJar() {
+      const canvas = document.getElementById('starlight-jar-canvas');
+      if (!canvas) return;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = Math.max(280, rect.width);
+      canvas.height = Math.max(260, rect.height);
+      const ctx = canvas.getContext('2d');
+
+      const motes = Array.from({ length: 38 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 3.5 + 1.5,
+        vx: (Math.random() - 0.5) * 0.7,
+        vy: (Math.random() - 0.5) * 0.7,
+        color: pick(['#FDE047', '#5EEAD4', '#C4B5FD', '#7DD3FC'])
+      }));
+
+      function renderJar() {
+        if (activeCalmTool !== 'jar') return;
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.25)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        jarSwirlBoost = Math.max(1, jarSwirlBoost * 0.96);
+
+        motes.forEach(m => {
+          m.x += m.vx * jarSwirlBoost;
+          m.y += m.vy * jarSwirlBoost;
+          if (m.x < 0 || m.x > canvas.width) m.vx *= -1;
+          if (m.y < 0 || m.y > canvas.height) m.vy *= -1;
+          ctx.beginPath();
+          ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
+          ctx.fillStyle = m.color;
+          ctx.fill();
+        });
+        jarAnimationId = requestAnimationFrame(renderJar);
+      }
+      renderJar();
+
+      const steps = [
+        '👀 5 things you can SEE around you',
+        '🖐️ 4 things you can FEEL or touch (like your cozy chair)',
+        '👂 3 things you can HEAR right now',
+        '👃 2 things you can SMELL nearby',
+        '💛 1 kind thought about yourself today'
+      ];
+      document.getElementById('grounding-steps-list').innerHTML = steps.map(s => `
+        <button onclick="this.classList.toggle('bg-teal-100'); this.classList.toggle('border-teal-500')"
+          class="w-full text-left p-2.5 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-indigo-50 text-xs font-extrabold text-slate-800 transition">
+          ${s}
+        </button>
+      `).join('');
+    }
+
+    function renderFeelingsCards() {
+      const feelings = [
+        { id: 'overwhelmed', icon: '🌊', label: 'Overwhelmed', dino: 'brachio', title: 'It’s okay to pause and take space.', msg: 'Bram says: "When everything feels too loud or fast, let’s turn on Calm Mode, dim the lights, and take 3 slow breaths together."' },
+        { id: 'frustrated', icon: '🌋', label: 'Frustrated', dino: 'ankylo', title: 'Hard puzzles take time—you’re doing great.', msg: 'Anky says: "Feeling stuck means your brain is growing new pathways! Take a break in the Zen Sand garden whenever you need."' },
+        { id: 'wiggly', icon: '⚡', label: 'Wiggly / Energetic', dino: 'raptor', title: 'Movement helps brains focus!', msg: 'Veloci says: "Do 5 big dino stomps, stretch your arms up to the sky, or pop some sensory bubbles before your next question!"' },
+        { id: 'tired', icon: '🌙', label: 'Tired / Low Energy', dino: 'plesio', title: 'Gentle steps count too.', msg: 'Plesio says: "You can use Read-Aloud voice so you don’t have to strain your eyes, or just listen to a cozy story."' },
+        { id: 'sad', icon: '🌧️', label: 'Sad / Quiet', dino: 'triceratops', title: 'Sending you a warm dino hug.', msg: 'Trixie says: "Every feeling passes like clouds in the sky. Pet your dino friend in the Dino Nest anytime you want comfort."' },
+        { id: 'curious', icon: '🔍', label: 'Curious', dino: 'stego', title: 'Your curiosity is a superpower!', msg: 'Sunny says: "Let’s explore Science or Social Studies or craft a brand-new story about your favorite topic!"' },
+        { id: 'calm', icon: '🍃', label: 'Calm & Steady', dino: 'parasaur', title: 'Peaceful focus feels wonderful.', msg: 'Parasaur says: "Enjoy this cozy rhythm—you’re ready whenever you choose to jump back in."' },
+        { id: 'proud', icon: '🌟', label: 'Happy & Proud', dino: 'trex', title: 'Rawr! Celebrate your wins!', msg: 'Pip says: "You’re shining bright! Check your Dino Nest to see how close your next egg is to hatching!"' }
+      ];
+
+      document.getElementById('feelings-cards-grid').innerHTML = feelings.map(f => `
+        <button onclick='showFeelingComfort(${JSON.stringify(f).replace(/'/g, "&#39;")})'
+          class="p-4 rounded-2xl bg-slate-50 hover:bg-teal-50 border-2 border-slate-200 hover:border-teal-400 transition flex flex-col items-center gap-1.5">
+          <span class="text-3xl">${f.icon}</span>
+          <span class="font-display font-bold text-sm text-slate-900">${f.label}</span>
+        </button>
+      `).join('');
+    }
+
+    function showFeelingComfort(f) {
+      playSound('correct');
+      const box = document.getElementById('feeling-response-box');
+      box.classList.remove('hidden');
+      document.getElementById('feeling-dino-avatar').innerHTML = getChibiDinoSVG(f.dino, 'happy');
+      document.getElementById('feeling-response-title').textContent = f.title;
+      document.getElementById('feeling-response-msg').textContent = f.msg;
+    }
+
+    /* =========================================================================
+       9. DINO NEST HABITAT, ACCESSORY BOUTIQUE & EGG HATCHING (ALL 12 UNLOCKABLE)
+       ========================================================================= */
+    let lastHatchedDinoId = null;
+
+    function getNextLockedDino() {
+      return DINO_ROSTER.find(d => !state.unlockedDinos.includes(d.id)) || DINO_ROSTER[0];
+    }
+
+    function updateEggProgressUI() {
+      const nextDino = getNextLockedDino();
+      const pct = Math.min(100, (state.eggStars / 5) * 100);
+      document.getElementById('egg-progress-text').textContent = `${state.eggStars} / 5 Stars`;
+      document.getElementById('egg-progress-bar').style.width = `${pct}%`;
+      const ready = state.eggStars >= 5;
+      document.getElementById('mini-egg-preview').innerHTML = getEggSVG(nextDino.id, ready);
+
+      document.getElementById('hatch-now-btn').classList.toggle('hidden', !ready);
+      document.getElementById('nest-hatch-btn').classList.toggle('hidden', !ready);
+      document.getElementById('nest-badge').classList.toggle('hidden', !ready);
+    }
+
+    function openHatchModal() {
+      if (state.eggStars < 5) return;
+      state.eggStars = 0;
+      const locked = DINO_ROSTER.filter(d => !state.unlockedDinos.includes(d.id));
+      const hatched = locked.length > 0 ? pick(locked) : pick(DINO_ROSTER);
+      if (!state.unlockedDinos.includes(hatched.id)) state.unlockedDinos.push(hatched.id);
+      lastHatchedDinoId = hatched.id;
+
+      saveState();
+      playSound('hatch');
+      launchConfetti();
+
+      document.getElementById('hatched-dino-showcase').innerHTML = getChibiDinoSVG(hatched.id, 'cheer', state.equippedAccessory);
+      document.getElementById('hatched-dino-name').textContent = hatched.name;
+      document.getElementById('hatched-dino-desc').textContent = hatched.desc;
+      document.getElementById('hatch-modal').classList.remove('hidden');
+
+      updateEggProgressUI();
+      renderDinoNest();
+    }
+
+    function equipHatchedDino() {
+      if (lastHatchedDinoId) { state.activeDino = lastHatchedDinoId; saveState(); renderAllUI(); }
+      document.getElementById('hatch-modal').classList.add('hidden');
+    }
+
+    function closeHatchModal() { document.getElementById('hatch-modal').classList.add('hidden'); }
+
+    function petActiveDino() {
+      playSound('correct');
+      const stage = document.getElementById('nest-active-dino-stage');
+      stage.innerHTML = getChibiDinoSVG(state.activeDino, 'cheer', state.equippedAccessory);
+      document.getElementById('nest-habitat-status').textContent = '💖 Purring happily! That felt so cozy!';
+      setTimeout(() => { stage.innerHTML = getChibiDinoSVG(state.activeDino, 'happy', state.equippedAccessory); }, 1400);
+    }
+
+    function feedActiveDino() {
+      playSound('correct');
+      const stage = document.getElementById('nest-active-dino-stage');
+      stage.innerHTML = getChibiDinoSVG(state.activeDino, 'cheer', state.equippedAccessory);
+      document.getElementById('nest-habitat-status').textContent = '🍓 Nom nom! Crunchy strawberries are the best!';
+      setTimeout(() => { stage.innerHTML = getChibiDinoSVG(state.activeDino, 'happy', state.equippedAccessory); }, 1400);
+    }
+
+    function buyOrEquipAccessory(accId, cost) {
+      const owned = (state.unlockedAccessories || ['none']).includes(accId);
+      if (owned) {
+        state.equippedAccessory = accId;
+        saveState();
+        renderDinoNest();
+        renderHeaderAndGrades();
+        renderDinoCompanion('cheer', 'Look at my new style! Rawr!');
+        return;
+      }
+      if (state.stars >= cost) {
+        state.stars -= cost;
+        state.unlockedAccessories.push(accId);
+        state.equippedAccessory = accId;
+        playSound('hatch');
+        saveState();
+        renderDinoNest();
+        renderHeaderAndGrades();
+      }
+    }
+
+    function renderDinoNest() {
+      const activeObj = DINO_ROSTER.find(d => d.id === state.activeDino) || DINO_ROSTER[0];
+      document.getElementById('nest-active-dino-stage').innerHTML = getChibiDinoSVG(activeObj.id, 'happy', state.equippedAccessory);
+      document.getElementById('nest-active-dino-name').textContent = activeObj.name;
+      document.getElementById('nest-count-label').textContent = `${state.unlockedDinos.length} / ${DINO_ROSTER.length} Hatched`;
+
+      document.getElementById('accessory-shop-grid').innerHTML = ACCESSORIES.map(acc => {
+        const owned = (state.unlockedAccessories || ['none']).includes(acc.id);
+        const equipped = state.equippedAccessory === acc.id;
+        return `
+          <button onclick="buyOrEquipAccessory('${acc.id}', ${acc.cost})"
+            class="p-3 rounded-2xl border-2 text-center transition ${
+              equipped ? 'border-emerald-500 bg-emerald-50' : owned ? 'border-slate-200 bg-white hover:border-emerald-300' : 'border-amber-200 bg-amber-50/60 hover:bg-amber-100'
+            }">
+            <div class="text-2xl mb-1">${acc.icon}</div>
+            <div class="font-display font-bold text-xs text-slate-900">${acc.name}</div>
+            <div class="text-[11px] font-extrabold mt-1 ${equipped ? 'text-emerald-700' : owned ? 'text-slate-500' : 'text-amber-800'}">
+              ${equipped ? '✓ Wearing' : owned ? 'Equip' : `⭐ ${acc.cost} Stars`}
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      document.getElementById('dino-nest-grid').innerHTML = DINO_ROSTER.map(dino => {
+        const unlocked = state.unlockedDinos.includes(dino.id);
+        const isActive = state.activeDino === dino.id;
+        return `
+          <div class="bg-white rounded-3xl p-3.5 card-shadow border-2 ${
+            isActive ? 'border-emerald-500' : unlocked ? 'border-emerald-100' : 'border-slate-100 opacity-85'
+          } flex flex-col items-center text-center justify-between space-y-2">
+            <div class="w-24 h-24 flex items-center justify-center">
+              ${unlocked ? getChibiDinoSVG(dino.id, 'happy', isActive ? state.equippedAccessory : 'none') : getEggSVG(dino.id, false)}
+            </div>
+            <div>
+              <h4 class="font-display font-bold text-sm text-slate-900">${unlocked ? dino.name : 'Mystery Egg'}</h4>
+              <p class="text-[11px] font-semibold text-slate-500">${unlocked ? dino.species : '5 Stars to Hatch'}</p>
+            </div>
+            ${
+              unlocked
+                ? `<button onclick="selectBuddy('${dino.id}')" class="w-full py-1.5 rounded-xl text-xs font-extrabold transition ${
+                    isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  }">${isActive ? '✓ Active' : 'Select'}</button>`
+                : `<span class="w-full py-1.5 rounded-xl text-xs font-extrabold bg-slate-100 text-slate-400">🔒 Egg</span>`
+            }
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectBuddy(id) { state.activeDino = id; saveState(); renderAllUI(); }
+    function cycleBuddy() {
+      const idx = state.unlockedDinos.indexOf(state.activeDino);
+      selectBuddy(state.unlockedDinos[(idx + 1) % state.unlockedDinos.length]);
+    }
+
+    /* =========================================================================
+       10. SENSORY SUITE & PROFILE MODALS
+       ========================================================================= */
+    function applySensoryClasses() {
+      document.body.classList.toggle('calm-mode', !!state.calmMode);
+      document.body.classList.toggle('focus-mode', !!state.focusMode);
+      document.body.classList.toggle('dyslexia-mode', !!state.dyslexiaMode);
+
+      document.body.classList.remove('text-sm-mode', 'text-md-mode', 'text-lg-mode');
+      document.body.classList.add(`text-${state.textSize || 'md'}-mode`);
+
+      document.getElementById('reading-ruler').classList.toggle('hidden', !state.readingRuler);
+      document.getElementById('streak-pill').classList.toggle('hidden', !!state.calmMode);
+
+      const setBtn = (id, active) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.className = active
+          ? 'px-2.5 py-1 rounded-xl bg-amber-400 text-slate-950 font-extrabold border border-amber-300 flex items-center gap-1 transition'
+          : 'px-2.5 py-1 rounded-xl bg-emerald-900/80 hover:bg-emerald-800 border border-emerald-700 flex items-center gap-1 transition';
+      };
+      setBtn('btn-calm', state.calmMode);
+      setBtn('btn-focus', state.focusMode);
+      setBtn('btn-ruler', state.readingRuler);
+      setBtn('btn-dyslexia', state.dyslexiaMode);
+
+      ['sm', 'md', 'lg'].forEach(sz => {
+        const b = document.getElementById(`txt-${sz}`);
+        if (b) b.className = (state.textSize || 'md') === sz ? 'px-2 py-1 bg-amber-400 text-slate-950 font-extrabold' : 'px-2 py-1 hover:bg-emerald-800';
+      });
+      document.getElementById('tts-rate-label').textContent = `${(state.speechRate || 1.0).toFixed(1)}x Voice`;
+    }
+
+    function toggleCalmMode() { state.calmMode = !state.calmMode; applySensoryClasses(); saveState(); }
+    function toggleFocusMode() { state.focusMode = !state.focusMode; applySensoryClasses(); saveState(); }
+    function toggleReadingRuler() { state.readingRuler = !state.readingRuler; applySensoryClasses(); saveState(); }
+    function toggleDyslexiaFont() { state.dyslexiaMode = !state.dyslexiaMode; applySensoryClasses(); saveState(); }
+    function setTextSize(sz) { state.textSize = sz; applySensoryClasses(); saveState(); }
+    function cycleSpeechRate() {
+      const rates = [0.8, 1.0, 1.2];
+      state.speechRate = rates[(rates.indexOf(state.speechRate || 1.0) + 1) % rates.length];
+      applySensoryClasses();
+      saveState();
+    }
+    function toggleSound() { state.soundOn = !state.soundOn; saveState(); renderHeaderAndGrades(); }
+
+    window.addEventListener('mousemove', (e) => {
+      if (!state.readingRuler) return;
+      document.getElementById('reading-ruler').style.top = `${Math.max(0, e.clientY - 27)}px`;
+    });
+
+    function openProfileModal() {
+      renderProfilesList();
+      document.getElementById('profile-modal').classList.remove('hidden');
+    }
+    function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
+
+    function renderProfilesList() {
+      const count = Object.keys(profilesMap).length;
+      const limitTag = document.getElementById('profile-limit-tag');
+      if (limitTag) limitTag.textContent = `${count} / 6 Beta Profiles`;
+
+      const wrap = document.getElementById('profiles-list');
+      wrap.innerHTML = Object.values(profilesMap).map(prof => {
+        const isCurrent = prof.profileId === activeProfileId;
+        return `
+          <div class="flex items-center justify-between p-3 rounded-2xl border-2 ${isCurrent ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white'}">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10">${getChibiDinoSVG(prof.activeDino || 'trex', 'happy')}</div>
+              <div>
+                <div class="font-display font-bold text-sm text-slate-900">${prof.name}</div>
+                <div class="text-xs font-bold text-slate-500">${GRADES[prof.grade]?.label || 'Grade 2'} • ⭐ ${prof.stars || 0} Stars</div>
+              </div>
+            </div>
+            <button onclick="switchLearnerProfile('${prof.profileId}')" class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold ${
+              isCurrent ? 'bg-emerald-600 text-white' : 'bg-slate-100 hover:bg-emerald-100 text-slate-800'
+            }">${isCurrent ? 'Active' : 'Switch'}</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function switchLearnerProfile(id) {
+      if (!profilesMap[id]) return;
+      activeProfileId = id;
+      state = { ...createDefaultProfileData(id), ...profilesMap[id] };
+      saveState();
+      applySensoryClasses();
+      renderAllUI();
+      loadNewProblem();
+      closeProfileModal();
+    }
+
+    function createNewLearnerProfile() {
+      if (Object.keys(profilesMap).length >= 6) return;
+      const name = document.getElementById('new-profile-name').value.trim() || 'Explorer';
+      const grade = parseInt(document.getElementById('new-profile-grade').value, 10);
+      const dino = document.getElementById('new-profile-dino').value;
+      const newId = 'learner_' + Date.now();
+      profilesMap[newId] = createDefaultProfileData(newId, name, grade, dino);
+      switchLearnerProfile(newId);
+    }
+
+    /* =========================================================================
+       11. PRACTICE LOOP, PLACEMENT QUIZ & PARENT HUB
+       ========================================================================= */
+    let currentProblem = null;
+    let answeredCurrent = false;
+    let hintStepIndex = 0;
+    let placementMode = false;
+    let placementStep = 0;
+    let placementGradeCursor = 1;
+
+    function renderHeaderAndGrades() {
+      document.getElementById('header-logo-dino').innerHTML = getChibiDinoSVG(state.activeDino, 'happy', state.equippedAccessory);
+      document.getElementById('active-profile-name').textContent = state.name || 'Beta Explorer';
+      document.getElementById('star-count').textContent = state.stars;
+      document.getElementById('streak-count').textContent = state.streak;
+      document.getElementById('sound-btn').textContent = state.soundOn ? '🔊' : '🔇';
+
+      const pillStyle = (active, activeCls, idleCls) =>
+        `px-4 py-2.5 rounded-2xl font-display font-bold text-sm sm:text-base flex items-center justify-center gap-1.5 transition ${active ? activeCls + ' shadow-sm' : idleCls}`;
+
+      document.getElementById('subj-math').className = pillStyle(state.subject === 'math', 'bg-emerald-600 text-white', 'bg-emerald-50 text-emerald-900 hover:bg-emerald-100');
+      document.getElementById('subj-reading').className = pillStyle(state.subject === 'reading', 'bg-sky-600 text-white', 'bg-sky-50 text-sky-900 hover:bg-sky-100');
+      document.getElementById('subj-science').className = pillStyle(state.subject === 'science', 'bg-amber-500 text-slate-950', 'bg-amber-50 text-amber-900 hover:bg-amber-100');
+      document.getElementById('subj-social').className = pillStyle(state.subject === 'social', 'bg-purple-600 text-white', 'bg-purple-50 text-purple-900 hover:bg-purple-100');
+
+      const stat = getSkillStat(state.grade, state.subject);
+      const tiers = ['🥉 Bronze', '🥈 Silver', '🥇 Gold'];
+      document.getElementById('tier-badge').textContent = tiers[stat.tier] || '🥉 Bronze';
+
+      document.getElementById('grade-selector').innerHTML = GRADES.map(g => `
+        <button onclick="setGrade(${g.id})" class="px-3.5 py-2 rounded-2xl font-display font-bold text-sm whitespace-nowrap transition flex items-center gap-1 ${
+          g.id === state.grade
+            ? 'bg-emerald-700 text-white shadow-sm'
+            : 'bg-slate-100/80 text-slate-700 hover:bg-emerald-100/70'
+        }">${g.id === 0 ? 'Kindergarten' : 'Grade ' + g.short}</button>
+      `).join('');
+    }
+
+    function renderDinoCompanion(mood = 'happy', message = null) {
+      const dino = DINO_ROSTER.find(d => d.id === state.activeDino) || DINO_ROSTER[0];
+      document.getElementById('dino-name-tag').textContent = dino.name;
+      const stage = document.getElementById('dino-stage');
+      stage.innerHTML = getChibiDinoSVG(dino.id, mood, state.equippedAccessory);
+      stage.className = `w-40 h-40 transition-transform ${mood === 'cheer' ? 'dino-cheer' : mood === 'think' ? 'dino-think' : 'dino-idle'}`;
+
+      const emote = document.getElementById('dino-emote');
+      if (mood === 'cheer') { emote.textContent = '🎉⭐'; emote.classList.remove('hidden'); }
+      else if (mood === 'think') { emote.textContent = '💡🤔'; emote.classList.remove('hidden'); }
+      else { emote.classList.add('hidden'); }
+
+      if (message) document.getElementById('dino-speech').textContent = message;
+    }
+
+    function loadNewProblem() {
+      answeredCurrent = false;
+      hintStepIndex = 0;
+      const targetGrade = placementMode ? placementGradeCursor : state.grade;
+      const activeSubj = placementMode ? ['math', 'reading', 'science', 'social'][placementStep % 4] : state.subject;
+      if (placementMode) {
+        state.subject = activeSubj;
+        renderHeaderAndGrades();
+      }
+      const stat = getSkillStat(targetGrade, activeSubj);
+
+      if (activeSubj === 'math') currentProblem = generateMathProblem(targetGrade, stat.tier);
+      else if (activeSubj === 'reading') currentProblem = generateReadingProblem(targetGrade);
+      else if (activeSubj === 'science') currentProblem = generateScienceProblem(targetGrade);
+      else currentProblem = generateSocialProblem(targetGrade);
+
+      const subjNames = { math: 'Math', reading: 'Reading', science: 'Science', social: 'Social Studies' };
+      const gradeObj = GRADES[targetGrade];
+      document.getElementById('problem-grade-label').textContent = `${gradeObj.label} • ${subjNames[activeSubj]}`;
+      document.getElementById('problem-skill-title').textContent = currentProblem.skill;
+
+      const passageBox = document.getElementById('reading-passage-box');
+      if (currentProblem.subject === 'reading') {
+        passageBox.classList.remove('hidden');
+        document.getElementById('passage-genre').textContent = currentProblem.passageGenre;
+        document.getElementById('passage-title').textContent = currentProblem.passageTitle;
+        document.getElementById('passage-body').textContent = currentProblem.passageBody;
+      } else {
+        passageBox.classList.add('hidden');
+      }
+
+      const visArea = document.getElementById('problem-visual-area');
+      if (currentProblem.visual) {
+        visArea.innerHTML = currentProblem.visual;
+        visArea.classList.remove('hidden');
+      } else {
+        visArea.innerHTML = '';
+        visArea.classList.add('hidden');
+      }
+
+      document.getElementById('question-text').textContent = currentProblem.question;
+      document.getElementById('hint-drawer').classList.add('hidden');
+      document.getElementById('feedback-bar').classList.add('hidden');
+
+      const letters = ['A', 'B', 'C', 'D'];
+      document.getElementById('choices-grid').innerHTML = currentProblem.choices.map((choice, idx) => `
+        <button onclick="submitAnswer(${idx})" id="choice-${idx}"
+          class="choice-btn w-full text-left p-4 rounded-2xl border-2 border-slate-200 bg-slate-50/70 hover:bg-emerald-50 hover:border-emerald-400 font-display scalable-text font-semibold text-lg text-slate-800 flex items-center gap-3.5">
+          <span class="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-sm font-extrabold text-emerald-800 flex-shrink-0">${letters[idx]}</span>
+          <span>${choice}</span>
+        </button>
+      `).join('');
+
+      renderDinoCompanion('happy');
+    }
+
+    function readCurrentProblemAloud() {
+      if (!currentProblem) return;
+      const prefix = currentProblem.passageBody ? `${currentProblem.passageTitle}. ${currentProblem.passageBody}. ` : '';
+      speakText(`${prefix}${currentProblem.question}`);
+    }
+
+    function submitAnswer(choiceIdx) {
+      if (answeredCurrent) return;
+      answeredCurrent = true;
+
+      const selected = currentProblem.choices[choiceIdx];
+      const isCorrect = selected === currentProblem.answer;
+      const targetGrade = placementMode ? placementGradeCursor : state.grade;
+      const stat = getSkillStat(targetGrade, state.subject);
+
+      currentProblem.choices.forEach((c, idx) => {
+        const btn = document.getElementById(`choice-${idx}`);
+        btn.disabled = true;
+        if (c === currentProblem.answer) btn.className = 'choice-btn w-full text-left p-4 rounded-2xl border-2 border-emerald-500 bg-emerald-100 font-display scalable-text font-bold text-lg text-emerald-950 flex items-center gap-3.5';
+        else if (idx === choiceIdx && !isCorrect) btn.className = 'choice-btn w-full text-left p-4 rounded-2xl border-2 border-rose-400 bg-rose-100 font-display scalable-text font-semibold text-lg text-rose-950 flex items-center gap-3.5';
+        else btn.classList.add('opacity-55');
+      });
+
+      const fbBar = document.getElementById('feedback-bar');
+      stat.total += 1;
+
+      if (isCorrect) {
+        playSound('correct');
+        stat.correct += 1;
+        state.stars += 1;
+        state.eggStars = Math.min(5, state.eggStars + 1);
+        state.streak += 1;
+        state.wrongStreak = 0;
+        if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+
+        let leveledUpLabel = null;
+        if (state.streak % 3 === 0 && stat.tier < 2) {
+          stat.tier += 1;
+          const tierNames = ['Bronze Level', 'Silver Mastery Level', 'Gold Mastery Level (Grade Level Completed!)'];
+          const subjMap = { math: 'Math', reading: 'Reading', science: 'Science', social: 'Social Studies' };
+          leveledUpLabel = `${GRADES[targetGrade].label} ${subjMap[state.subject]} — ${tierNames[stat.tier]}`;
+        }
+
+        fbBar.className = 'rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 animate-pop bg-emerald-100 border border-emerald-300 text-emerald-950';
+        document.getElementById('feedback-icon').textContent = leveledUpLabel ? '🏆' : '🎉';
+        document.getElementById('feedback-title').textContent = leveledUpLabel ? `Level Completed: ${leveledUpLabel}!` : 'Dino-mite job!';
+        document.getElementById('feedback-detail').textContent = leveledUpLabel
+          ? `Progress report automatically logged to ${betaSettings.parentEmail || 'Parent Hub'}!`
+          : '+1 Star earned toward your next Chibi Dino Egg!';
+        renderDinoCompanion('cheer', leveledUpLabel ? 'You leveled up! Progress report logged in Parent Hub!' : 'Woohoo! Great thinking—keep going at your own pace!');
+        launchConfetti();
+
+        if (leveledUpLabel) {
+          triggerLevelCompletionEmailReport(leveledUpLabel, false);
+        }
+
+        if (placementMode) placementGradeCursor = Math.min(8, placementGradeCursor + 1);
+      } else {
+        playSound('wrong');
+        state.streak = 0;
+        state.wrongStreak += 1;
+        if (state.wrongStreak >= 2 && stat.tier > 0) { stat.tier -= 1; state.wrongStreak = 0; }
+
+        fbBar.className = 'rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 animate-pop bg-amber-100 border border-amber-300 text-amber-950';
+        document.getElementById('feedback-icon').textContent = '🦕';
+        document.getElementById('feedback-title').textContent = 'Good effort! Look at the visual clue above.';
+        document.getElementById('feedback-detail').textContent = `Answer: "${currentProblem.answer}"`;
+        showDinoHint(true);
+        renderDinoCompanion('think', 'No worries at all! Check the visual steps above.');
+
+        if (placementMode) placementGradeCursor = Math.max(0, placementGradeCursor - 1);
+      }
+
+      fbBar.classList.remove('hidden');
+      saveState();
+      renderHeaderAndGrades();
+      updateEggProgressUI();
+    }
+
+    function nextQuestion() {
+      if (placementMode) {
+        placementStep += 1;
+        if (placementStep >= 8) {
+          placementMode = false;
+          document.getElementById('placement-banner').classList.add('hidden');
+          state.grade = placementGradeCursor;
+          saveState();
+          renderHeaderAndGrades();
+          loadNewProblem();
+          document.getElementById('info-modal-title').textContent = `Placed in ${GRADES[state.grade].label}!`;
+          document.getElementById('info-modal-body').textContent = `Your 4-subject adaptive lessons (Math, Reading, Science & Social Studies) are now set to ${GRADES[state.grade].label}.`;
+          document.getElementById('info-modal').classList.remove('hidden');
+          return;
+        }
+        document.getElementById('placement-q-num').textContent = placementStep + 1;
+      }
+      loadNewProblem();
+    }
+
+    function showDinoHint(silent = false) {
+      if (!currentProblem || !currentProblem.hints) return;
+      if (!silent) renderDinoCompanion('think', "Let's walk through this step by step!");
+      const drawer = document.getElementById('hint-drawer');
+      drawer.classList.remove('hidden');
+      const step = currentProblem.hints[hintStepIndex];
+      document.getElementById('hint-step-indicator').textContent = `Step ${hintStepIndex + 1} of ${currentProblem.hints.length}`;
+      document.getElementById('hint-explanation').textContent = step.text;
+      document.getElementById('hint-visual-container').innerHTML = step.visual || '';
+      document.getElementById('hint-next-step-wrap').classList.toggle('hidden', hintStepIndex >= currentProblem.hints.length - 1);
+    }
+
+    function advanceHintStep() {
+      if (hintStepIndex < currentProblem.hints.length - 1) { hintStepIndex++; showDinoHint(); }
+    }
+
+    function startPlacementTest() {
+      switchView('learn');
+      placementMode = true;
+      placementStep = 0;
+      placementGradeCursor = 1;
+      document.getElementById('placement-banner').classList.remove('hidden');
+      document.getElementById('placement-banner').classList.add('flex');
+      document.getElementById('placement-q-num').textContent = '1';
+      loadNewProblem();
+    }
+
+    function cancelPlacementTest() {
+      placementMode = false;
+      document.getElementById('placement-banner').classList.add('hidden');
+      loadNewProblem();
+    }
+
+    function closeInfoModal() { document.getElementById('info-modal').classList.add('hidden'); }
+
+    function switchView(viewName) {
+      ['learn', 'calm', 'story', 'games', 'nest', 'parent'].forEach(v => {
+        document.getElementById(`view-${v}`).classList.add('hidden');
+        document.getElementById(`nav-${v}`).className =
+          'px-3 py-2 rounded-xl text-sm font-bold text-emerald-800 hover:bg-white/60 transition flex items-center gap-1.5 relative whitespace-nowrap';
+      });
+      document.getElementById(`view-${viewName}`).classList.remove('hidden');
+      document.getElementById(`nav-${viewName}`).className =
+        'px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 bg-white text-emerald-950 shadow-sm relative whitespace-nowrap';
+
+      if (viewName === 'calm') {
+        initCalmingCorner();
+      } else if (viewName === 'story') {
+        document.getElementById('story-grade-select').value = state.grade;
+        renderSavedStoriesList();
+        if (!activeStoryObj) {
+          const starter = (state.savedStories && state.savedStories[0]) || buildAlgorithmicStory(state.grade, state.activeDino, 'Space Exploration & Starships', 'Short');
+          displayStory(starter);
+        }
+      } else if (viewName === 'games') {
+        document.getElementById('game-grade-select').value = state.grade;
+        ['fossil', 'wordlab', 'sciencelab', 'mapquest'].forEach(k => {
+          const el = document.getElementById(`hi-${k}`);
+          if (el) el.textContent = (state.gameHighScores && state.gameHighScores[k]) || 0;
+        });
+        initCurrentMiniGame();
+      } else if (viewName === 'nest') {
+        renderDinoNest();
+      } else if (viewName === 'parent') {
+        renderBetaUI();
+        renderParentDashboard();
+      }
+    }
+
+    function setGrade(g) {
+      state.grade = g;
+      saveState();
+      renderHeaderAndGrades();
+      loadNewProblem();
+    }
+
+    function setSubject(s) { state.subject = s; saveState(); renderHeaderAndGrades(); loadNewProblem(); }
+
+    function renderParentDashboard() {
+      document.getElementById('report-learner-name').textContent = state.name || 'Beta Explorer';
+      let totalQ = 0, totalCorrect = 0;
+      const tiers = ['🥉 Bronze', '🥈 Silver', '🥇 Gold'];
+
+      const fmtCell = (st, colorCls) => st.total > 0
+        ? `<span class="${colorCls}">${tiers[st.tier]} • ${Math.round((st.correct / st.total) * 100)}% (${st.correct}/${st.total})</span>`
+        : '<span class="text-slate-400">—</span>';
+
+      document.getElementById('parent-grade-table').innerHTML = GRADES.map(g => {
+        const m = getSkillStat(g.id, 'math');
+        const r = getSkillStat(g.id, 'reading');
+        const sc = getSkillStat(g.id, 'science');
+        const so = getSkillStat(g.id, 'social');
+        totalQ += m.total + r.total + sc.total + so.total;
+        totalCorrect += m.correct + r.correct + sc.correct + so.correct;
+        return `
+          <tr class="hover:bg-emerald-50/40">
+            <td class="py-3 px-3 font-display font-bold text-slate-900">${g.label}</td>
+            <td class="py-3 px-3">${fmtCell(m, 'text-emerald-700')}</td>
+            <td class="py-3 px-3">${fmtCell(r, 'text-sky-700')}</td>
+            <td class="py-3 px-3">${fmtCell(sc, 'text-amber-700')}</td>
+            <td class="py-3 px-3">${fmtCell(so, 'text-purple-700')}</td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('stat-total-q').textContent = totalQ;
+      document.getElementById('stat-accuracy').textContent = totalQ > 0 ? `${Math.round((totalCorrect / totalQ) * 100)}%` : '0%';
+      document.getElementById('stat-stories-read').textContent = (state.savedStories || []).length;
+      const gPts = Object.values(state.gameHighScores || {}).reduce((a, b) => a + b, 0);
+      document.getElementById('stat-game-points').textContent = gPts;
+      document.getElementById('stat-dinos-hatched').textContent = `${state.unlockedDinos.length} / ${DINO_ROSTER.length}`;
+
+      const supports = [
+        { label: 'Calm Mode', on: state.calmMode },
+        { label: 'Focus Dimmer', on: state.focusMode },
+        { label: 'Reading Ruler', on: state.readingRuler },
+        { label: 'Dyslexia-Friendly Font', on: state.dyslexiaMode },
+        { label: `Text Size: ${(state.textSize || 'md').toUpperCase()}`, on: true },
+        { label: `Voice Speed: ${(state.speechRate || 1.0).toFixed(1)}x`, on: true }
+      ];
+      document.getElementById('sensory-summary-pills').innerHTML = supports.map(s => `
+        <span class="px-3 py-1.5 rounded-xl text-xs font-extrabold ${s.on ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-slate-100 text-slate-400'}">
+          ${s.on ? '✓' : '○'} ${s.label}
+        </span>
+      `).join('');
+    }
+
+    function exportProgressJSON() {
+      const blob = new Blob([JSON.stringify({ edition: 'Free Open Beta', betaSettings, learner: state }, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${(state.name || 'learner').replace(/\s+/g, '_')}_DinoNest_Labs_Beta_Report.json`;
+      a.click();
+    }
+
+    function launchConfetti() {
+      if (state.calmMode) return;
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const colors = ['#4ADE80', '#FACC15', '#38BDF8', '#F472B6', '#A78BFA'];
+      const particles = Array.from({ length: 45 }, () => ({
+        x: canvas.width * 0.5 + (Math.random() - 0.5) * 240,
+        y: canvas.height * 0.35,
+        vx: (Math.random() - 0.5) * 10,
+        vy: -Math.random() * 9 - 3,
+        size: Math.random() * 6 + 4,
+        color: pick(colors)
+      }));
+      let frames = 0;
+      function frame() {
+        frames++;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          p.x += p.vx; p.y += p.vy; p.vy += 0.35;
+          ctx.fillStyle = p.color;
+          ctx.fillRect(p.x, p.y, p.size, p.size * 0.7);
+        });
+        if (frames < 55) requestAnimationFrame(frame);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function renderAllUI() {
+      renderBetaUI();
+      renderHeaderAndGrades();
+      renderDinoCompanion('happy');
+      updateEggProgressUI();
+    }
+
+    function bootstrap() {
+      loadBetaSettings();
+      loadLocalProfiles();
+
+      const dinoOpts = DINO_ROSTER.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+      document.getElementById('story-hero-select').innerHTML = dinoOpts;
+      document.getElementById('new-profile-dino').innerHTML = dinoOpts;
+
+      applySensoryClasses();
+      renderAllUI();
+      loadNewProblem();
+      initFirebaseSync();
+    }
+
+    Object.assign(window, {
+      switchView, setGrade, setSubject, submitAnswer, nextQuestion, showDinoHint, advanceHintStep,
+      readCurrentProblemAloud, startPlacementTest, cancelPlacementTest, closeInfoModal,
+      toggleCalmMode, toggleFocusMode, toggleReadingRuler, toggleDyslexiaFont, setTextSize,
+      cycleSpeechRate, toggleSound,
+      selectCalmTool, setBreathPace, togglePopBubble, resetPopItBoard, setSandTool, clearZenSand,
+      swirlStarlightJar, showFeelingComfort,
+      openProfileModal, closeProfileModal, switchLearnerProfile, createNewLearnerProfile,
+      toggleCustomTopicInput, setStoryLength, generateCustomStory, loadSavedStory,
+      showVocabDef, answerStoryQuestion, readStoryAloud, stopSpeech,
+      selectMiniGame, initCurrentMiniGame, updateFossilReadout, checkFossilDig,
+      checkWordLabChoice, checkScienceLabChoice, checkMapQuestChoice,
+      openHatchModal, equipHatchedDino, closeHatchModal, petActiveDino, feedActiveDino,
+      buyOrEquipAccessory, selectBuddy, cycleBuddy, exportProgressJSON, speakText,
+      openBetaFeedbackModal, closeBetaFeedbackModal, saveBetaFeedbackNote,
+      saveParentReportEmail, triggerLevelCompletionEmailReport, openEmailPreviewModal, closeEmailPreviewModal
+    });
+
+    window.onload = bootstrap;
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
