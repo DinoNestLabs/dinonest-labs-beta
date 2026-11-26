@@ -48,25 +48,37 @@
   <div id="app" class="max-w-6xl mx-auto px-4 py-4 md:py-6"></div>
 
   <script>
+    // Catch any runtime error and show it clearly instead of a blank screen
+    window.addEventListener('error', function (ev) {
+      const mount = document.getElementById('app');
+      if (mount) {
+        mount.innerHTML =
+          '<div class="p-6 rounded-3xl bg-rose-50 border-2 border-rose-300 text-rose-900 font-bold">' +
+          '<div class="font-display text-lg mb-1">App Error</div>' +
+          '<div class="text-sm">Line ' + (ev.lineno || '?') + ': ' + (ev.message || 'Unknown error') + '</div>' +
+          '</div>';
+      }
+    });
+
     // =========================================================================
     // 1. 2D ASSET CATALOG ONLY (PNG & JPG — ZERO 3D / GLB)
     // =========================================================================
     const BRAND_LOGO = './assets/chibi/logo.png';
 
     const DINO_ROSTER = [
-      { id: 'image_0',  name: 'Pip',    role: 'Math Sprout',       specialty: 'Addition & Counting',   cost: 0,   img: './assets/chibi/image_0.png' },
-      { id: 'image_1',  name: 'Trixie', role: 'Horned Thinker',    specialty: 'Logic & Subtraction',   cost: 0,   img: './assets/chibi/image_1.png' },
-      { id: 'image_2',  name: 'Bram',   role: 'Tall Reader',       specialty: 'Word Meanings',         cost: 25,  img: './assets/chibi/image_2.png' },
-      { id: 'image_3',  name: 'Sunny',  role: 'Plate Builder',     specialty: 'Number Patterns',       cost: 50,  img: './assets/chibi/image_3.png' },
-      { id: 'image_4',  name: 'Pia',    role: 'Sky Scout',         specialty: 'Reading Clues',         cost: 75,  img: './assets/chibi/image_4.png' },
-      { id: 'image_5',  name: 'Anky',   role: 'Armored Guard',     specialty: 'Fact Fluency',          cost: 100, img: './assets/chibi/image_5.png' },
-      { id: 'image_6',  name: 'Pari',   role: 'Crest Singer',      specialty: 'Grammar & Verbs',       cost: 130, img: './assets/chibi/image_6.png' },
-      { id: 'image_7',  name: 'Veloci', role: 'Swift Solver',      specialty: 'Speed Math',            cost: 160, img: './assets/chibi/image_7.png' },
-      { id: 'image_8',  name: 'Plesio', role: 'Deep Diver',        specialty: 'Science Facts',         cost: 200, img: './assets/chibi/image_8.png' },
-      { id: 'image_9',  name: 'Spike',  role: 'Sail Researcher',   specialty: 'Earth & Fossils',       cost: 240, img: './assets/chibi/image_9.png' },
-      { id: 'image_10', name: 'Dippy',  role: 'Long-Tail Scholar', specialty: 'Fractions & Ratios',    cost: 290, img: './assets/chibi/image_10.png' },
-      { id: 'image_11', name: 'Pachy',  role: 'Dome Striker',      specialty: 'Big Brain Challenges',  cost: 340, img: './assets/chibi/image_11.png' },
-      { id: 'image_12', name: 'Astra',  role: 'Starlight Guide',   specialty: 'Birthday Unlock',       cost: 500, isBirthday: true, img: './assets/chibi/image_12.png' }
+      { id: 'image_0',  name: 'Pip',    role: 'Math Sprout',       specialty: 'Addition & Counting',  cost: 0,   img: './assets/chibi/image_0.png' },
+      { id: 'image_1',  name: 'Trixie', role: 'Horned Thinker',    specialty: 'Logic & Subtraction',  cost: 0,   img: './assets/chibi/image_1.png' },
+      { id: 'image_2',  name: 'Bram',   role: 'Tall Reader',       specialty: 'Word Meanings',        cost: 25,  img: './assets/chibi/image_2.png' },
+      { id: 'image_3',  name: 'Sunny',  role: 'Plate Builder',     specialty: 'Number Patterns',      cost: 50,  img: './assets/chibi/image_3.png' },
+      { id: 'image_4',  name: 'Pia',    role: 'Sky Scout',         specialty: 'Reading Clues',        cost: 75,  img: './assets/chibi/image_4.png' },
+      { id: 'image_5',  name: 'Anky',   role: 'Armored Guard',     specialty: 'Fact Fluency',         cost: 100, img: './assets/chibi/image_5.png' },
+      { id: 'image_6',  name: 'Pari',   role: 'Crest Singer',      specialty: 'Grammar & Verbs',      cost: 130, img: './assets/chibi/image_6.png' },
+      { id: 'image_7',  name: 'Veloci', role: 'Swift Solver',      specialty: 'Speed Math',           cost: 160, img: './assets/chibi/image_7.png' },
+      { id: 'image_8',  name: 'Plesio', role: 'Deep Diver',        specialty: 'Science Facts',        cost: 200, img: './assets/chibi/image_8.png' },
+      { id: 'image_9',  name: 'Spike',  role: 'Sail Researcher',   specialty: 'Earth & Fossils',      cost: 240, img: './assets/chibi/image_9.png' },
+      { id: 'image_10', name: 'Dippy',  role: 'Long-Tail Scholar', specialty: 'Fractions & Ratios',   cost: 290, img: './assets/chibi/image_10.png' },
+      { id: 'image_11', name: 'Pachy',  role: 'Dome Striker',      specialty: 'Big Brain Challenges', cost: 340, img: './assets/chibi/image_11.png' },
+      { id: 'image_12', name: 'Astra',  role: 'Starlight Guide',   specialty: 'Birthday Unlock',      cost: 500, isBirthday: true, img: './assets/chibi/image_12.png' }
     ];
 
     const HOLIDAY_CARDS = [
@@ -95,49 +107,77 @@
     const TIERS = ['Foundations', 'Steady Pace', 'Stretch', 'Challenge'];
 
     // =========================================================================
-    // 2. SAVED LEARNER STATE
+    // 2. SAVED LEARNER STATE (COMPATIBLE WITH ALL BROWSERS)
     // =========================================================================
-    const STORE_KEY = 'dinonest_adaptedmind_2d_only';
+    const STORE_KEY = 'dinonest_adaptedmind_2d_v2';
 
-    const initialState = {
-      name: 'Learner',
-      bdayMonth: '',
-      bdayDay: '',
-      grade: 2,
-      subject: 'math',
-      view: 'lesson', // 'lesson' | 'wardrobe' | 'games' | 'stats'
-      buddyId: 'image_0',
-      holidayKey: '',
-      unlocked: ['image_0', 'image_1'],
-      stars: 30,
-      xp: 0,
-      streak: 0,
-      bestStreak: 0,
-      tierIndex: 0,
-      totalAnswered: 0,
-      totalCorrect: 0,
-      bySubject: {
-        math: { answered: 0, correct: 0 },
-        reading: { answered: 0, correct: 0 },
-        science: { answered: 0, correct: 0 }
-      }
-    };
+    function makeDefaultState() {
+      return {
+        name: 'Learner',
+        bdayMonth: '',
+        bdayDay: '',
+        grade: 2,
+        subject: 'math',
+        view: 'lesson',
+        buddyId: 'image_0',
+        holidayKey: '',
+        unlocked: ['image_0', 'image_1'],
+        stars: 30,
+        xp: 0,
+        streak: 0,
+        bestStreak: 0,
+        tierIndex: 0,
+        totalAnswered: 0,
+        totalCorrect: 0,
+        bySubject: {
+          math: { answered: 0, correct: 0 },
+          reading: { answered: 0, correct: 0 },
+          science: { answered: 0, correct: 0 }
+        }
+      };
+    }
 
     function loadSavedState() {
+      const base = makeDefaultState();
       try {
         const raw = localStorage.getItem(STORE_KEY);
-        if (!raw) return structuredClone(initialState);
-        const data = JSON.parse(raw);
+        if (!raw) return base;
+        const data = JSON.parse(raw) || {};
+        const sub = data.bySubject || {};
         return {
-          ...structuredClone(initialState),
-          ...data,
+          name: typeof data.name === 'string' && data.name.trim() ? data.name : base.name,
+          bdayMonth: data.bdayMonth !== undefined ? String(data.bdayMonth) : '',
+          bdayDay: data.bdayDay !== undefined ? String(data.bdayDay) : '',
+          grade: Number(data.grade) >= 1 && Number(data.grade) <= 6 ? Number(data.grade) : base.grade,
+          subject: ['math', 'reading', 'science'].includes(data.subject) ? data.subject : base.subject,
+          view: ['lesson', 'wardrobe', 'games', 'stats'].includes(data.view) ? data.view : base.view,
+          buddyId: typeof data.buddyId === 'string' ? data.buddyId : base.buddyId,
+          holidayKey: typeof data.holidayKey === 'string' ? data.holidayKey : '',
+          unlocked: Array.isArray(data.unlocked) && data.unlocked.length ? data.unlocked : base.unlocked,
+          stars: Number.isFinite(Number(data.stars)) ? Number(data.stars) : base.stars,
+          xp: Number.isFinite(Number(data.xp)) ? Number(data.xp) : base.xp,
+          streak: Number.isFinite(Number(data.streak)) ? Number(data.streak) : 0,
+          bestStreak: Number.isFinite(Number(data.bestStreak)) ? Number(data.bestStreak) : 0,
+          tierIndex: Number.isFinite(Number(data.tierIndex)) ? Math.max(0, Math.min(3, Number(data.tierIndex))) : 0,
+          totalAnswered: Number.isFinite(Number(data.totalAnswered)) ? Number(data.totalAnswered) : 0,
+          totalCorrect: Number.isFinite(Number(data.totalCorrect)) ? Number(data.totalCorrect) : 0,
           bySubject: {
-            ...structuredClone(initialState.bySubject),
-            ...(data.bySubject || {})
+            math: {
+              answered: Number((sub.math && sub.math.answered) || 0),
+              correct: Number((sub.math && sub.math.correct) || 0)
+            },
+            reading: {
+              answered: Number((sub.reading && sub.reading.answered) || 0),
+              correct: Number((sub.reading && sub.reading.correct) || 0)
+            },
+            science: {
+              answered: Number((sub.science && sub.science.answered) || 0),
+              correct: Number((sub.science && sub.science.correct) || 0)
+            }
           }
         };
-      } catch {
-        return structuredClone(initialState);
+      } catch (e) {
+        return base;
       }
     }
 
@@ -146,7 +186,7 @@
     function persistState() {
       try {
         localStorage.setItem(STORE_KEY, JSON.stringify(appState));
-      } catch {}
+      } catch (e) {}
     }
 
     function applyBirthdayUnlock() {
@@ -166,12 +206,12 @@
     // Transient UI & mini-game state
     let question = null;
     let pickedChoice = null;
-    let outcome = null; // null | 'right' | 'wrong'
+    let outcome = null;
     let showGuide = false;
     let buddyAnim = 'anim-float';
     let statusBanner = 'Pick an answer to earn Stars and grow your streak.';
 
-    let arcadeMode = 'match'; // 'match' | 'quiz'
+    let arcadeMode = 'match';
     let cards = [];
     let flipped = [];
     let matchedCount = 0;
@@ -196,20 +236,23 @@
     }
 
     function shuffleList(list) {
-      const arr = [...list];
+      const arr = list.slice();
       for (let i = arr.length - 1; i > 0; i--) {
         const j = rand(0, i);
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+        const tmp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = tmp;
       }
       return arr;
     }
 
-    function buildNumberOptions(answer, span = 6) {
+    function buildNumberOptions(answer, span) {
+      const s = span || 6;
       const options = new Set([answer]);
       let tries = 0;
       while (options.size < 4 && tries < 50) {
         tries++;
-        const candidate = answer + rand(-span, span);
+        const candidate = answer + rand(-s, s);
         if (candidate >= 0 && candidate !== answer) {
           options.add(candidate);
         }
@@ -217,7 +260,7 @@
       while (options.size < 4) {
         options.add(answer + options.size + 2);
       }
-      return shuffleList([...options].map(String));
+      return shuffleList(Array.from(options).map(String));
     }
 
     function makeMathItem(grade, tier) {
@@ -229,13 +272,13 @@
           const b = rand(2, 9 + boost * 2);
           const ans = a + b;
           return {
-            topic: `Grade ${grade} • Addition`,
-            text: `Add the two numbers together:`,
-            display: `${a} + ${b} = ?`,
+            topic: 'Grade ' + grade + ' • Addition',
+            text: 'Add the two numbers together:',
+            display: a + ' + ' + b + ' = ?',
             options: buildNumberOptions(ans, 5),
             answer: String(ans),
-            hint: `Count ${b} steps forward starting from ${a}.`,
-            steps: `Start at ${a} and add ${b} to get ${ans}.`
+            hint: 'Count ' + b + ' steps forward starting from ' + a + '.',
+            steps: 'Start at ' + a + ' and add ' + b + ' to get ' + ans + '.'
           };
         }
         if (kind === 2) {
@@ -243,26 +286,26 @@
           const part = rand(2, whole - 2);
           const ans = whole - part;
           return {
-            topic: `Grade ${grade} • Subtraction`,
-            text: `Find the missing difference:`,
-            display: `${whole} − ${part} = ?`,
+            topic: 'Grade ' + grade + ' • Subtraction',
+            text: 'Find the missing difference:',
+            display: whole + ' − ' + part + ' = ?',
             options: buildNumberOptions(ans, 5),
             answer: String(ans),
-            hint: `Take away ${part} from ${whole}.`,
-            steps: `${whole} minus ${part} equals ${ans}.`
+            hint: 'Take away ' + part + ' from ' + whole + '.',
+            steps: whole + ' minus ' + part + ' equals ' + ans + '.'
           };
         }
         const step = rand(2, 5);
         const start = rand(1, 4) * step;
         const ans = start + step * 3;
         return {
-          topic: `Grade ${grade} • Skip Counting`,
-          text: `What number completes the sequence?`,
-          display: `${start}, ${start + step}, ${start + step * 2}, ?`,
+          topic: 'Grade ' + grade + ' • Skip Counting',
+          text: 'What number completes the sequence?',
+          display: start + ', ' + (start + step) + ', ' + (start + step * 2) + ', ?',
           options: buildNumberOptions(ans, step * 2),
           answer: String(ans),
-          hint: `Each number increases by ${step}.`,
-          steps: `Add ${step} to ${start + step * 2} to get ${ans}.`
+          hint: 'Each number increases by ' + step + '.',
+          steps: 'Add ' + step + ' to ' + (start + step * 2) + ' to get ' + ans + '.'
         };
       }
 
@@ -273,13 +316,13 @@
           const b = rand(3, 9 + tier);
           const ans = a * b;
           return {
-            topic: `Grade ${grade} • Multiplication`,
-            text: `Multiply the factors:`,
-            display: `${a} × ${b} = ?`,
+            topic: 'Grade ' + grade + ' • Multiplication',
+            text: 'Multiply the factors:',
+            display: a + ' × ' + b + ' = ?',
             options: buildNumberOptions(ans, 10),
             answer: String(ans),
-            hint: `Think of ${a} groups of ${b}.`,
-            steps: `${a} × ${b} = ${ans}.`
+            hint: 'Think of ' + a + ' groups of ' + b + '.',
+            steps: a + ' × ' + b + ' = ' + ans + '.'
           };
         }
         if (kind === 2) {
@@ -287,36 +330,35 @@
           const quotient = rand(3, 9 + tier);
           const dividend = divisor * quotient;
           return {
-            topic: `Grade ${grade} • Division`,
-            text: `Divide evenly:`,
-            display: `${dividend} ÷ ${divisor} = ?`,
+            topic: 'Grade ' + grade + ' • Division',
+            text: 'Divide evenly:',
+            display: dividend + ' ÷ ' + divisor + ' = ?',
             options: buildNumberOptions(quotient, 4),
             answer: String(quotient),
-            hint: `Which number times ${divisor} equals ${dividend}?`,
-            steps: `${divisor} × ${quotient} = ${dividend}, so ${dividend} ÷ ${divisor} = ${quotient}.`
+            hint: 'Which number times ' + divisor + ' equals ' + dividend + '?',
+            steps: divisor + ' × ' + quotient + ' = ' + dividend + ', so ' + dividend + ' ÷ ' + divisor + ' = ' + quotient + '.'
           };
         }
         const denom = pickRandom([4, 5, 6, 8]);
         const n1 = rand(1, denom - 2);
         const n2 = rand(1, denom - n1);
-        const ans = `${n1 + n2}/${denom}`;
+        const ans = (n1 + n2) + '/' + denom;
         return {
-          topic: `Grade ${grade} • Fractions`,
-          text: `Add the fractions with like denominators:`,
-          display: `${n1}/${denom} + ${n2}/${denom} = ?`,
-          options: shuffleList([...new Set([
+          topic: 'Grade ' + grade + ' • Fractions',
+          text: 'Add the fractions with like denominators:',
+          display: n1 + '/' + denom + ' + ' + n2 + '/' + denom + ' = ?',
+          options: shuffleList(Array.from(new Set([
             ans,
-            `${n1 + n2}/${denom * 2}`,
-            `${Math.max(1, n1 + n2 - 1)}/${denom}`,
-            `${n1 + n2 + 1}/${denom}`
-          ])]),
+            (n1 + n2) + '/' + (denom * 2),
+            Math.max(1, n1 + n2 - 1) + '/' + denom,
+            (n1 + n2 + 1) + '/' + denom
+          ]))),
           answer: ans,
-          hint: `Add the numerators (${n1} + ${n2}) and keep ${denom} on the bottom.`,
-          steps: `${n1} + ${n2} = ${n1 + n2}, giving ${ans}.`
+          hint: 'Add the numerators (' + n1 + ' + ' + n2 + ') and keep ' + denom + ' on the bottom.',
+          steps: n1 + ' + ' + n2 + ' = ' + (n1 + n2) + ', giving ' + ans + '.'
         };
       }
 
-      // Grades 5–6
       const kind = rand(1, 3);
       if (kind === 1) {
         const a = rand(5, 14 + tier * 2);
@@ -324,13 +366,13 @@
         const c = rand(4, 20);
         const ans = a * b + c;
         return {
-          topic: `Grade ${grade} • Order of Operations`,
-          text: `Solve using order of operations:`,
-          display: `${a} × ${b} + ${c} = ?`,
+          topic: 'Grade ' + grade + ' • Order of Operations',
+          text: 'Solve using order of operations:',
+          display: a + ' × ' + b + ' + ' + c + ' = ?',
           options: buildNumberOptions(ans, 12),
           answer: String(ans),
-          hint: `Do multiplication (${a} × ${b}) before adding ${c}.`,
-          steps: `${a} × ${b} = ${a * b}, then ${a * b} + ${c} = ${ans}.`
+          hint: 'Do multiplication (' + a + ' × ' + b + ') before adding ' + c + '.',
+          steps: a + ' × ' + b + ' = ' + (a * b) + ', then ' + (a * b) + ' + ' + c + ' = ' + ans + '.'
         };
       }
       if (kind === 2) {
@@ -338,13 +380,13 @@
         const base = pct === 25 ? rand(2, 10) * 4 : rand(2, 12) * 10;
         const ans = (pct / 100) * base;
         return {
-          topic: `Grade ${grade} • Percentages`,
-          text: `Calculate the percentage of the number:`,
-          display: `${pct}% of ${base} = ?`,
+          topic: 'Grade ' + grade + ' • Percentages',
+          text: 'Calculate the percentage of the number:',
+          display: pct + '% of ' + base + ' = ?',
           options: buildNumberOptions(ans, 8),
           answer: String(ans),
-          hint: `Find ${pct}/100 of ${base}.`,
-          steps: `(${pct} ÷ 100) × ${base} = ${ans}.`
+          hint: 'Find ' + pct + '/100 of ' + base + '.',
+          steps: '(' + pct + ' ÷ 100) × ' + base + ' = ' + ans + '.'
         };
       }
       const x = rand(2, 12 + tier);
@@ -352,13 +394,13 @@
       const k = rand(2, 12);
       const total = m * x + k;
       return {
-        topic: `Grade ${grade} • Equations`,
-        text: `Find the value of x:`,
-        display: `${m}x + ${k} = ${total}`,
+        topic: 'Grade ' + grade + ' • Equations',
+        text: 'Find the value of x:',
+        display: m + 'x + ' + k + ' = ' + total,
         options: buildNumberOptions(x, 4),
         answer: String(x),
-        hint: `Subtract ${k} from ${total}, then divide by ${m}.`,
-        steps: `${total} − ${k} = ${total - k}, and ${total - k} ÷ ${m} = ${x}.`
+        hint: 'Subtract ' + k + ' from ' + total + ', then divide by ' + m + '.',
+        steps: total + ' − ' + k + ' = ' + (total - k) + ', and ' + (total - k) + ' ÷ ' + m + ' = ' + x + '.'
       };
     }
 
@@ -378,9 +420,9 @@
       { minG: 1, maxG: 3, topic: 'Animal Diets', text: 'An animal that eats both plants and other animals is called an:', display: 'Food Chains', options: ['Omnivore', 'Herbivore', 'Mineral', 'Planet'], answer: 'Omnivore', hint: 'Omni means "all".', steps: 'Omnivores eat both plant and animal foods.' },
       { minG: 1, maxG: 3, topic: 'Weather & Water', text: 'When water warms up and turns into water vapor, that process is called:', display: 'Water Cycle', options: ['Evaporation', 'Freezing', 'Erosion', 'Orbiting'], answer: 'Evaporation', hint: 'Think of puddles drying up on a sunny day.', steps: 'Evaporation happens when liquid water changes into gas (water vapor).' },
       { minG: 1, maxG: 3, topic: 'Space', text: 'Which planet do we live on?', display: 'Our Solar System', options: ['Earth', 'Saturn', 'Neptune', 'Mercury'], answer: 'Earth', hint: 'It is the third planet from the Sun.', steps: 'Earth is our home planet in the solar system.' },
-      { minG: 4, maxG: 6, topic: 'Earth Science', text: 'What slowly moves Earth’s tectonic plates over millions of years?', display: 'Plate Tectonics', options: ['Convection in the mantle', ' Ocean tides alone', 'Solar eclipses', ' Wind gusts'], answer: 'Convection in the mantle', hint: 'Heat from Earth’s interior creates slow currents in the mantle.', steps: 'Heat-driven convection currents in the mantle push and move tectonic plates.' },
+      { minG: 4, maxG: 6, topic: 'Earth Science', text: 'What slowly moves Earth’s tectonic plates over millions of years?', display: 'Plate Tectonics', options: ['Convection in the mantle', 'Ocean tides alone', 'Solar eclipses', 'Wind gusts'], answer: 'Convection in the mantle', hint: 'Heat from Earth’s interior creates slow currents in the mantle.', steps: 'Heat-driven convection currents in the mantle push and move tectonic plates.' },
       { minG: 4, maxG: 6, topic: 'Ecology', text: 'In an ecosystem, organisms like fungi and bacteria that break down dead matter are:', display: 'Ecosystem Roles', options: ['Decomposers', 'Producers', 'Asteroids', 'Satellites'], answer: 'Decomposers', hint: 'They recycle nutrients back into the soil.', steps: 'Decomposers break down dead organic material and return nutrients to the environment.' },
-      { minG: 4, maxG: 6, topic: 'Energy', text: 'A flashlight uses chemical energy from a battery and converts it mainly into:', display: 'Energy Transformation', options: ['Light and thermal energy', 'Sound and gravity', 'Fossils and rock', ' Magnetism only'], answer: 'Light and thermal energy', hint: 'A flashlight gives off light and a little warmth.', steps: 'Batteries supply electrical/chemical energy that the bulb turns into light and heat.' },
+      { minG: 4, maxG: 6, topic: 'Energy', text: 'A flashlight uses chemical energy from a battery and converts it mainly into:', display: 'Energy Transformation', options: ['Light and thermal energy', 'Sound and gravity', 'Fossils and rock', 'Magnetism only'], answer: 'Light and thermal energy', hint: 'A flashlight gives off light and a little warmth.', steps: 'Batteries supply electrical/chemical energy that the bulb turns into light and heat.' },
       { minG: 4, maxG: 6, topic: 'Astronomy', text: 'Why does the Moon appear to change shape over a month?', display: 'Phases of the Moon', options: ['We see different lit portions from Earth', 'The Moon shrinks and grows', 'Clouds cover half the Moon', 'Earth blocks it every night'], answer: 'We see different lit portions from Earth', hint: 'Half of the Moon is always lit by the Sun.', steps: 'As the Moon orbits Earth, we see varying angles of its sunlit side.' }
     ];
 
@@ -389,11 +431,18 @@
         return makeMathItem(appState.grade, appState.tierIndex);
       }
       const source = appState.subject === 'reading' ? READING_ITEMS : SCIENCE_ITEMS;
-      const matching = source.filter(item => appState.grade >= item.minG && appState.grade <= item.maxG);
+      const matching = source.filter(function (item) {
+        return appState.grade >= item.minG && appState.grade <= item.maxG;
+      });
       const chosen = pickRandom(matching.length ? matching : source);
       return {
-        ...chosen,
-        options: shuffleList(chosen.options)
+        topic: chosen.topic,
+        text: chosen.text,
+        display: chosen.display,
+        options: shuffleList(chosen.options),
+        answer: chosen.answer,
+        hint: chosen.hint,
+        steps: chosen.steps
       };
     }
 
@@ -410,11 +459,11 @@
     // 4. 2D IMAGE HELPERS (PNG & JPG ONLY)
     // =========================================================================
     function currentDino() {
-      return DINO_ROSTER.find(d => d.id === appState.buddyId) || DINO_ROSTER[0];
+      return DINO_ROSTER.find(function (d) { return d.id === appState.buddyId; }) || DINO_ROSTER[0];
     }
 
     function currentDisplayImage() {
-      const holiday = HOLIDAY_CARDS.find(h => h.key === appState.holidayKey);
+      const holiday = HOLIDAY_CARDS.find(function (h) { return h.key === appState.holidayKey; });
       if (holiday && holiday.img) {
         return holiday.img;
       }
@@ -422,7 +471,7 @@
     }
 
     function currentHolidayLabel() {
-      const holiday = HOLIDAY_CARDS.find(h => h.key === appState.holidayKey);
+      const holiday = HOLIDAY_CARDS.find(function (h) { return h.key === appState.holidayKey; });
       return holiday && holiday.key ? holiday.title : 'Standard Chibi';
     }
 
@@ -450,9 +499,9 @@
 
         if (appState.streak % 3 === 0 && appState.tierIndex < TIERS.length - 1) {
           appState.tierIndex += 1;
-          statusBanner = `Correct! Moved up to ${TIERS[appState.tierIndex]} (+${gainedStars} Stars).`;
+          statusBanner = 'Correct! Moved up to ' + TIERS[appState.tierIndex] + ' (+' + gainedStars + ' Stars).';
         } else {
-          statusBanner = `Correct! Earned +${gainedStars} Stars${streakBonus ? ' (includes streak bonus)' : ''}.`;
+          statusBanner = 'Correct! Earned +' + gainedStars + ' Stars' + (streakBonus ? ' (includes streak bonus)' : '') + '.';
         }
       } else {
         outcome = 'wrong';
@@ -503,14 +552,14 @@
     }
 
     function buyDino(id) {
-      const target = DINO_ROSTER.find(d => d.id === id);
+      const target = DINO_ROSTER.find(function (d) { return d.id === id; });
       if (!target || appState.unlocked.includes(id) || appState.stars < target.cost) return;
       appState.stars -= target.cost;
       appState.unlocked.push(id);
       appState.buddyId = id;
       appState.holidayKey = '';
       buddyAnim = 'anim-hop';
-      statusBanner = `Unlocked ${target.name} (${target.role})!`;
+      statusBanner = 'Unlocked ' + target.name + ' (' + target.role + ')!';
       persistState();
       renderApp();
     }
@@ -534,13 +583,15 @@
     // =========================================================================
     function setupMatchCards() {
       const selected = shuffleList(DINO_ROSTER).slice(0, 6);
-      cards = shuffleList([...selected, ...selected]).map((dino, index) => ({
-        index,
-        id: dino.id,
-        name: dino.name,
-        img: dino.img,
-        matched: false
-      }));
+      cards = shuffleList(selected.concat(selected)).map(function (dino, index) {
+        return {
+          index: index,
+          id: dino.id,
+          name: dino.name,
+          img: dino.img,
+          matched: false
+        };
+      });
       flipped = [];
       matchedCount = 0;
       moveCount = 0;
@@ -550,7 +601,7 @@
     function selectMatchCard(idx) {
       if (boardLocked) return;
       const card = cards[idx];
-      if (!card || card.matched || flipped.includes(idx)) return;
+      if (!card || card.matched || flipped.indexOf(idx) !== -1) return;
 
       flipped.push(idx);
       renderApp();
@@ -558,9 +609,10 @@
       if (flipped.length === 2) {
         moveCount += 1;
         boardLocked = true;
-        const [a, b] = flipped;
+        const a = flipped[0];
+        const b = flipped[1];
         if (cards[a].id === cards[b].id) {
-          setTimeout(() => {
+          setTimeout(function () {
             cards[a].matched = true;
             cards[b].matched = true;
             flipped = [];
@@ -574,7 +626,7 @@
             renderApp();
           }, 400);
         } else {
-          setTimeout(() => {
+          setTimeout(function () {
             flipped = [];
             boardLocked = false;
             renderApp();
@@ -590,7 +642,7 @@
       const plus = Math.random() >= 0.4 || x < y;
       const ans = plus ? x + y : x - y;
       return {
-        label: plus ? `${x} + ${y}` : `${x} − ${y}`,
+        label: plus ? (x + ' + ' + y) : (x + ' − ' + y),
         answer: String(ans),
         options: buildNumberOptions(ans, 4)
       };
@@ -604,7 +656,7 @@
       quickItem = makeQuickPrompt();
       renderApp();
 
-      quickTimer = setInterval(() => {
+      quickTimer = setInterval(function () {
         quickSeconds -= 1;
         if (quickSeconds <= 0) {
           endQuickQuiz(true);
@@ -645,77 +697,59 @@
       const imgUrl = currentDisplayImage();
       const level = Math.floor(appState.xp / 100) + 1;
 
-      return `
-        <header class="bg-white/95 border border-sky-100 rounded-3xl shadow-sm p-4 mb-5">
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <img
-                src="${BRAND_LOGO}"
-                alt="DinoNest Labs Logo"
-                class="w-12 h-12 rounded-2xl object-contain bg-sky-50 p-1 border border-sky-100"
-              />
-              <div>
-                <div class="flex items-center gap-2">
-                  <h1 class="text-xl md:text-2xl font-bold text-slate-800">DinoNest Labs</h1>
-                  <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                    Grade ${appState.grade}
-                  </span>
-                </div>
-                <p class="text-xs font-bold text-slate-500">
-                  ${dino.name} • ${currentHolidayLabel()}
-                </p>
-              </div>
-            </div>
+      const tabs = [
+        { id: 'lesson', label: 'Practice' },
+        { id: 'wardrobe', label: 'Dinos & Holidays' },
+        { id: 'games', label: '2D Mini-Games' },
+        { id: 'stats', label: 'Progress & Birthday' }
+      ].map(function (tab) {
+        const active = appState.view === tab.id;
+        return (
+          '<button onclick="changeView(\'' + tab.id + '\')" class="px-3.5 py-2 rounded-2xl text-sm font-extrabold transition ' +
+          (active ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-sky-50 hover:text-sky-700') +
+          '">' + tab.label + '</button>'
+        );
+      }).join('');
 
-            <div class="flex flex-wrap items-center gap-2">
-              <div class="px-3 py-1.5 rounded-2xl bg-amber-50 border border-amber-200 text-sm font-extrabold text-amber-900">
-                ⭐ ${appState.stars} Stars
-              </div>
-              <div class="px-3 py-1.5 rounded-2xl bg-orange-50 border border-orange-200 text-sm font-extrabold text-orange-900">
-                🔥 ${appState.streak} Streak
-              </div>
-              <div class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-sky-50 border border-sky-200 text-sm font-extrabold text-sky-900">
-                <img src="${imgUrl}" alt="${dino.name}" class="w-6 h-6 rounded-full object-contain bg-white" />
-                <span>Lv.${level} (${appState.xp} XP)</span>
-              </div>
-            </div>
-          </div>
+      const grades = [1, 2, 3, 4, 5, 6].map(function (g) {
+        const active = appState.grade === g;
+        return (
+          '<button onclick="changeGrade(' + g + ')" class="w-7 h-7 rounded-xl text-xs font-extrabold transition ' +
+          (active ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-white') +
+          '">' + g + '</button>'
+        );
+      }).join('');
 
-          <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
-            <div class="flex flex-wrap gap-1.5">
-              ${[
-                { id: 'lesson', label: 'Practice' },
-                { id: 'wardrobe', label: 'Dinos & Holidays' },
-                { id: 'games', label: '2D Mini-Games' },
-                { id: 'stats', label: 'Progress & Birthday' }
-              ].map(tab => `
-                <button
-                  onclick="changeView('${tab.id}')"
-                  class="px-3.5 py-2 rounded-2xl text-sm font-extrabold transition ${
-                    appState.view === tab.id
-                      ? 'bg-sky-600 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-sky-50 hover:text-sky-700'
-                  }"
-                >${tab.label}</button>
-              `).join('')}
-            </div>
-
-            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl">
-              <span class="text-xs font-extrabold text-slate-500 px-2">Grade:</span>
-              ${[1, 2, 3, 4, 5, 6].map(g => `
-                <button
-                  onclick="changeGrade(${g})"
-                  class="w-7 h-7 rounded-xl text-xs font-extrabold transition ${
-                    appState.grade === g
-                      ? 'bg-emerald-600 text-white'
-                      : 'text-slate-600 hover:bg-white'
-                  }"
-                >${g}</button>
-              `).join('')}
-            </div>
-          </div>
-        </header>
-      `;
+      return (
+        '<header class="bg-white/95 border border-sky-100 rounded-3xl shadow-sm p-4 mb-5">' +
+          '<div class="flex flex-wrap items-center justify-between gap-3">' +
+            '<div class="flex items-center gap-3">' +
+              '<img src="' + BRAND_LOGO + '" alt="DinoNest Labs Logo" class="w-12 h-12 rounded-2xl object-contain bg-sky-50 p-1 border border-sky-100" />' +
+              '<div>' +
+                '<div class="flex items-center gap-2">' +
+                  '<h1 class="text-xl md:text-2xl font-bold text-slate-800">DinoNest Labs</h1>' +
+                  '<span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Grade ' + appState.grade + '</span>' +
+                '</div>' +
+                '<p class="text-xs font-bold text-slate-500">' + dino.name + ' • ' + currentHolidayLabel() + '</p>' +
+              '</div>' +
+            '</div>' +
+            '<div class="flex flex-wrap items-center gap-2">' +
+              '<div class="px-3 py-1.5 rounded-2xl bg-amber-50 border border-amber-200 text-sm font-extrabold text-amber-900">⭐ ' + appState.stars + ' Stars</div>' +
+              '<div class="px-3 py-1.5 rounded-2xl bg-orange-50 border border-orange-200 text-sm font-extrabold text-orange-900">🔥 ' + appState.streak + ' Streak</div>' +
+              '<div class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-sky-50 border border-sky-200 text-sm font-extrabold text-sky-900">' +
+                '<img src="' + imgUrl + '" alt="' + dino.name + '" class="w-6 h-6 rounded-full object-contain bg-white" />' +
+                '<span>Lv.' + level + ' (' + appState.xp + ' XP)</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">' +
+            '<div class="flex flex-wrap gap-1.5">' + tabs + '</div>' +
+            '<div class="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl">' +
+              '<span class="text-xs font-extrabold text-slate-500 px-2">Grade:</span>' + grades +
+            '</div>' +
+          '</div>' +
+        '</header>'
+      );
     }
 
     function renderLessonView() {
@@ -724,446 +758,191 @@
       const imgUrl = currentDisplayImage();
       const tierName = TIERS[appState.tierIndex];
 
-      return `
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-          ${SUBJECTS.map(sub => {
-            const active = appState.subject === sub.id;
-            return `
-              <button
-                onclick="changeSubject('${sub.id}')"
-                class="text-left p-3.5 rounded-3xl border-2 transition flex items-center gap-3 ${
-                  active ? 'bg-white border-sky-500 shadow-xs' : 'bg-white/80 border-slate-200 hover:border-sky-300'
-                }"
-              >
-                <span class="text-2xl">${sub.badge}</span>
-                <div>
-                  <div class="font-display font-bold text-base ${active ? 'text-sky-700' : 'text-slate-800'}">${sub.title}</div>
-                  <div class="text-xs font-semibold text-slate-500">${sub.note}</div>
-                </div>
-              </button>
-            `;
-          }).join('')}
-        </div>
+      const subjectsHtml = SUBJECTS.map(function (sub) {
+        const active = appState.subject === sub.id;
+        return (
+          '<button onclick="changeSubject(\'' + sub.id + '\')" class="text-left p-3.5 rounded-3xl border-2 transition flex items-center gap-3 ' +
+          (active ? 'bg-white border-sky-500 shadow-xs' : 'bg-white/80 border-slate-200 hover:border-sky-300') + '">' +
+            '<span class="text-2xl">' + sub.badge + '</span>' +
+            '<div>' +
+              '<div class="font-display font-bold text-base ' + (active ? 'text-sky-700' : 'text-slate-800') + '">' + sub.title + '</div>' +
+              '<div class="text-xs font-semibold text-slate-500">' + sub.note + '</div>' +
+            '</div>' +
+          '</button>'
+        );
+      }).join('');
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          <aside class="lg:col-span-4 bg-white border border-sky-100 rounded-3xl p-5 shadow-sm flex flex-col items-center justify-between text-center">
-            <div class="w-full flex items-center justify-between text-xs font-extrabold">
-              <span class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800">${tierName}</span>
-              <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">${dino.specialty}</span>
-            </div>
+      const letters = ['A', 'B', 'C', 'D'];
+      const optionsHtml = question.options.map(function (opt, i) {
+        let cls = 'bg-white border-slate-200 text-slate-800 hover:border-sky-400';
+        if (outcome !== null) {
+          if (opt === question.answer) {
+            cls = 'bg-emerald-50 border-emerald-500 text-emerald-950 ring-2 ring-emerald-200';
+          } else if (opt === pickedChoice && outcome === 'wrong') {
+            cls = 'bg-rose-50 border-rose-400 text-rose-950';
+          } else {
+            cls = 'bg-slate-50 border-slate-200 text-slate-400';
+          }
+        }
+        const encoded = encodeURIComponent(opt);
+        return (
+          '<button ' + (outcome !== null ? 'disabled ' : '') +
+          'onclick="answerQuestion(decodeURIComponent(\'' + encoded + '\'))" ' +
+          'class="w-full text-left p-4 rounded-2xl border-2 font-bold text-base flex items-center gap-3 transition ' + cls + '">' +
+            '<span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 font-extrabold flex items-center justify-center shrink-0">' + letters[i] + '</span>' +
+            '<span>' + opt + '</span>' +
+          '</button>'
+        );
+      }).join('');
 
-            <div class="my-4 w-52 h-52 rounded-3xl bg-gradient-to-b from-sky-50 to-amber-50 border border-sky-100 flex items-center justify-center p-3">
-              <img
-                src="${imgUrl}"
-                alt="${dino.name}"
-                class="w-full h-full object-contain ${buddyAnim} select-none"
-              />
-            </div>
+      const displayBox = question.display
+        ? '<div class="my-4 py-3.5 px-5 rounded-2xl bg-sky-50 border border-sky-200 text-center font-display text-xl md:text-2xl font-bold text-sky-950">' + question.display + '</div>'
+        : '';
 
-            <div class="w-full rounded-2xl bg-slate-50 border border-slate-200/80 p-3">
-              <div class="font-display font-bold text-lg text-slate-800">${dino.name}</div>
-              <div class="text-xs font-bold text-slate-500">${dino.role}</div>
-              <button
-                onclick="changeView('wardrobe')"
-                class="mt-2 text-xs font-extrabold text-sky-700 hover:underline"
-              >Change Dino or Holiday Photo</button>
-            </div>
-          </aside>
+      const guideBox = showGuide
+        ? '<div class="mt-5 p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 text-sm font-semibold">' +
+            '<div class="font-extrabold mb-1">' + (outcome === 'wrong' ? 'Solution Walkthrough:' : 'Hint:') + '</div>' +
+            '<div>' + (outcome === 'wrong' ? question.steps : question.hint) + '</div>' +
+          '</div>'
+        : '';
 
-          <section class="lg:col-span-8 bg-white border border-sky-100 rounded-3xl p-5 md:p-7 shadow-sm flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between gap-2 mb-4">
-                <span class="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-100 text-amber-900">
-                  ${question.topic}
-                </span>
-                <button
-                  onclick="showGuide = !showGuide; renderApp();"
-                  class="text-xs font-extrabold px-3 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-amber-100 hover:text-amber-900"
-                >${showGuide ? 'Hide Hint' : 'Show Hint'}</button>
-              </div>
+      const bannerColor = outcome === 'right' ? 'text-emerald-700' : outcome === 'wrong' ? 'text-amber-800' : 'text-slate-500';
+      const nextBtn = outcome !== null
+        ? '<button onclick="advanceQuestion()" class="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-base">Next Question →</button>'
+        : '';
 
-              <h2 class="text-lg md:text-2xl font-bold text-slate-800">${question.text}</h2>
-
-              ${question.display ? `
-                <div class="my-4 py-3.5 px-5 rounded-2xl bg-sky-50 border border-sky-200 text-center font-display text-xl md:text-2xl font-bold text-sky-950">
-                  ${question.display}
-                </div>
-              ` : ''}
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
-                ${question.options.map((opt, i) => {
-                  const label = ['A', 'B', 'C', 'D'][i];
-                  let cls = 'bg-white border-slate-200 text-slate-800 hover:border-sky-400';
-                  if (outcome !== null) {
-                    if (opt === question.answer) {
-                      cls = 'bg-emerald-50 border-emerald-500 text-emerald-950 ring-2 ring-emerald-200';
-                    } else if (opt === pickedChoice && outcome === 'wrong') {
-                      cls = 'bg-rose-50 border-rose-400 text-rose-950';
-                    } else {
-                      cls = 'bg-slate-50 border-slate-200 text-slate-400';
-                    }
-                  }
-
-                  return `
-                    <button
-                      ${outcome !== null ? 'disabled' : ''}
-                      onclick='answerQuestion(${JSON.stringify(opt)})'
-                      class="w-full text-left p-4 rounded-2xl border-2 font-bold text-base flex items-center gap-3 transition ${cls}"
-                    >
-                      <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 font-extrabold flex items-center justify-center shrink-0">
-                        ${label}
-                      </span>
-                      <span>${opt}</span>
-                    </button>
-                  `;
-                }).join('')}
-              </div>
-
-              ${showGuide ? `
-                <div class="mt-5 p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 text-sm font-semibold">
-                  <div class="font-extrabold mb-1">${outcome === 'wrong' ? 'Solution Walkthrough:' : 'Hint:'}</div>
-                  <div>${outcome === 'wrong' ? question.steps : question.hint}</div>
-                </div>
-              ` : ''}
-            </div>
-
-            <div class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
-              <div class="text-sm font-extrabold ${
-                outcome === 'right' ? 'text-emerald-700' : outcome === 'wrong' ? 'text-amber-800' : 'text-slate-500'
-              }">${statusBanner}</div>
-
-              ${outcome !== null ? `
-                <button
-                  onclick="advanceQuestion()"
-                  class="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-base"
-                >Next Question →</button>
-              ` : ''}
-            </div>
-          </section>
-        </div>
-      `;
+      return (
+        '<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">' + subjectsHtml + '</div>' +
+        '<div class="grid grid-cols-1 lg:grid-cols-12 gap-5">' +
+          '<aside class="lg:col-span-4 bg-white border border-sky-100 rounded-3xl p-5 shadow-sm flex flex-col items-center justify-between text-center">' +
+            '<div class="w-full flex items-center justify-between text-xs font-extrabold">' +
+              '<span class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800">' + tierName + '</span>' +
+              '<span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">' + dino.specialty + '</span>' +
+            '</div>' +
+            '<div class="my-4 w-52 h-52 rounded-3xl bg-gradient-to-b from-sky-50 to-amber-50 border border-sky-100 flex items-center justify-center p-3">' +
+              '<img src="' + imgUrl + '" alt="' + dino.name + '" class="w-full h-full object-contain ' + buddyAnim + ' select-none" />' +
+            '</div>' +
+            '<div class="w-full rounded-2xl bg-slate-50 border border-slate-200/80 p-3">' +
+              '<div class="font-display font-bold text-lg text-slate-800">' + dino.name + '</div>' +
+              '<div class="text-xs font-bold text-slate-500">' + dino.role + '</div>' +
+              '<button onclick="changeView(\'wardrobe\')" class="mt-2 text-xs font-extrabold text-sky-700 hover:underline">Change Dino or Holiday Photo</button>' +
+            '</div>' +
+          '</aside>' +
+          '<section class="lg:col-span-8 bg-white border border-sky-100 rounded-3xl p-5 md:p-7 shadow-sm flex flex-col justify-between">' +
+            '<div>' +
+              '<div class="flex items-center justify-between gap-2 mb-4">' +
+                '<span class="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-100 text-amber-900">' + question.topic + '</span>' +
+                '<button onclick="showGuide = !showGuide; renderApp();" class="text-xs font-extrabold px-3 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-amber-100 hover:text-amber-900">' + (showGuide ? 'Hide Hint' : 'Show Hint') + '</button>' +
+              '</div>' +
+              '<h2 class="text-lg md:text-2xl font-bold text-slate-800">' + question.text + '</h2>' +
+              displayBox +
+              '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">' + optionsHtml + '</div>' +
+              guideBox +
+            '</div>' +
+            '<div class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">' +
+              '<div class="text-sm font-extrabold ' + bannerColor + '">' + statusBanner + '</div>' +
+              nextBtn +
+            '</div>' +
+          '</section>' +
+        '</div>'
+      );
     }
 
     function renderWardrobeView() {
-      return `
-        <div class="space-y-6">
-          <section class="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-              <div>
-                <h2 class="text-xl font-bold text-slate-800">Holiday Images (JPG)</h2>
-                <p class="text-xs font-semibold text-slate-500">Pick any holiday image or return to your selected dinosaur PNG.</p>
-              </div>
-              <span class="text-xs font-extrabold px-3 py-1 rounded-full bg-sky-100 text-sky-800">
-                Current: ${currentHolidayLabel()}
-              </span>
-            </div>
+      const holidayGrid = HOLIDAY_CARDS.map(function (item) {
+        const selected = appState.holidayKey === item.key;
+        const thumb = item.img || currentDino().img;
+        return (
+          '<button onclick="chooseHoliday(\'' + item.key + '\')" class="p-2.5 rounded-2xl border-2 text-center flex flex-col items-center transition ' +
+          (selected ? 'bg-amber-50 border-amber-500' : 'bg-slate-50 border-slate-200 hover:border-sky-300') + '">' +
+            '<img src="' + thumb + '" alt="' + item.title + '" class="w-16 h-16 rounded-xl object-contain bg-white p-1 border border-slate-100 mb-1.5" />' +
+            '<span class="text-xs font-extrabold text-slate-700">' + item.title + '</span>' +
+          '</button>'
+        );
+      }).join('');
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
-              ${HOLIDAY_CARDS.map(item => {
-                const selected = appState.holidayKey === item.key;
-                const thumb = item.img || currentDino().img;
-                return `
-                  <button
-                    onclick="chooseHoliday('${item.key}')"
-                    class="p-2.5 rounded-2xl border-2 text-center flex flex-col items-center transition ${
-                      selected ? 'bg-amber-50 border-amber-500' : 'bg-slate-50 border-slate-200 hover:border-sky-300'
-                    }"
-                  >
-                    <img src="${thumb}" alt="${item.title}" class="w-16 h-16 rounded-xl object-contain bg-white p-1 border border-slate-100 mb-1.5" />
-                    <span class="text-xs font-extrabold text-slate-700">${item.title}</span>
-                  </button>
-                `;
-              }).join('')}
-            </div>
-          </section>
+      const dinoGrid = DINO_ROSTER.map(function (dino) {
+        const isUnlocked = appState.unlocked.indexOf(dino.id) !== -1;
+        const isCurrent = appState.buddyId === dino.id && !appState.holidayKey;
+        const affordable = appState.stars >= dino.cost;
 
-          <section class="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-              <div>
-                <h2 class="text-xl font-bold text-slate-800">Dinosaur Characters (PNG)</h2>
-                <p class="text-xs font-semibold text-slate-500">Unlock new dinosaurs using Stars earned from practice.</p>
-              </div>
-              <span class="text-sm font-extrabold px-3.5 py-1.5 rounded-2xl bg-amber-100 text-amber-900">
-                ${appState.stars} Stars Available
-              </span>
-            </div>
+        const badge = dino.isBirthday
+          ? '<span class="absolute top-1 right-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-fuchsia-100 text-fuchsia-800">Birthday</span>'
+          : '';
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              ${DINO_ROSTER.map(dino => {
-                const isUnlocked = appState.unlocked.includes(dino.id);
-                const isCurrent = appState.buddyId === dino.id && !appState.holidayKey;
-                const affordable = appState.stars >= dino.cost;
+        const actionBtn = isUnlocked
+          ? '<button onclick="chooseDino(\'' + dino.id + '\')" class="mt-auto w-full py-2 rounded-xl text-xs font-extrabold ' +
+            (isCurrent ? 'bg-emerald-600 text-white' : 'bg-sky-100 text-sky-800 hover:bg-sky-200') + '">' +
+            (isCurrent ? 'Selected' : 'Select') + '</button>'
+          : '<button ' + (affordable ? '' : 'disabled ') + 'onclick="buyDino(\'' + dino.id + '\')" class="mt-auto w-full py-2 rounded-xl text-xs font-extrabold ' +
+            (affordable ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-slate-200 text-slate-500 cursor-not-allowed') + '">' +
+            'Unlock • ' + dino.cost + ' ⭐</button>';
 
-                return `
-                  <div class="rounded-3xl border-2 p-3.5 flex flex-col items-center text-center ${
-                    isCurrent ? 'bg-emerald-50/70 border-emerald-500' : 'bg-white border-slate-200'
-                  }">
-                    <div class="w-28 h-28 rounded-2xl bg-sky-50 flex items-center justify-center p-2 mb-2 relative">
-                      <img
-                        src="${dino.img}"
-                        alt="${dino.name}"
-                        class="w-full h-full object-contain ${isUnlocked ? '' : 'opacity-50 grayscale'}"
-                      />
-                      ${dino.isBirthday ? `
-                        <span class="absolute top-1 right-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-fuchsia-100 text-fuchsia-800">
-                          Birthday
-                        </span>
-                      ` : ''}
-                    </div>
-                    <div class="font-display font-bold text-base text-slate-800">${dino.name}</div>
-                    <div class="text-xs font-bold text-slate-500 mb-3">${dino.role}</div>
+        return (
+          '<div class="rounded-3xl border-2 p-3.5 flex flex-col items-center text-center ' +
+          (isCurrent ? 'bg-emerald-50/70 border-emerald-500' : 'bg-white border-slate-200') + '">' +
+            '<div class="w-28 h-28 rounded-2xl bg-sky-50 flex items-center justify-center p-2 mb-2 relative">' +
+              '<img src="' + dino.img + '" alt="' + dino.name + '" class="w-full h-full object-contain ' + (isUnlocked ? '' : 'opacity-50 grayscale') + '" />' +
+              badge +
+            '</div>' +
+            '<div class="font-display font-bold text-base text-slate-800">' + dino.name + '</div>' +
+            '<div class="text-xs font-bold text-slate-500 mb-3">' + dino.role + '</div>' +
+            actionBtn +
+          '</div>'
+        );
+      }).join('');
 
-                    ${
-                      isUnlocked
-                        ? `<button
-                            onclick="chooseDino('${dino.id}')"
-                            class="mt-auto w-full py-2 rounded-xl text-xs font-extrabold ${
-                              isCurrent ? 'bg-emerald-600 text-white' : 'bg-sky-100 text-sky-800 hover:bg-sky-200'
-                            }"
-                          >${isCurrent ? 'Selected' : 'Select'}</button>`
-                        : `<button
-                            ${affordable ? '' : 'disabled'}
-                            onclick="buyDino('${dino.id}')"
-                            class="mt-auto w-full py-2 rounded-xl text-xs font-extrabold ${
-                              affordable ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                            }"
-                          >Unlock • ${dino.cost} ⭐</button>`
-                    }
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </section>
-        </div>
-      `;
+      return (
+        '<div class="space-y-6">' +
+          '<section class="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm">' +
+            '<div class="flex flex-wrap items-center justify-between gap-2 mb-4">' +
+              '<div>' +
+                '<h2 class="text-xl font-bold text-slate-800">Holiday Images (JPG)</h2>' +
+                '<p class="text-xs font-semibold text-slate-500">Pick any holiday image or return to your selected dinosaur PNG.</p>' +
+              '</div>' +
+              '<span class="text-xs font-extrabold px-3 py-1 rounded-full bg-sky-100 text-sky-800">Current: ' + currentHolidayLabel() + '</span>' +
+            '</div>' +
+            '<div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">' + holidayGrid + '</div>' +
+          '</section>' +
+          '<section class="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm">' +
+            '<div class="flex flex-wrap items-center justify-between gap-2 mb-4">' +
+              '<div>' +
+                '<h2 class="text-xl font-bold text-slate-800">Dinosaur Characters (PNG)</h2>' +
+                '<p class="text-xs font-semibold text-slate-500">Unlock new dinosaurs using Stars earned from practice.</p>' +
+              '</div>' +
+              '<span class="text-sm font-extrabold px-3.5 py-1.5 rounded-2xl bg-amber-100 text-amber-900">' + appState.stars + ' Stars Available</span>' +
+            '</div>' +
+            '<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">' + dinoGrid + '</div>' +
+          '</section>' +
+        '</div>'
+      );
     }
 
     function renderGamesView() {
-      return `
-        <div class="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm">
-          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
-            <div>
-              <h2 class="text-xl font-bold text-slate-800">2D Mini-Games</h2>
-              <p class="text-xs font-semibold text-slate-500">Played using only your 2D PNG and JPG images.</p>
-            </div>
-            <div class="flex gap-2">
-              <button
-                onclick="arcadeMode = 'match'; if(cards.length===0) setupMatchCards(); renderApp();"
-                class="px-4 py-2 rounded-2xl text-sm font-extrabold ${
-                  arcadeMode === 'match' ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-700'
-                }"
-              >Card Match</button>
-              <button
-                onclick="arcadeMode = 'quiz'; renderApp();"
-                class="px-4 py-2 rounded-2xl text-sm font-extrabold ${
-                  arcadeMode === 'quiz' ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-700'
-                }"
-              >Speed Math (25s)</button>
-            </div>
-          </div>
+      let body = '';
+      if (arcadeMode === 'match') {
+        const deckHtml = cards.map(function (card, i) {
+          const revealed = card.matched || flipped.indexOf(i) !== -1;
+          const cardCls = card.matched
+            ? 'bg-emerald-50 border-emerald-400'
+            : revealed
+            ? 'bg-white border-sky-400'
+            : 'bg-sky-600 border-sky-700 text-white';
+          const faceHtml = revealed
+            ? '<img src="' + card.img + '" alt="' + card.name + '" class="w-4/5 h-4/5 object-contain" /><span class="text-[11px] font-extrabold text-slate-700 mt-1">' + card.name + '</span>'
+            : '<img src="' + BRAND_LOGO + '" alt="Card Back" class="w-12 h-12 object-contain opacity-90" />';
+          return '<button onclick="selectMatchCard(' + i + ')" class="aspect-square rounded-2xl border-2 p-2 flex flex-col items-center justify-center transition ' + cardCls + '">' + faceHtml + '</button>';
+        }).join('');
 
-          ${
-            arcadeMode === 'match'
-              ? `
-                <div class="flex items-center justify-between bg-sky-50 border border-sky-100 rounded-2xl p-3 mb-4">
-                  <div class="text-sm font-extrabold text-sky-900">
-                    Matched: ${matchedCount} / 6 pairs • Moves: ${moveCount}
-                  </div>
-                  <button
-                    onclick="setupMatchCards(); renderApp();"
-                    class="px-3.5 py-1.5 rounded-xl bg-white border border-sky-200 text-xs font-extrabold text-sky-800 hover:bg-sky-100"
-                  >Reset Deck</button>
-                </div>
+        const winBanner = matchedCount === 6
+          ? '<div class="mb-4 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm font-extrabold text-center">Board cleared in ' + moveCount + ' moves! +15 Stars added.</div>'
+          : '';
 
-                ${matchedCount === 6 ? `
-                  <div class="mb-4 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm font-extrabold text-center">
-                    Board cleared in ${moveCount} moves! +15 Stars added.
-                  </div>
-                ` : ''}
-
-                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
-                  ${cards.map((card, i) => {
-                    const revealed = card.matched || flipped.includes(i);
-                    return `
-                      <button
-                        onclick="selectMatchCard(${i})"
-                        class="aspect-square rounded-2xl border-2 p-2 flex flex-col items-center justify-center transition ${
-                          card.matched
-                            ? 'bg-emerald-50 border-emerald-400'
-                            : revealed
-                            ? 'bg-white border-sky-400'
-                            : 'bg-sky-600 border-sky-700 text-white'
-                        }"
-                      >
-                        ${
-                          revealed
-                            ? `<img src="${card.img}" alt="${card.name}" class="w-4/5 h-4/5 object-contain" />
-                               <span class="text-[11px] font-extrabold text-slate-700 mt-1">${card.name}</span>`
-                            : `<img src="${BRAND_LOGO}" alt="Card Back" class="w-12 h-12 object-contain opacity-90" />`
-                        }
-                      </button>
-                    `;
-                  }).join('')}
-                </div>
-              `
-              : `
-                <div class="max-w-xl mx-auto text-center py-4">
-                  <img src="${currentDisplayImage()}" alt="Buddy" class="w-24 h-24 mx-auto object-contain mb-3 anim-float" />
-                  <div class="flex justify-center gap-4 mb-4">
-                    <span class="px-4 py-2 rounded-2xl bg-amber-50 border border-amber-200 font-extrabold text-amber-900">
-                      Time: ${quickSeconds}s
-                    </span>
-                    <span class="px-4 py-2 rounded-2xl bg-emerald-50 border border-emerald-200 font-extrabold text-emerald-900">
-                      Score: ${quickPoints}
-                    </span>
-                  </div>
-
-                  ${
-                    quickActive && quickItem
-                      ? `
-                        <div class="p-5 rounded-3xl bg-sky-50 border border-sky-200">
-                          <div class="font-display text-3xl font-bold text-sky-950 mb-4">${quickItem.label} = ?</div>
-                          <div class="grid grid-cols-2 gap-3">
-                            ${quickItem.options.map(opt => `
-                              <button
-                                onclick='answerQuickQuiz(${JSON.stringify(opt)})'
-                                class="py-3.5 rounded-2xl bg-white border-2 border-sky-200 hover:border-sky-500 font-display text-xl font-bold text-slate-800"
-                              >${opt}</button>
-                            `).join('')}
-                          </div>
-                        </div>
-                      `
-                      : `
-                        <p class="text-sm font-bold text-slate-600 mb-4">
-                          Answer as many Grade ${appState.grade} math problems as you can in 25 seconds (2 Stars per right answer).
-                        </p>
-                        <button
-                          onclick="startQuickQuiz()"
-                          class="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-base"
-                        >${quickPoints > 0 ? 'Play Again' : 'Start Round'}</button>
-                      `
-                  }
-                </div>
-              `
-          }
-        </div>
-      `;
-    }
-
-    function renderStatsView() {
-      const accuracy = appState.totalAnswered > 0
-        ? Math.round((appState.totalCorrect / appState.totalAnswered) * 100)
-        : 0;
-      const hasAstra = appState.unlocked.includes('image_12');
-
-      return `
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <section class="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm">
-            <h2 class="text-xl font-bold text-slate-800 mb-4">Progress Summary</h2>
-            <div class="grid grid-cols-3 gap-3 mb-5 text-center">
-              <div class="p-3 rounded-2xl bg-sky-50 border border-sky-100">
-                <div class="text-2xl font-display font-bold text-sky-800">${appState.totalAnswered}</div>
-                <div class="text-xs font-extrabold text-slate-500">Answered</div>
-              </div>
-              <div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-100">
-                <div class="text-2xl font-display font-bold text-emerald-800">${accuracy}%</div>
-                <div class="text-xs font-extrabold text-slate-500">Accuracy</div>
-              </div>
-              <div class="p-3 rounded-2xl bg-orange-50 border border-orange-100">
-                <div class="text-2xl font-display font-bold text-orange-800">${appState.bestStreak}</div>
-                <div class="text-xs font-extrabold text-slate-500">Best Streak</div>
-              </div>
-            </div>
-
-            <div class="space-y-3">
-              ${SUBJECTS.map(sub => {
-                const st = appState.bySubject[sub.id] || { answered: 0, correct: 0 };
-                const pct = st.answered > 0 ? Math.round((st.correct / st.answered) * 100) : 0;
-                return `
-                  <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                    <div class="flex justify-between text-sm font-extrabold mb-1">
-                      <span>${sub.badge} ${sub.title}</span>
-                      <span class="text-sky-700">${st.correct}/${st.answered} (${pct}%)</span>
-                    </div>
-                    <div class="w-full h-2.5 rounded-full bg-slate-200 overflow-hidden">
-                      <div class="h-full bg-sky-500" style="width: ${pct}%"></div>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </section>
-
-          <section class="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm flex flex-col justify-between">
-            <div>
-              <h2 class="text-xl font-bold text-slate-800 mb-1">Learner Profile & Birthday Unlock</h2>
-              <p class="text-xs font-semibold text-slate-500 mb-4">
-                Set your birthday month and day to automatically unlock Astra on your birthday.
-              </p>
-
-              <div class="space-y-3">
-                <div>
-                  <label class="block text-xs font-extrabold text-slate-600 mb-1">Name</label>
-                  <input
-                    type="text"
-                    value="${appState.name}"
-                    onchange="saveLearnerField('name', this.value)"
-                    class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-300 font-bold text-sm"
-                  />
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block text-xs font-extrabold text-slate-600 mb-1">Month (1–12)</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="12"
-                      value="${appState.bdayMonth}"
-                      onchange="saveLearnerField('bdayMonth', this.value)"
-                      class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-300 font-bold text-sm"
-                    />
-                  </div>
-                  <div>
-                    <label class="block text-xs font-extrabold text-slate-600 mb-1">Day (1–31)</label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="31"
-                      value="${appState.bdayDay}"
-                      onchange="saveLearnerField('bdayDay', this.value)"
-                      class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-300 font-bold text-sm"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center gap-3">
-              <img src="./assets/chibi/image_12.png" alt="Astra" class="w-12 h-12 rounded-xl object-contain bg-fuchsia-50 p-1" />
-              <div class="text-xs font-bold text-slate-600">
-                Astra: <span class="font-extrabold ${hasAstra ? 'text-emerald-700' : 'text-fuchsia-700'}">
-                  ${hasAstra ? 'Unlocked' : 'Locked until birthday or 500 Stars'}
-                </span>
-              </div>
-            </div>
-          </section>
-        </div>
-      `;
-    }
-
-    function renderApp() {
-      applyBirthdayUnlock();
-      const mount = document.getElementById('app');
-      let viewHtml = '';
-      if (appState.view === 'lesson') viewHtml = renderLessonView();
-      else if (appState.view === 'wardrobe') viewHtml = renderWardrobeView();
-      else if (appState.view === 'games') viewHtml = renderGamesView();
-      else viewHtml = renderStatsView();
-
-      mount.innerHTML = `${renderHeader()}<main>${viewHtml}</main>`;
-    }
-
-    renderApp();
-  </script>
-</body>
-</html>
+        body =
+          '<div class="flex items-center justify-between bg-sky-50 border border-sky-100 rounded-2xl p-3 mb-4">' +
+            '<div class="text-sm font-extrabold text-sky-900">Matched: ' + matchedCount + ' / 6 pairs • Moves: ' + moveCount + '</div>' +
+            '<button onclick="setupMatchCards(); renderApp();" class="px-3.5 py-1.5 rounded-xl bg-white border border-sky-200 text-xs font-extrabold text-sky-800 hover:bg-sky-100">Reset Deck</button>' +
+          '</div>' +
+          winBanner +
+          '<div class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">' + deckHtml + '</div>';
+      } else {
