@@ -3838,5 +3838,208 @@ Include 2 grade-appropriate vocabulary words (that appear verbatim inside the pa
       });
     }
   </script>
+  <script type="module">
+  import * as THREE from 'https://esm.sh/three@0.169.0';
+  import { GLTFLoader } from 'https://esm.sh/three@0.169.0/examples/jsm/loaders/GLTFLoader.js';
+
+  const HOLIDAY_SLUGS = new Set([
+    'christmas', 'easter', 'halloween', 'july_4th', 'juneteenth',
+    'labor_day', 'memorial_day', 'mlk_day', 'new_years',
+    'presidents_day', 'st_patricks', 'thanksgiving', 'valentines'
+  ]);
+
+  function resolve2DUrl(dinoId, holidayKey = '') {
+    const cleanHoliday = String(holidayKey || '').toLowerCase().trim();
+    if (cleanHoliday && HOLIDAY_SLUGS.has(cleanHoliday)) {
+      return `./assets/chibi/holidays/${cleanHoliday}.jpg`;
+    }
+    return `./assets/chibi/${dinoId}.png`;
+  }
+
+  function resolve3DUrl(dinoId, holidayKey = '') {
+    const cleanHoliday = String(holidayKey || '').toLowerCase().trim();
+    if (cleanHoliday && HOLIDAY_SLUGS.has(cleanHoliday)) {
+      return `./assets/models/holidays/${cleanHoliday}.glb`;
+    }
+    return `./assets/models/${dinoId}.glb`;
+  }
+
+  class MiniGame3DStage {
+    constructor(container) {
+      this.container = container;
+      this.container.innerHTML = '';
+      this.rafId = null;
+      this.clock = new THREE.Clock();
+      this.mixer = null;
+      this.model = null;
+      this.baseY = 0;
+
+      const width = Math.max(container.clientWidth || 320, 1);
+      const height = Math.max(container.clientHeight || 240, 1);
+
+      this.scene = new THREE.Scene();
+      this.camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+      this.camera.position.set(0, 1.35, 3.4);
+      this.camera.lookAt(0, 0.75, 0);
+
+      this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      this.renderer.setSize(width, height);
+      this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+      this.container.appendChild(this.renderer.domElement);
+
+      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x8d7b68, 1.2);
+      hemiLight.position.set(0, 5, 0);
+      this.scene.add(hemiLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1.4);
+      dirLight.position.set(2.5, 4, 3);
+      this.scene.add(dirLight);
+
+      const floor = new THREE.Mesh(
+        new THREE.CircleGeometry(1.5, 32),
+        new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.85 })
+      );
+      floor.rotation.x = -Math.PI / 2;
+      this.scene.add(floor);
+
+      this.loader = new GLTFLoader();
+      this._onResize = () => this.resize();
+      window.addEventListener('resize', this._onResize);
+    }
+
+    resize() {
+      if (!this.container || !this.renderer || !this.camera) return;
+      const width = Math.max(this.container.clientWidth || 320, 1);
+      const height = Math.max(this.container.clientHeight || 240, 1);
+      this.camera.aspect = width / height;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(width, height);
+    }
+
+    async loadDino(dinoId, holidayKey = '', fallbackImgUrl = '') {
+      const url = resolve3DUrl(dinoId, holidayKey);
+      try {
+        const gltf = await new Promise((resolve, reject) => {
+          this.loader.load(url, resolve, undefined, reject);
+        });
+
+        if (this.model) {
+          this.scene.remove(this.model);
+          this.model = null;
+        }
+
+        const root = gltf.scene || gltf.scenes[0];
+        const box = new THREE.Box3().setFromObject(root);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+        const maxDim = Math.max(size.x, size.y, size.z) || 1;
+        const scale = 1.5 / maxDim;
+        root.scale.setScalar(scale);
+
+        root.updateMatrixWorld(true);
+        const scaledBox = new THREE.Box3().setFromObject(root);
+        const center = new THREE.Vector3();
+        scaledBox.getCenter(center);
+
+        root.position.x -= center.x;
+        root.position.z -= center.z;
+        root.position.y -= scaledBox.min.y; // Plant feet flush on y = 0
+        this.baseY = root.position.y;
+
+        this.model = root;
+        this.scene.add(this.model);
+
+        if (gltf.animations && gltf.animations.length > 0) {
+          this.mixer = new THREE.AnimationMixer(this.model);
+          this.mixer.clipAction(gltf.animations[0]).play();
+        }
+
+        this.startLoop();
+      } catch (err) {
+        console.warn('3D GLB load failed, using 2D image fallback:', url, err);
+        this.show2DFallback(fallbackImgUrl || resolve2DUrl(dinoId, holidayKey));
+      }
+    }
+
+    show2DFallback(imgUrl) {
+      this.stopLoop();
+      this.container.innerHTML = `<img src="${imgUrl}" alt="Dino" class="w-full h-full object-contain" />`;
+    }
+
+    startLoop() {
+      this.stopLoop();
+      this.clock.start();
+      const tick = () => {
+        this.rafId = requestAnimationFrame(tick);
+        const delta = this.clock.getDelta();
+        const elapsed = this.clock.elapsedTime;
+        if (this.mixer) this.mixer.update(delta);
+        if (this.model) {
+          this.model.rotation.y = Math.sin(elapsed * 1.1) * 0.35;
+          this.model.position.y = this.baseY + Math.abs(Math.sin(elapsed * 2.2)) * 0.04;
+        }
+        this.renderer.render(this.scene, this.camera);
+      };
+      tick();
+    }
+
+    stopLoop() {
+      if (this.rafId !== null) {
+        cancelAnimationFrame(this.rafId);
+        this.rafId = null;
+      }
+    }
+
+    dispose() {
+      this.stopLoop();
+      window.removeEventListener('resize', this._onResize);
+      this.scene.traverse((obj) => {
+        if (obj.geometry) obj.geometry.dispose();
+        if (obj.material) {
+          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+          mats.forEach((m) => m.dispose());
+        }
+      });
+      this.renderer.dispose();
+      this.container.innerHTML = '';
+    }
+  }
+
+  let activeMiniGameStage = null;
+
+  window.DinoNestMedia = {
+    // Use anywhere outside mini games: renders static PNG or holiday JPG only
+    renderStaticImage(targetEl, dinoId, holidayKey = '', altText = 'Dinosaur') {
+      if (!targetEl) return;
+      const src = resolve2DUrl(dinoId, holidayKey);
+      const fallbackSrc = resolve2DUrl(dinoId, '');
+      targetEl.innerHTML = `
+        <img
+          src="${src}"
+          alt="${altText}"
+          class="w-full h-full object-contain select-none"
+          onerror="if(this.src!=='${new URL(fallbackSrc, window.location.href).href}'){this.src='${fallbackSrc}';}"
+        />
+      `;
+    },
+
+    // Call when entering a mini game
+    async enterMiniGame(containerEl, dinoId, holidayKey = '') {
+      this.exitMiniGame();
+      if (!containerEl) return;
+      activeMiniGameStage = new MiniGame3DStage(containerEl);
+      await activeMiniGameStage.loadDino(dinoId, holidayKey, resolve2DUrl(dinoId, holidayKey));
+    },
+
+    // Call when leaving or finishing a mini game
+    exitMiniGame() {
+      if (activeMiniGameStage) {
+        activeMiniGameStage.dispose();
+        activeMiniGameStage = null;
+      }
+    }
+  };
+</script>
 </body>
 </html>
