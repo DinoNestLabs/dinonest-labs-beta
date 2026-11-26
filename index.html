@@ -4,21 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="mobile-web-app-capable" content="yes" />
-  <title>DinoNest Labs — Adaptive Learning Adventure</title>
+  <title>DinoNest Labs — AdaptedMind 2D Learning Adventure</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" href="./assets/chibi/logo.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap');
 
-    :root {
-      --bg-sky: #f0f9ff;
-      --card-border: #e2e8f0;
-    }
-
     body {
       font-family: 'Nunito', sans-serif;
-      background: linear-gradient(180deg, #e0f2fe 0%, #f8fafc 45%, #fefce8 100%);
+      background: linear-gradient(180deg, #e0f2fe 0%, #f8fafc 45%, #fef9c3 100%);
       min-height: 100vh;
       color: #1e293b;
     }
@@ -27,775 +22,692 @@
       font-family: 'Fredoka', sans-serif;
     }
 
-    @keyframes buddyIdle {
-      0%, 100% { transform: translateY(0px) scale(1); }
-      50% { transform: translateY(-6px) scale(1.02); }
+    @keyframes gentleFloat {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
     }
 
-    @keyframes buddyCelebrate {
-      0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-      25% { transform: translateY(-18px) rotate(-6deg) scale(1.08); }
-      50% { transform: translateY(-4px) rotate(6deg) scale(1.05); }
-      75% { transform: translateY(-14px) rotate(-3deg) scale(1.07); }
+    @keyframes happyHop {
+      0%, 100% { transform: translateY(0) scale(1); }
+      30% { transform: translateY(-16px) scale(1.06); }
+      65% { transform: translateY(-5px) scale(1.03); }
     }
 
-    @keyframes buddyEncourage {
+    @keyframes nudgeTilt {
       0%, 100% { transform: rotate(0deg); }
-      30% { transform: rotate(-7deg); }
-      70% { transform: rotate(7deg); }
+      35% { transform: rotate(-6deg); }
+      70% { transform: rotate(6deg); }
     }
 
-    .buddy-idle {
-      animation: buddyIdle 3.2s ease-in-out infinite;
-    }
-
-    .buddy-celebrate {
-      animation: buddyCelebrate 0.85s ease-in-out 2;
-    }
-
-    .buddy-encourage {
-      animation: buddyEncourage 0.65s ease-in-out 2;
-    }
-
-    .choice-btn {
-      transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
-    }
-
-    .choice-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 18px -4px rgba(14, 116, 144, 0.18);
-    }
-
-    .choice-btn:active:not(:disabled) {
-      transform: translateY(0px);
-    }
+    .anim-float { animation: gentleFloat 3s ease-in-out infinite; }
+    .anim-hop { animation: happyHop 0.8s ease-in-out 2; }
+    .anim-tilt { animation: nudgeTilt 0.65s ease-in-out 2; }
   </style>
 </head>
-<body class="antialiased selection:bg-amber-200 selection:text-slate-900">
+<body class="antialiased">
   <div id="app" class="max-w-6xl mx-auto px-4 py-4 md:py-6"></div>
 
   <script>
     // =========================================================================
-    // 1. ASSET CATALOG (100% 2D PNG & JPG — ZERO 3D / GLB)
+    // 1. 2D ASSET CATALOG ONLY (PNG & JPG — ZERO 3D / GLB)
     // =========================================================================
-    const DINOS = [
-      { id: 'image_0',  name: 'Pip',    species: 'Baby T-Rex',       trait: 'Math Explorer',     color: 'emerald', cost: 0,   img: './assets/chibi/image_0.png' },
-      { id: 'image_1',  name: 'Trixie', species: 'Triceratops',      trait: 'Logic Defender',    color: 'sky',     cost: 0,   img: './assets/chibi/image_1.png' },
-      { id: 'image_2',  name: 'Bram',   species: 'Brachiosaurus',    trait: 'Word Reach',        color: 'amber',   cost: 30,  img: './assets/chibi/image_2.png' },
-      { id: 'image_3',  name: 'Sunny',  species: 'Stegosaurus',      trait: 'Pattern Builder',   color: 'yellow',  cost: 60,  img: './assets/chibi/image_3.png' },
-      { id: 'image_4',  name: 'Pia',    species: 'Pteranodon',       trait: 'Sky Reader',        color: 'cyan',    cost: 90,  img: './assets/chibi/image_4.png' },
-      { id: 'image_5',  name: 'Anky',   species: 'Ankylosaurus',     trait: 'Number Shield',     color: 'orange',  cost: 120, img: './assets/chibi/image_5.png' },
-      { id: 'image_6',  name: 'Pari',   species: 'Parasaurolophus',  trait: 'Sound & Syllable',  color: 'teal',    cost: 150, img: './assets/chibi/image_6.png' },
-      { id: 'image_7',  name: 'Veloci', species: 'Velociraptor',     trait: 'Speed Solver',      color: 'rose',    cost: 190, img: './assets/chibi/image_7.png' },
-      { id: 'image_8',  name: 'Plesio', species: 'Plesiosaurus',     trait: 'Deep Thinker',      color: 'blue',    cost: 230, img: './assets/chibi/image_8.png' },
-      { id: 'image_9',  name: 'Spike',  species: 'Spinosaurus',      trait: 'Science Scout',     color: 'indigo',  cost: 280, img: './assets/chibi/image_9.png' },
-      { id: 'image_10', name: 'Dippy',  species: 'Diplodocus',       trait: 'Story Stretcher',   color: 'lime',    cost: 330, img: './assets/chibi/image_10.png' },
-      { id: 'image_11', name: 'Pachy',  species: 'Pachycephalosaurus', trait: 'Brain Buster',    color: 'purple',  cost: 390, img: './assets/chibi/image_11.png' },
-      { id: 'image_12', name: 'Astra',  species: 'Cosmic Star Dino', trait: 'Birthday Legend',   color: 'fuchsia', cost: 500, birthdaySpecial: true, img: './assets/chibi/image_12.png' }
+    const BRAND_LOGO = './assets/chibi/logo.png';
+
+    const DINO_ROSTER = [
+      { id: 'image_0',  name: 'Pip',    role: 'Math Sprout',       specialty: 'Addition & Counting',   cost: 0,   img: './assets/chibi/image_0.png' },
+      { id: 'image_1',  name: 'Trixie', role: 'Horned Thinker',    specialty: 'Logic & Subtraction',   cost: 0,   img: './assets/chibi/image_1.png' },
+      { id: 'image_2',  name: 'Bram',   role: 'Tall Reader',       specialty: 'Word Meanings',         cost: 25,  img: './assets/chibi/image_2.png' },
+      { id: 'image_3',  name: 'Sunny',  role: 'Plate Builder',     specialty: 'Number Patterns',       cost: 50,  img: './assets/chibi/image_3.png' },
+      { id: 'image_4',  name: 'Pia',    role: 'Sky Scout',         specialty: 'Reading Clues',         cost: 75,  img: './assets/chibi/image_4.png' },
+      { id: 'image_5',  name: 'Anky',   role: 'Armored Guard',     specialty: 'Fact Fluency',          cost: 100, img: './assets/chibi/image_5.png' },
+      { id: 'image_6',  name: 'Pari',   role: 'Crest Singer',      specialty: 'Grammar & Verbs',       cost: 130, img: './assets/chibi/image_6.png' },
+      { id: 'image_7',  name: 'Veloci', role: 'Swift Solver',      specialty: 'Speed Math',            cost: 160, img: './assets/chibi/image_7.png' },
+      { id: 'image_8',  name: 'Plesio', role: 'Deep Diver',        specialty: 'Science Facts',         cost: 200, img: './assets/chibi/image_8.png' },
+      { id: 'image_9',  name: 'Spike',  role: 'Sail Researcher',   specialty: 'Earth & Fossils',       cost: 240, img: './assets/chibi/image_9.png' },
+      { id: 'image_10', name: 'Dippy',  role: 'Long-Tail Scholar', specialty: 'Fractions & Ratios',    cost: 290, img: './assets/chibi/image_10.png' },
+      { id: 'image_11', name: 'Pachy',  role: 'Dome Striker',      specialty: 'Big Brain Challenges',  cost: 340, img: './assets/chibi/image_11.png' },
+      { id: 'image_12', name: 'Astra',  role: 'Starlight Guide',   specialty: 'Birthday Unlock',       cost: 500, isBirthday: true, img: './assets/chibi/image_12.png' }
     ];
 
-    const HOLIDAYS = [
-      { key: '',              label: 'Classic Outfit',    img: '' },
-      { key: 'new_years',     label: "New Year's",        img: './assets/chibi/holidays/new_years.jpg' },
-      { key: 'mlk_day',       label: 'MLK Day',           img: './assets/chibi/holidays/mlk_day.jpg' },
-      { key: 'presidents_day',label: "Presidents' Day",   img: './assets/chibi/holidays/presidents_day.jpg' },
-      { key: 'st_patricks',   label: "St. Patrick's Day", img: './assets/chibi/holidays/st_patricks.jpg' },
-      { key: 'easter',        label: 'Easter',            img: './assets/chibi/holidays/easter.jpg' },
-      { key: 'memorial_day',  label: 'Memorial Day',      img: './assets/chibi/holidays/memorial_day.jpg' },
-      { key: 'juneteenth',    label: 'Juneteenth',        img: './assets/chibi/holidays/juneteenth.jpg' },
-      { key: 'july_4th',      label: '4th of July',       img: './assets/chibi/holidays/july_4th.jpg' },
-      { key: 'labor_day',     label: 'Labor Day',         img: './assets/chibi/holidays/labor_day.jpg' },
-      { key: 'halloween',     label: 'Halloween',         img: './assets/chibi/holidays/halloween.jpg' },
-      { key: 'thanksgiving',  label: 'Thanksgiving',      img: './assets/chibi/holidays/thanksgiving.jpg' },
-      { key: 'christmas',     label: 'Christmas',         img: './assets/chibi/holidays/christmas.jpg' },
-      { key: 'valentines',    label: "Valentine's Day",   img: './assets/chibi/holidays/valentines.jpg' }
+    const HOLIDAY_CARDS = [
+      { key: '',               title: 'Standard Chibi',    img: '' },
+      { key: 'new_years',      title: "New Year's",        img: './assets/chibi/holidays/new_years.jpg' },
+      { key: 'mlk_day',        title: 'MLK Day',           img: './assets/chibi/holidays/mlk_day.jpg' },
+      { key: 'presidents_day', title: "Presidents' Day",   img: './assets/chibi/holidays/presidents_day.jpg' },
+      { key: 'st_patricks',    title: "St. Patrick's Day", img: './assets/chibi/holidays/st_patricks.jpg' },
+      { key: 'easter',         title: 'Easter',            img: './assets/chibi/holidays/easter.jpg' },
+      { key: 'memorial_day',   title: 'Memorial Day',      img: './assets/chibi/holidays/memorial_day.jpg' },
+      { key: 'juneteenth',     title: 'Juneteenth',        img: './assets/chibi/holidays/juneteenth.jpg' },
+      { key: 'july_4th',       title: 'July 4th',          img: './assets/chibi/holidays/july_4th.jpg' },
+      { key: 'labor_day',      title: 'Labor Day',         img: './assets/chibi/holidays/labor_day.jpg' },
+      { key: 'halloween',      title: 'Halloween',         img: './assets/chibi/holidays/halloween.jpg' },
+      { key: 'thanksgiving',   title: 'Thanksgiving',      img: './assets/chibi/holidays/thanksgiving.jpg' },
+      { key: 'christmas',      title: 'Christmas',         img: './assets/chibi/holidays/christmas.jpg' },
+      { key: 'valentines',     title: "Valentine's Day",   img: './assets/chibi/holidays/valentines.jpg' }
     ];
 
     const SUBJECTS = [
-      { key: 'math',    label: 'Math Quest',       icon: '🔢', desc: 'Number sense, operations, fractions & logic' },
-      { key: 'reading', label: 'Reading & Words',  icon: '📚', desc: 'Vocabulary, synonyms, context clues & grammar' },
-      { key: 'science', label: 'Dino & Earth Lab', icon: '🌋', desc: 'Habitats, fossils, space & life science' }
+      { id: 'math',    title: 'Math',    badge: '➕', note: 'Arithmetic, patterns, fractions & algebra' },
+      { id: 'reading', title: 'Reading', badge: '📖', note: 'Vocabulary, context clues, grammar & roots' },
+      { id: 'science', title: 'Science', badge: '🔬', note: 'Dinosaurs, fossils, habitats & space' }
     ];
 
-    const DIFFICULTY_LEVELS = ['Warm-Up', 'Explorer', 'Challenger', 'Mastery'];
+    const TIERS = ['Foundations', 'Steady Pace', 'Stretch', 'Challenge'];
 
     // =========================================================================
-    // 2. STATE & PERSISTENCE
+    // 2. SAVED LEARNER STATE
     // =========================================================================
-    const STORAGE_KEY = 'dinonest_labs_2d_v1';
+    const STORE_KEY = 'dinonest_adaptedmind_2d_only';
 
-    function detectTodayHoliday() {
-      const now = new Date();
-      const m = now.getMonth() + 1;
-      const d = now.getDate();
-      if (m === 1 && d <= 7) return 'new_years';
-      if (m === 1 && d >= 15 && d <= 21) return 'mlk_day';
-      if (m === 2 && d >= 12 && d <= 15) return 'valentines';
-      if (m === 2 && d >= 16 && d <= 22) return 'presidents_day';
-      if (m === 3 && d >= 14 && d <= 18) return 'st_patricks';
-      if (m === 4 && d <= 20) return 'easter';
-      if (m === 5 && d >= 24) return 'memorial_day';
-      if (m === 6 && d >= 17 && d <= 20) return 'juneteenth';
-      if (m === 7 && d <= 6) return 'july_4th';
-      if (m === 9 && d <= 7) return 'labor_day';
-      if (m === 10 && d >= 24) return 'halloween';
-      if (m === 11 && d >= 20 && d <= 29) return 'thanksgiving';
-      if (m === 12 && d >= 15) return 'christmas';
-      return '';
-    }
-
-    const defaultState = {
-      studentName: 'Explorer',
-      birthdayMonth: '',
-      birthdayDay: '',
+    const initialState = {
+      name: 'Learner',
+      bdayMonth: '',
+      bdayDay: '',
       grade: 2,
       subject: 'math',
-      tab: 'practice', // 'practice' | 'nest' | 'minigames' | 'progress'
-      activeDinoId: 'image_0',
-      activeHoliday: detectTodayHoliday(),
-      unlockedDinos: ['image_0', 'image_1'],
-      stars: 25,
+      view: 'lesson', // 'lesson' | 'wardrobe' | 'games' | 'stats'
+      buddyId: 'image_0',
+      holidayKey: '',
+      unlocked: ['image_0', 'image_1'],
+      stars: 30,
       xp: 0,
       streak: 0,
       bestStreak: 0,
-      difficultyIdx: 0,
-      solvedCount: 0,
-      correctCount: 0,
-      subjectStats: {
-        math: { solved: 0, correct: 0 },
-        reading: { solved: 0, correct: 0 },
-        science: { solved: 0, correct: 0 }
+      tierIndex: 0,
+      totalAnswered: 0,
+      totalCorrect: 0,
+      bySubject: {
+        math: { answered: 0, correct: 0 },
+        reading: { answered: 0, correct: 0 },
+        science: { answered: 0, correct: 0 }
       }
     };
 
-    function loadState() {
+    function loadSavedState() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return { ...defaultState };
-        const parsed = JSON.parse(raw);
+        const raw = localStorage.getItem(STORE_KEY);
+        if (!raw) return structuredClone(initialState);
+        const data = JSON.parse(raw);
         return {
-          ...defaultState,
-          ...parsed,
-          subjectStats: { ...defaultState.subjectStats, ...(parsed.subjectStats || {}) }
+          ...structuredClone(initialState),
+          ...data,
+          bySubject: {
+            ...structuredClone(initialState.bySubject),
+            ...(data.bySubject || {})
+          }
         };
       } catch {
-        return { ...defaultState };
+        return structuredClone(initialState);
       }
     }
 
-    let state = loadState();
+    let appState = loadSavedState();
 
-    // Check Astra birthday unlock automatically
-    function checkBirthdayUnlock() {
-      if (!state.birthdayMonth || !state.birthdayDay) return false;
-      const now = new Date();
-      const isBday = (now.getMonth() + 1) === Number(state.birthdayMonth) && now.getDate() === Number(state.birthdayDay);
-      if (isBday && !state.unlockedDinos.includes('image_12')) {
-        state.unlockedDinos.push('image_12');
-        state.activeDinoId = 'image_12';
-        saveState();
-        return true;
-      }
-      return isBday;
-    }
-
-    function saveState() {
+    function persistState() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        localStorage.setItem(STORE_KEY, JSON.stringify(appState));
       } catch {}
     }
 
-    // Transient UI state (not saved)
-    let currentQuestion = null;
-    let selectedAnswer = null;
-    let answerResult = null; // null | 'correct' | 'wrong'
-    let showExplanation = false;
-    let buddyMood = 'idle'; // 'idle' | 'celebrate' | 'encourage'
-    let bannerMessage = '';
+    function applyBirthdayUnlock() {
+      if (!appState.bdayMonth || !appState.bdayDay) return;
+      const now = new Date();
+      const matchesToday =
+        (now.getMonth() + 1) === Number(appState.bdayMonth) &&
+        now.getDate() === Number(appState.bdayDay);
+      if (matchesToday && !appState.unlocked.includes('image_12')) {
+        appState.unlocked.push('image_12');
+        appState.buddyId = 'image_12';
+        appState.holidayKey = '';
+        persistState();
+      }
+    }
 
-    // Mini-game state
-    let activeMiniGame = 'memory'; // 'memory' | 'sprint'
-    let memoryCards = [];
-    let flippedIndices = [];
-    let matchedPairs = 0;
-    let memoryMoves = 0;
-    let memoryLock = false;
+    // Transient UI & mini-game state
+    let question = null;
+    let pickedChoice = null;
+    let outcome = null; // null | 'right' | 'wrong'
+    let showGuide = false;
+    let buddyAnim = 'anim-float';
+    let statusBanner = 'Pick an answer to earn Stars and grow your streak.';
 
-    let sprintScore = 0;
-    let sprintTimeLeft = 30;
-    let sprintRunning = false;
-    let sprintQuestion = null;
-    let sprintTimerId = null;
+    let arcadeMode = 'match'; // 'match' | 'quiz'
+    let cards = [];
+    let flipped = [];
+    let matchedCount = 0;
+    let moveCount = 0;
+    let boardLocked = false;
+
+    let quickPoints = 0;
+    let quickSeconds = 25;
+    let quickActive = false;
+    let quickItem = null;
+    let quickTimer = null;
 
     // =========================================================================
-    // 3. ADAPTIVE QUESTION ENGINE (GRADES 1–6, MATH / READING / SCIENCE)
+    // 3. ADAPTED-MIND STYLE QUESTION GENERATOR
     // =========================================================================
-    function randInt(min, max) {
+    function rand(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function shuffle(arr) {
-      const copy = [...arr];
-      for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-      }
-      return copy;
+    function pickRandom(list) {
+      return list[rand(0, list.length - 1)];
     }
 
-    function makeNumericChoices(correct, spread = 8) {
-      const set = new Set([correct]);
-      let guard = 0;
-      while (set.size < 4 && guard < 60) {
-        guard++;
-        const offset = randInt(-spread, spread);
-        const candidate = correct + offset;
-        if (candidate >= 0 && candidate !== correct) {
-          set.add(candidate);
+    function shuffleList(list) {
+      const arr = [...list];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = rand(0, i);
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function buildNumberOptions(answer, span = 6) {
+      const options = new Set([answer]);
+      let tries = 0;
+      while (options.size < 4 && tries < 50) {
+        tries++;
+        const candidate = answer + rand(-span, span);
+        if (candidate >= 0 && candidate !== answer) {
+          options.add(candidate);
         }
       }
-      while (set.size < 4) set.add(correct + set.size + 1);
-      return shuffle([...set].map(String));
+      while (options.size < 4) {
+        options.add(answer + options.size + 2);
+      }
+      return shuffleList([...options].map(String));
     }
 
-    function generateMathQuestion(grade, diffIdx) {
-      const scale = grade + diffIdx;
-      const mode = randInt(1, 4);
-
+    function makeMathItem(grade, tier) {
+      const boost = grade + tier;
       if (grade <= 2) {
-        if (mode === 1) {
-          const a = randInt(3, 12 + scale * 4);
-          const b = randInt(2, 10 + scale * 3);
+        const kind = rand(1, 3);
+        if (kind === 1) {
+          const a = rand(2, 10 + boost * 3);
+          const b = rand(2, 9 + boost * 2);
           const ans = a + b;
           return {
-            tag: `Grade ${grade} • Addition`,
-            prompt: `Pip found ${a} fern leaves in the morning and ${b} more after lunch. How many leaves did Pip find in all?`,
-            equation: `${a} + ${b} = ?`,
-            choices: makeNumericChoices(ans, 6),
+            topic: `Grade ${grade} • Addition`,
+            text: `Add the two numbers together:`,
+            display: `${a} + ${b} = ?`,
+            options: buildNumberOptions(ans, 5),
             answer: String(ans),
-            hint: `Start at ${a} and count up ${b} more.`,
-            explanation: `${a} + ${b} = ${ans}. Combining both groups gives ${ans} leaves total.`
+            hint: `Count ${b} steps forward starting from ${a}.`,
+            steps: `Start at ${a} and add ${b} to get ${ans}.`
           };
         }
-        if (mode === 2) {
-          const total = randInt(10, 18 + scale * 4);
-          const eaten = randInt(2, total - 3);
-          const ans = total - eaten;
+        if (kind === 2) {
+          const whole = rand(10, 18 + boost * 3);
+          const part = rand(2, whole - 2);
+          const ans = whole - part;
           return {
-            tag: `Grade ${grade} • Subtraction`,
-            prompt: `There were ${total} dino eggs in the warm nest, and ${eaten} hatched! How many eggs are still in the nest?`,
-            equation: `${total} − ${eaten} = ?`,
-            choices: makeNumericChoices(ans, 5),
+            topic: `Grade ${grade} • Subtraction`,
+            text: `Find the missing difference:`,
+            display: `${whole} − ${part} = ?`,
+            options: buildNumberOptions(ans, 5),
             answer: String(ans),
-            hint: `Subtract ${eaten} from ${total}.`,
-            explanation: `${total} − ${eaten} = ${ans} eggs left in the nest.`
+            hint: `Take away ${part} from ${whole}.`,
+            steps: `${whole} minus ${part} equals ${ans}.`
           };
         }
-        if (mode === 3) {
-          const step = grade === 1 ? 2 : [2, 5, 10][randInt(0, 2)];
-          const start = randInt(1, 5) * step;
-          const seq = [start, start + step, start + step * 2, start + step * 3];
-          const ans = start + step * 4;
-          return {
-            tag: `Grade ${grade} • Number Patterns`,
-            prompt: `Follow the dino footprints! What number comes next in this pattern?`,
-            equation: `${seq.join(', ')}, ?`,
-            choices: makeNumericChoices(ans, step * 2),
-            answer: String(ans),
-            hint: `Each footprint adds ${step} to the number before it.`,
-            explanation: `The pattern counts by ${step}s: ${seq[3]} + ${step} = ${ans}.`
-          };
-        }
-        const tens = randInt(2, 8);
-        const ones = randInt(1, 9);
-        const ans = tens * 10 + ones;
+        const step = rand(2, 5);
+        const start = rand(1, 4) * step;
+        const ans = start + step * 3;
         return {
-          tag: `Grade ${grade} • Place Value`,
-          prompt: `Which number is equal to ${tens} tens and ${ones} ones?`,
-          equation: `${tens} tens + ${ones} ones`,
-          choices: shuffle([String(ans), String(ones * 10 + tens), String(tens + ones), String(ans + 10)]),
+          topic: `Grade ${grade} • Skip Counting`,
+          text: `What number completes the sequence?`,
+          display: `${start}, ${start + step}, ${start + step * 2}, ?`,
+          options: buildNumberOptions(ans, step * 2),
           answer: String(ans),
-          hint: `${tens} tens is ${tens * 10}. Now add ${ones} ones.`,
-          explanation: `${tens} tens = ${tens * 10}, plus ${ones} ones = ${ans}.`
+          hint: `Each number increases by ${step}.`,
+          steps: `Add ${step} to ${start + step * 2} to get ${ans}.`
         };
       }
 
       if (grade <= 4) {
-        if (mode === 1) {
-          const a = randInt(3, 8 + diffIdx * 2);
-          const b = randInt(4, 9 + diffIdx * 2);
+        const kind = rand(1, 3);
+        if (kind === 1) {
+          const a = rand(2, 8 + tier * 2);
+          const b = rand(3, 9 + tier);
           const ans = a * b;
           return {
-            tag: `Grade ${grade} • Multiplication`,
-            prompt: `Trixie arranged ${a} rows of crystals with ${b} crystals in each row. How many crystals are there altogether?`,
-            equation: `${a} × ${b} = ?`,
-            choices: makeNumericChoices(ans, 10),
+            topic: `Grade ${grade} • Multiplication`,
+            text: `Multiply the factors:`,
+            display: `${a} × ${b} = ?`,
+            options: buildNumberOptions(ans, 10),
             answer: String(ans),
-            hint: `Think of ${a} equal groups of ${b}.`,
-            explanation: `${a} × ${b} = ${ans} crystals.`
+            hint: `Think of ${a} groups of ${b}.`,
+            steps: `${a} × ${b} = ${ans}.`
           };
         }
-        if (mode === 2) {
-          const divisor = randInt(3, 8 + diffIdx);
-          const quotient = randInt(4, 10 + diffIdx);
+        if (kind === 2) {
+          const divisor = rand(2, 7 + tier);
+          const quotient = rand(3, 9 + tier);
           const dividend = divisor * quotient;
           return {
-            tag: `Grade ${grade} • Division`,
-            prompt: `${dividend} berries are shared equally among ${divisor} baby dinos. How many berries does each dino get?`,
-            equation: `${dividend} ÷${divisor} = ?`,
-            choices: makeNumericChoices(quotient, 5),
+            topic: `Grade ${grade} • Division`,
+            text: `Divide evenly:`,
+            display: `${dividend} ÷ ${divisor} = ?`,
+            options: buildNumberOptions(quotient, 4),
             answer: String(quotient),
-            hint: `Ask yourself: ${divisor} times what number equals ${dividend}?`,
-            explanation: `Since ${divisor} × ${quotient} =${dividend}, ${dividend} ÷${divisor} = ${quotient}.`
+            hint: `Which number times ${divisor} equals ${dividend}?`,
+            steps: `${divisor} × ${quotient} = ${dividend}, so ${dividend} ÷ ${divisor} = ${quotient}.`
           };
         }
-        if (mode === 3) {
-          const denom = [4, 5, 6, 8, 10][randInt(0, 4)];
-          const num1 = randInt(1, denom - 2);
-          const num2 = randInt(1, denom - num1);
-          const ans = `${num1 + num2}/${denom}`;
-          const wrong1 = `${num1 + num2}/${denom * 2}`;
-          const wrong2 = `${Math.max(1, num1 + num2 - 1)}/${denom}`;
-          const wrong3 = `${num1 * num2}/${denom}`;
-          return {
-            tag: `Grade ${grade} • Fractions`,
-            prompt: `Anky ate ${num1}/${denom} of a melon and Sunny ate ${num2}/${denom} of the same melon. How much did they eat together?`,
-            equation: `${num1}/${denom} + ${num2}/${denom} = ?`,
-            choices: shuffle([...new Set([ans, wrong1, wrong2, wrong3])]),
-            answer: ans,
-            hint: `When denominators match, add the top numbers (numerators) and keep the bottom number (${denom}).`,
-            explanation: `${num1}/${denom} + ${num2}/${denom} = ${ans}.`
-          };
-        }
-        const w = randInt(4, 11);
-        const l = randInt(5, 13);
-        const ans = 2 * (w + l);
+        const denom = pickRandom([4, 5, 6, 8]);
+        const n1 = rand(1, denom - 2);
+        const n2 = rand(1, denom - n1);
+        const ans = `${n1 + n2}/${denom}`;
         return {
-          tag: `Grade ${grade} • Perimeter`,
-          prompt: `A rectangular dino habitat is ${l} meters long and${w} meters wide. What is its perimeter?`,
-          equation: `P = 2 × (${l} +${w})`,
-          choices: makeNumericChoices(ans, 8),
-          answer: String(ans),
-          hint: `Add all four sides: ${l} +${w} + ${l} +${w}.`,
-          explanation: `Perimeter = ${l} +${w} + ${l} +${w} = ${ans} meters.`
+          topic: `Grade ${grade} • Fractions`,
+          text: `Add the fractions with like denominators:`,
+          display: `${n1}/${denom} + ${n2}/${denom} = ?`,
+          options: shuffleList([...new Set([
+            ans,
+            `${n1 + n2}/${denom * 2}`,
+            `${Math.max(1, n1 + n2 - 1)}/${denom}`,
+            `${n1 + n2 + 1}/${denom}`
+          ])]),
+          answer: ans,
+          hint: `Add the numerators (${n1} + ${n2}) and keep ${denom} on the bottom.`,
+          steps: `${n1} + ${n2} = ${n1 + n2}, giving ${ans}.`
         };
       }
 
       // Grades 5–6
-      if (mode === 1) {
-        const a = randInt(6, 15 + diffIdx * 3);
-        const b = randInt(4, 12 + diffIdx * 2);
-        const c = randInt(5, 25);
+      const kind = rand(1, 3);
+      if (kind === 1) {
+        const a = rand(5, 14 + tier * 2);
+        const b = rand(3, 10 + tier);
+        const c = rand(4, 20);
         const ans = a * b + c;
         return {
-          tag: `Grade ${grade} • Order of Operations`,
-          prompt: `Evaluate the expression carefully using order of operations:`,
-          equation: `${a} ×${b} + ${c} = ?`,
-          choices: makeNumericChoices(ans, 14),
+          topic: `Grade ${grade} • Order of Operations`,
+          text: `Solve using order of operations:`,
+          display: `${a} × ${b} + ${c} = ?`,
+          options: buildNumberOptions(ans, 12),
           answer: String(ans),
-          hint: `Multiply ${a} × ${b} first, then add${c}.`,
-          explanation: `First multiply: ${a} × ${b} =${a * b}. Then add ${c}: ${a * b} +${c} = ${ans}.`
+          hint: `Do multiplication (${a} × ${b}) before adding ${c}.`,
+          steps: `${a} × ${b} = ${a * b}, then ${a * b} + ${c} = ${ans}.`
         };
       }
-      if (mode === 2) {
-        const pct = [10, 20, 25, 50][randInt(0, 3)];
-        const base = pct === 25 ? randInt(2, 12) * 4 : randInt(3, 15) * 10;
+      if (kind === 2) {
+        const pct = pickRandom([10, 20, 25, 50]);
+        const base = pct === 25 ? rand(2, 10) * 4 : rand(2, 12) * 10;
         const ans = (pct / 100) * base;
         return {
-          tag: `Grade ${grade} • Percentages`,
-          prompt: `Astra scanned ${base} asteroids and found rare minerals on${pct}% of them. How many asteroids had rare minerals?`,
-          equation: `${pct}% of ${base} = ?`,
-          choices: makeNumericChoices(ans, 10),
+          topic: `Grade ${grade} • Percentages`,
+          text: `Calculate the percentage of the number:`,
+          display: `${pct}% of ${base} = ?`,
+          options: buildNumberOptions(ans, 8),
           answer: String(ans),
-          hint: `Convert ${pct}% to a fraction (${pct}/100) and multiply by${base}.`,
-          explanation: `${pct}% of${base} = (${pct}/100) ×${base} = ${ans}.`
+          hint: `Find ${pct}/100 of ${base}.`,
+          steps: `(${pct} ÷ 100) × ${base} = ${ans}.`
         };
       }
-      const x = randInt(3, 14 + diffIdx * 2);
-      const mult = randInt(2, 6);
-      const add = randInt(3, 15);
-      const total = mult * x + add;
+      const x = rand(2, 12 + tier);
+      const m = rand(2, 5);
+      const k = rand(2, 12);
+      const total = m * x + k;
       return {
-        tag: `Grade ${grade} • Pre-Algebra`,
-        prompt: `Solve for x in the cosmic equation below:`,
-        equation: `${mult}x + ${add} =${total}`,
-        choices: makeNumericChoices(x, 5),
+        topic: `Grade ${grade} • Equations`,
+        text: `Find the value of x:`,
+        display: `${m}x + ${k} = ${total}`,
+        options: buildNumberOptions(x, 4),
         answer: String(x),
-        hint: `Subtract ${add} from${total} first, then divide by ${mult}.`,
-        explanation: `${total} − ${add} =${total - add}, and ${total - add} ÷${mult} = ${x}.`
+        hint: `Subtract ${k} from ${total}, then divide by ${m}.`,
+        steps: `${total} − ${k} = ${total - k}, and ${total - k} ÷ ${m} = ${x}.`
       };
     }
 
-    const READING_BANK = [
-      // Lower Grades (1–3)
-      { minG: 1, maxG: 3, tag: 'Vocabulary • Synonyms', prompt: 'In the sentence "Pip was ecstatic when the egg hatched," what does ecstatic mean?', equation: '"Pip was ecstatic!"', choices: ['Very happy and excited', 'Sleepy and tired', 'Afraid of loud noises', 'Hungry for leaves'], answer: 'Very happy and excited', hint: 'Think about how you feel when something wonderful happens!', explanation: 'Ecstatic means feeling overwhelming happiness and excitement.' },
-      { minG: 1, maxG: 3, tag: 'Vocabulary • Antonyms', prompt: 'Which word is the opposite (antonym) of "ancient"?', equation: 'Antonym of ANCIENT', choices: ['Modern', 'Huge', 'Rocky', 'Fossilized'], answer: 'Modern', hint: 'Ancient means very, very old.', explanation: 'Ancient means from long ago, so its opposite is modern (new or current).' },
-      { minG: 1, maxG: 3, tag: 'Grammar • Parts of Speech', prompt: 'Which word in this sentence is an action verb? "Veloci sprinted across the canyon."', equation: '"Veloci sprinted across the canyon."', choices: ['sprinted', 'Veloci', 'canyon', 'across'], answer: 'sprinted', hint: 'Look for the word that tells what Veloci did.', explanation: '"Sprinted" is the verb because it shows the action Veloci performed.' },
-      { minG: 1, maxG: 3, tag: 'Context Clues', prompt: '"The towering Brachiosaurus nibbled leaves from the canopy." What is a canopy here?', equation: 'Context Clue: CANOPY', choices: ['The high leafy tops of trees', 'An underground cave', 'A muddy riverbank', 'A pile of pebbles'], answer: 'The high leafy tops of trees', hint: 'Brachiosaurus has a super long neck to reach high places.', explanation: 'In a forest, the canopy is the upper layer formed by the leafy tops of tall trees.' },
-      { minG: 1, maxG: 3, tag: 'Spelling & Plurals', prompt: 'Choose the correct plural word to finish the sentence: "Two baby _____ were sleeping by the pond."', equation: 'Plural of FOX', choices: ['foxes', 'foxs', 'foxies', 'foxen'], answer: 'foxes', hint: 'Words ending in -x add -es to become plural.', explanation: 'Because "fox" ends in x, we add -es to spell "foxes".' },
-      // Upper Grades (4–6)
-      { minG: 4, maxG: 6, tag: 'Context Clues', prompt: '"Even during the fierce meteor shower, Anky remained resilient and calm." What does resilient mean?', equation: 'Context Clue: RESILIENT', choices: ['Able to recover quickly from challenges', 'Easily frightened', 'Unable to move', 'Loud and boastful'], answer: 'Able to recover quickly from challenges', hint: 'Notice how Anky stayed calm during a tough situation.', explanation: 'Resilient describes someone who stays strong and bounces back quickly from difficulties.' },
-      { minG: 4, maxG: 6, tag: 'Figurative Language', prompt: 'Identify the type of figurative language: "The volcano roared like an angry dragon."', equation: '"roared like an angry dragon"', choices: ['Simile', 'Alliteration', 'Hyperbole', 'Onomatopoeia'], answer: 'Simile', hint: 'Notice the comparison word "like".', explanation: 'A simile compares two different things using the words "like" or "as".' },
-      { minG: 4, maxG: 6, tag: 'Word Roots & Prefixes', prompt: 'The prefix "geo-" means Earth. What does "geology" most likely mean?', equation: 'Prefix: GEO- + -OLOGY', choices: ['The study of Earth and its rocks', 'The study of ocean stars', 'A tool for measuring wind', 'A map of constellations'], answer: 'The study of Earth and its rocks', hint: '"-ology" means the study of something.', explanation: 'Geo (Earth) + -ology (study of) = geology, the science of Earth’s rocks and structure.' },
-      { minG: 4, maxG: 6, tag: 'Main Idea & Inference', prompt: '"Plesio’s flippers were shaped like underwater wings, letting it glide effortlessly for miles." What can you infer?', equation: 'Reading Inference', choices: ['Plesio was built for long-distance swimming', 'Plesio could fly above clouds', 'Plesio lived in dry deserts', 'Plesio never entered the water'], answer: 'Plesio was built for long-distance swimming', hint: 'Focus on the words "underwater wings" and "glide effortlessly for miles".', explanation: 'Flippers shaped like underwater wings show Plesio was well adapted for efficient swimming.' },
-      { minG: 4, maxG: 6, tag: 'Vocabulary • Precision', prompt: 'Which word best replaces "looked closely" in: "Spike looked closely at the mysterious fossil imprint"?', equation: 'Word Choice Upgrade', choices: ['examined', 'ignored', 'tossed', 'guessed'], answer: 'examined', hint: 'Pick the word a scientist would use when inspecting evidence.', explanation: '"Examined" means inspected carefully and in detail.' }
+    const READING_ITEMS = [
+      { minG: 1, maxG: 3, topic: 'Vocabulary', text: 'Which word means almost the same as "tiny"?', display: 'Synonym: TINY', options: ['Small', 'Giant', 'Heavy', 'Loud'], answer: 'Small', hint: 'Look for a word that means very little in size.', steps: '"Small" has a meaning close to "tiny".' },
+      { minG: 1, maxG: 3, topic: 'Opposites', text: 'Which word is the opposite of "above"?', display: 'Antonym: ABOVE', options: ['Below', 'Over', 'High', 'Top'], answer: 'Below', hint: 'If something is over your head, the opposite is under it.', steps: '"Below" means lower than or under, which is opposite to "above".' },
+      { minG: 1, maxG: 3, topic: 'Parts of Speech', text: 'Which word is a noun in: "The dino jumped over a log"?', display: '"The dino jumped over a log"', options: ['log', 'jumped', 'over', 'quickly'], answer: 'log', hint: 'A noun names a person, place, or thing.', steps: '"Log" names a physical object, so it is a noun.' },
+      { minG: 1, maxG: 3, topic: 'Context Clues', text: '"Bram was famished after walking all morning, so he ate a huge lunch." What does famished mean?', display: 'Context: FAMISHED', options: ['Very hungry', 'Very sleepy', 'Very neat', 'Very quiet'], answer: 'Very hungry', hint: 'Eating a huge lunch is a clue for how Bram felt.', steps: 'Eating a large meal after a long morning shows Bram was very hungry.' },
+      { minG: 4, maxG: 6, topic: 'Context Clues', text: '"Pia gave a concise answer using only ten clear words." What does concise mean?', display: 'Context: CONCISE', options: ['Short and clear', 'Confusing and long', 'Angry and loud', 'Funny and silly'], answer: 'Short and clear', hint: 'Notice that Pia used only ten clear words.', steps: 'Concise means giving a lot of information clearly and in few words.' },
+      { minG: 4, maxG: 6, topic: 'Word Roots', text: 'The root "bio" relates to life. What does "biology" study?', display: 'Root: BIO-', options: ['Living things', 'Mountains and valleys', 'Stars and planets', 'Ancient coins'], answer: 'Living things', hint: 'Connect "bio" (life) with "-ology" (study of).', steps: 'Biology is the scientific study of living organisms.' },
+      { minG: 4, maxG: 6, topic: 'Figurative Language', text: '"The wind whispered secrets through the tall pines." This is an example of:', display: '"wind whispered secrets"', options: ['Personification', 'Multiplication', 'Division', 'Fact table'], answer: 'Personification', hint: 'Whispering secrets is a human action given to the wind.', steps: 'Giving human traits like whispering to non-human wind is personification.' },
+      { minG: 4, maxG: 6, topic: 'Grammar', text: 'Choose the best word: "Neither the leaves nor the branch _____ moving."', display: 'Subject-Verb Agreement', options: ['was', 'were', 'are', 'be'], answer: 'was', hint: 'Look at the closer singular subject ("branch").', steps: 'With "neither... nor" and singular "branch", "was" is the matching singular verb.' }
     ];
 
-    const SCIENCE_BANK = [
-      { minG: 1, maxG: 3, tag: 'Dino Diets', prompt: 'Ankylosaurus and Triceratops ate only plants, leaves, and ferns. What kind of eaters were they?', equation: 'Dino Diet Classification', choices: ['Herbivores', 'Carnivores', 'Decomposers', 'Pollinators'], answer: 'Herbivores', hint: 'Think of the word "herb" (plant).', explanation: 'Herbivores are animals that eat only plants.' },
-      { minG: 1, maxG: 3, tag: 'Earth & Fossils', prompt: 'What do scientists call the preserved traces or remains of ancient plants and dinosaurs in rock?', equation: 'Paleontology Basics', choices: ['Fossils', 'Crystals', 'Comets', 'Glaciers'], answer: 'Fossils', hint: 'Paleontologists dig these up to learn about prehistoric life.', explanation: 'Fossils are preserved remains or imprints of ancient living things.' },
-      { minG: 1, maxG: 3, tag: 'States of Matter', prompt: 'When lava cools down and hardens on Earth’s surface, what state of matter does it become?', equation: 'Liquid → ?', choices: ['Solid', 'Gas', 'Plasma', 'Vapor'], answer: 'Solid', hint: 'Cooled lava turns into hard rock.', explanation: 'Cooling liquid lava turns it into solid igneous rock.' },
-      { minG: 1, maxG: 3, tag: 'Space & Sky', prompt: 'What is at the center of our solar system that gives Earth light and warmth?', equation: 'Solar System', choices: ['The Sun', 'The Moon', 'Mars', 'Jupiter'], answer: 'The Sun', hint: 'Earth orbits around this star every 365 days.', explanation: 'The Sun is the star at the center of our solar system.' },
-      { minG: 4, maxG: 6, tag: 'Earth Science • Plate Tectonics', prompt: 'During the age of dinosaurs, Earth’s continents were joined in one giant supercontinent called:', equation: 'Ancient Earth Geography', choices: ['Pangaea', 'Atlantis', 'Eurasia', 'Gondwana'], answer: 'Pangaea', hint: 'Its name means "all lands" in Greek.', explanation: 'Pangaea was the massive supercontinent that slowly drifted apart over millions of years.' },
-      { minG: 4, maxG: 6, tag: 'Ecosystems & Energy', prompt: 'In a prehistoric food web, green ferns capture sunlight to make food. Ferns are:', equation: 'Energy Flow', choices: ['Producers', 'Primary Consumers', 'Apex Predators', 'Scavengers'], answer: 'Producers', hint: 'They produce their own energy using photosynthesis.', explanation: 'Plants use photosynthesis to produce food from sunlight, making them producers.' },
-      { minG: 4, maxG: 6, tag: 'Astronomy', prompt: 'Astra loves stargazing! Why do different constellations appear in the night sky during winter than in summer?', equation: 'Earth’s Motion', choices: ['Earth orbits around the Sun', 'The stars move in circles around Earth', 'The Moon blocks half the sky', 'Earth stops spinning in winter'], answer: 'Earth orbits around the Sun', hint: 'Think about Earth’s yearly trip around the Sun.', explanation: 'As Earth revolves around the Sun, our night side faces different parts of space each season.' },
-      { minG: 4, maxG: 6, tag: 'Adaptations', prompt: 'Stegosaurus had large bony plates along its back. Scientists think these plates helped with:', equation: 'Structure & Function', choices: ['Temperature regulation and display', 'Breathing underwater', 'Flying across valleys', 'Digging deep tunnels'], answer: 'Temperature regulation and display', hint: 'Blood vessels inside the plates could warm or cool the dinosaur.', explanation: 'Stegosaurus plates likely helped control body temperature and signal other dinosaurs.' }
+    const SCIENCE_ITEMS = [
+      { minG: 1, maxG: 3, topic: 'Fossils', text: 'Where do scientists usually find dinosaur fossils?', display: 'Earth & Fossils', options: ['Sedimentary rock layers', 'Inside clouds', 'On the Moon', 'Inside boiling water'], answer: 'Sedimentary rock layers', hint: 'Sediment builds up over long periods of time.', steps: 'Fossils form when remains are buried under layers of sediment that turn to rock.' },
+      { minG: 1, maxG: 3, topic: 'Animal Diets', text: 'An animal that eats both plants and other animals is called an:', display: 'Food Chains', options: ['Omnivore', 'Herbivore', 'Mineral', 'Planet'], answer: 'Omnivore', hint: 'Omni means "all".', steps: 'Omnivores eat both plant and animal foods.' },
+      { minG: 1, maxG: 3, topic: 'Weather & Water', text: 'When water warms up and turns into water vapor, that process is called:', display: 'Water Cycle', options: ['Evaporation', 'Freezing', 'Erosion', 'Orbiting'], answer: 'Evaporation', hint: 'Think of puddles drying up on a sunny day.', steps: 'Evaporation happens when liquid water changes into gas (water vapor).' },
+      { minG: 1, maxG: 3, topic: 'Space', text: 'Which planet do we live on?', display: 'Our Solar System', options: ['Earth', 'Saturn', 'Neptune', 'Mercury'], answer: 'Earth', hint: 'It is the third planet from the Sun.', steps: 'Earth is our home planet in the solar system.' },
+      { minG: 4, maxG: 6, topic: 'Earth Science', text: 'What slowly moves Earth’s tectonic plates over millions of years?', display: 'Plate Tectonics', options: ['Convection in the mantle', ' Ocean tides alone', 'Solar eclipses', ' Wind gusts'], answer: 'Convection in the mantle', hint: 'Heat from Earth’s interior creates slow currents in the mantle.', steps: 'Heat-driven convection currents in the mantle push and move tectonic plates.' },
+      { minG: 4, maxG: 6, topic: 'Ecology', text: 'In an ecosystem, organisms like fungi and bacteria that break down dead matter are:', display: 'Ecosystem Roles', options: ['Decomposers', 'Producers', 'Asteroids', 'Satellites'], answer: 'Decomposers', hint: 'They recycle nutrients back into the soil.', steps: 'Decomposers break down dead organic material and return nutrients to the environment.' },
+      { minG: 4, maxG: 6, topic: 'Energy', text: 'A flashlight uses chemical energy from a battery and converts it mainly into:', display: 'Energy Transformation', options: ['Light and thermal energy', 'Sound and gravity', 'Fossils and rock', ' Magnetism only'], answer: 'Light and thermal energy', hint: 'A flashlight gives off light and a little warmth.', steps: 'Batteries supply electrical/chemical energy that the bulb turns into light and heat.' },
+      { minG: 4, maxG: 6, topic: 'Astronomy', text: 'Why does the Moon appear to change shape over a month?', display: 'Phases of the Moon', options: ['We see different lit portions from Earth', 'The Moon shrinks and grows', 'Clouds cover half the Moon', 'Earth blocks it every night'], answer: 'We see different lit portions from Earth', hint: 'Half of the Moon is always lit by the Sun.', steps: 'As the Moon orbits Earth, we see varying angles of its sunlit side.' }
     ];
 
-    function buildQuestion() {
-      if (state.subject === 'math') {
-        return generateMathQuestion(state.grade, state.difficultyIdx);
+    function generateNextQuestion() {
+      if (appState.subject === 'math') {
+        return makeMathItem(appState.grade, appState.tierIndex);
       }
-      const bank = state.subject === 'reading' ? READING_BANK : SCIENCE_BANK;
-      const pool = bank.filter(q => state.grade >= q.minG && state.grade <= q.maxG);
-      const chosen = (pool.length ? pool : bank)[randInt(0, (pool.length ? pool : bank).length - 1)];
+      const source = appState.subject === 'reading' ? READING_ITEMS : SCIENCE_ITEMS;
+      const matching = source.filter(item => appState.grade >= item.minG && appState.grade <= item.maxG);
+      const chosen = pickRandom(matching.length ? matching : source);
       return {
         ...chosen,
-        choices: shuffle(chosen.choices)
+        options: shuffleList(chosen.options)
       };
     }
 
-    function nextQuestion() {
-      currentQuestion = buildQuestion();
-      selectedAnswer = null;
-      answerResult = null;
-      showExplanation = false;
-      buddyMood = 'idle';
-      render();
+    function advanceQuestion() {
+      question = generateNextQuestion();
+      pickedChoice = null;
+      outcome = null;
+      showGuide = false;
+      buddyAnim = 'anim-float';
+      renderApp();
     }
 
     // =========================================================================
-    // 4. HELPER FUNCTIONS (ACTIVE DINO & 2D IMAGE RESOLUTION)
+    // 4. 2D IMAGE HELPERS (PNG & JPG ONLY)
     // =========================================================================
-    function getActiveDino() {
-      return DINOS.find(d => d.id === state.activeDinoId) || DINOS[0];
+    function currentDino() {
+      return DINO_ROSTER.find(d => d.id === appState.buddyId) || DINO_ROSTER[0];
     }
 
-    function getActiveBuddyImage() {
-      const holidayObj = HOLIDAYS.find(h => h.key === state.activeHoliday);
-      if (holidayObj && holidayObj.img) {
-        return holidayObj.img;
+    function currentDisplayImage() {
+      const holiday = HOLIDAY_CARDS.find(h => h.key === appState.holidayKey);
+      if (holiday && holiday.img) {
+        return holiday.img;
       }
-      return getActiveDino().img;
+      return currentDino().img;
     }
 
-    function getActiveHolidayLabel() {
-      const holidayObj = HOLIDAYS.find(h => h.key === state.activeHoliday);
-      return holidayObj && holidayObj.key ? holidayObj.label : 'Classic Chibi';
+    function currentHolidayLabel() {
+      const holiday = HOLIDAY_CARDS.find(h => h.key === appState.holidayKey);
+      return holiday && holiday.key ? holiday.title : 'Standard Chibi';
     }
 
     // =========================================================================
-    // 5. ACTIONS
+    // 5. INTERACTIONS
     // =========================================================================
-    function submitAnswer(choice) {
-      if (answerResult !== null) return;
-      selectedAnswer = choice;
-      state.solvedCount += 1;
-      state.subjectStats[state.subject].solved += 1;
+    function answerQuestion(option) {
+      if (outcome !== null) return;
+      pickedChoice = option;
+      appState.totalAnswered += 1;
+      appState.bySubject[appState.subject].answered += 1;
 
-      if (choice === currentQuestion.answer) {
-        answerResult = 'correct';
-        buddyMood = 'celebrate';
-        state.correctCount += 1;
-        state.subjectStats[state.subject].correct += 1;
-        state.streak += 1;
-        state.bestStreak = Math.max(state.bestStreak, state.streak);
+      if (option === question.answer) {
+        outcome = 'right';
+        buddyAnim = 'anim-hop';
+        appState.totalCorrect += 1;
+        appState.bySubject[appState.subject].correct += 1;
+        appState.streak += 1;
+        appState.bestStreak = Math.max(appState.bestStreak, appState.streak);
 
-        const bonus = state.streak >= 3 ? 5 : 0;
-        const earnedStars = 5 + bonus;
-        state.stars += earnedStars;
-        state.xp += 15 + state.difficultyIdx * 5;
+        const streakBonus = appState.streak >= 3 ? 5 : 0;
+        const gainedStars = 5 + streakBonus;
+        appState.stars += gainedStars;
+        appState.xp += 15 + appState.tierIndex * 5;
 
-        if (state.streak > 0 && state.streak % 3 === 0 && state.difficultyIdx < DIFFICULTY_LEVELS.length - 1) {
-          state.difficultyIdx += 1;
-          bannerMessage = `🔥 ${state.streak}-in-a-row! Level up to ${DIFFICULTY_LEVELS[state.difficultyIdx]} (+${earnedStars} ⭐)!`;
+        if (appState.streak % 3 === 0 && appState.tierIndex < TIERS.length - 1) {
+          appState.tierIndex += 1;
+          statusBanner = `Correct! Moved up to ${TIERS[appState.tierIndex]} (+${gainedStars} Stars).`;
         } else {
-          bannerMessage = `🎉 Awesome job! +${earnedStars} Dino Stars${bonus ? ' (Streak Bonus!)' : ''}`;
+          statusBanner = `Correct! Earned +${gainedStars} Stars${streakBonus ? ' (includes streak bonus)' : ''}.`;
         }
       } else {
-        answerResult = 'wrong';
-        buddyMood = 'encourage';
-        showExplanation = true;
-        state.streak = 0;
-        if (state.difficultyIdx > 0) {
-          state.difficultyIdx -= 1;
+        outcome = 'wrong';
+        buddyAnim = 'anim-tilt';
+        showGuide = true;
+        appState.streak = 0;
+        if (appState.tierIndex > 0) {
+          appState.tierIndex -= 1;
         }
-        bannerMessage = `💡 Nice try! Let’s walk through the steps together.`;
+        statusBanner = 'Not quite—check the step-by-step guide below and try the next one.';
       }
 
-      saveState();
-      render();
+      persistState();
+      renderApp();
     }
 
-    function setGrade(g) {
-      state.grade = g;
-      saveState();
-      nextQuestion();
+    function changeGrade(g) {
+      appState.grade = g;
+      persistState();
+      advanceQuestion();
     }
 
-    function setSubject(subj) {
-      state.subject = subj;
-      saveState();
-      nextQuestion();
+    function changeSubject(subj) {
+      appState.subject = subj;
+      persistState();
+      advanceQuestion();
     }
 
-    function setTab(tab) {
-      if (sprintTimerId && tab !== 'minigames') {
-        stopSprint();
+    function changeView(v) {
+      if (quickTimer && v !== 'games') {
+        endQuickQuiz(false);
       }
-      state.tab = tab;
-      if (tab === 'minigames' && memoryCards.length === 0) {
-        initMemoryGame();
+      appState.view = v;
+      if (v === 'games' && cards.length === 0) {
+        setupMatchCards();
       }
-      saveState();
-      render();
+      persistState();
+      renderApp();
     }
 
-    function selectDino(id) {
-      if (!state.unlockedDinos.includes(id)) return;
-      state.activeDinoId = id;
-      state.activeHoliday = ''; // Show the selected dino's PNG first
-      buddyMood = 'celebrate';
-      saveState();
-      render();
+    function chooseDino(id) {
+      if (!appState.unlocked.includes(id)) return;
+      appState.buddyId = id;
+      appState.holidayKey = '';
+      buddyAnim = 'anim-hop';
+      persistState();
+      renderApp();
     }
 
-    function unlockDino(id) {
-      const dino = DINOS.find(d => d.id === id);
-      if (!dino || state.unlockedDinos.includes(id)) return;
-      if (state.stars < dino.cost) return;
-      state.stars -= dino.cost;
-      state.unlockedDinos.push(id);
-      state.activeDinoId = id;
-      state.activeHoliday = '';
-      buddyMood = 'celebrate';
-      bannerMessage = `🥚 Hatched ${dino.name} the${dino.species}!`;
-      saveState();
-      render();
+    function buyDino(id) {
+      const target = DINO_ROSTER.find(d => d.id === id);
+      if (!target || appState.unlocked.includes(id) || appState.stars < target.cost) return;
+      appState.stars -= target.cost;
+      appState.unlocked.push(id);
+      appState.buddyId = id;
+      appState.holidayKey = '';
+      buddyAnim = 'anim-hop';
+      statusBanner = `Unlocked ${target.name} (${target.role})!`;
+      persistState();
+      renderApp();
     }
 
-    function setHoliday(key) {
-      state.activeHoliday = key;
-      buddyMood = 'celebrate';
-      saveState();
-      render();
+    function chooseHoliday(key) {
+      appState.holidayKey = key;
+      buddyAnim = 'anim-hop';
+      persistState();
+      renderApp();
     }
 
-    function updateProfileField(field, value) {
-      state[field] = value;
-      checkBirthdayUnlock();
-      saveState();
-      render();
+    function saveLearnerField(key, val) {
+      appState[key] = val;
+      applyBirthdayUnlock();
+      persistState();
+      renderApp();
     }
 
     // =========================================================================
-    // 6. 2D MINI-GAMES (USING ONLY YOUR CHIBI PNGS & HOLIDAY JPGS)
+    // 6. 2D ARCADE GAMES (PNG & JPG ONLY)
     // =========================================================================
-    function initMemoryGame() {
-      const pool = shuffle(DINOS).slice(0, 6);
-      const deck = shuffle([...pool, ...pool]).map((dino, idx) => ({
-        uid: idx,
+    function setupMatchCards() {
+      const selected = shuffleList(DINO_ROSTER).slice(0, 6);
+      cards = shuffleList([...selected, ...selected]).map((dino, index) => ({
+        index,
         id: dino.id,
         name: dino.name,
         img: dino.img,
         matched: false
       }));
-      memoryCards = deck;
-      flippedIndices = [];
-      matchedPairs = 0;
-      memoryMoves = 0;
-      memoryLock = false;
+      flipped = [];
+      matchedCount = 0;
+      moveCount = 0;
+      boardLocked = false;
     }
 
-    function flipMemoryCard(index) {
-      if (memoryLock) return;
-      const card = memoryCards[index];
-      if (!card || card.matched || flippedIndices.includes(index)) return;
+    function selectMatchCard(idx) {
+      if (boardLocked) return;
+      const card = cards[idx];
+      if (!card || card.matched || flipped.includes(idx)) return;
 
-      flippedIndices.push(index);
-      render();
+      flipped.push(idx);
+      renderApp();
 
-      if (flippedIndices.length === 2) {
-        memoryMoves += 1;
-        memoryLock = true;
-        const [i1, i2] = flippedIndices;
-        if (memoryCards[i1].id === memoryCards[i2].id) {
+      if (flipped.length === 2) {
+        moveCount += 1;
+        boardLocked = true;
+        const [a, b] = flipped;
+        if (cards[a].id === cards[b].id) {
           setTimeout(() => {
-            memoryCards[i1].matched = true;
-            memoryCards[i2].matched = true;
-            flippedIndices = [];
-            matchedPairs += 1;
-            memoryLock = false;
-            if (matchedPairs === 6) {
-              state.stars += 15;
-              state.xp += 30;
-              saveState();
+            cards[a].matched = true;
+            cards[b].matched = true;
+            flipped = [];
+            matchedCount += 1;
+            boardLocked = false;
+            if (matchedCount === 6) {
+              appState.stars += 15;
+              appState.xp += 25;
+              persistState();
             }
-            render();
-          }, 420);
+            renderApp();
+          }, 400);
         } else {
           setTimeout(() => {
-            flippedIndices = [];
-            memoryLock = false;
-            render();
-          }, 750);
+            flipped = [];
+            boardLocked = false;
+            renderApp();
+          }, 700);
         }
       }
     }
 
-    function makeSprintPrompt() {
-      const max = state.grade * 6 + 6;
-      const a = randInt(1, max);
-      const b = randInt(1, max);
-      const isAdd = Math.random() > 0.35 || a < b;
-      const ans = isAdd ? a + b : a - b;
+    function makeQuickPrompt() {
+      const limit = appState.grade * 5 + 5;
+      const x = rand(1, limit);
+      const y = rand(1, limit);
+      const plus = Math.random() >= 0.4 || x < y;
+      const ans = plus ? x + y : x - y;
       return {
-        text: isAdd ? `${a} +${b}` : `${a} −${b}`,
+        label: plus ? `${x} + ${y}` : `${x} − ${y}`,
         answer: String(ans),
-        choices: makeNumericChoices(ans, 5)
+        options: buildNumberOptions(ans, 4)
       };
     }
 
-    function startSprint() {
-      stopSprint();
-      sprintScore = 0;
-      sprintTimeLeft = 30;
-      sprintRunning = true;
-      sprintQuestion = makeSprintPrompt();
-      render();
+    function startQuickQuiz() {
+      endQuickQuiz(false);
+      quickPoints = 0;
+      quickSeconds = 25;
+      quickActive = true;
+      quickItem = makeQuickPrompt();
+      renderApp();
 
-      sprintTimerId = setInterval(() => {
-        sprintTimeLeft -= 1;
-        if (sprintTimeLeft <= 0) {
-          stopSprint(true);
+      quickTimer = setInterval(() => {
+        quickSeconds -= 1;
+        if (quickSeconds <= 0) {
+          endQuickQuiz(true);
         } else {
-          render();
+          renderApp();
         }
       }, 1000);
     }
 
-    function stopSprint(completed = false) {
-      if (sprintTimerId) {
-        clearInterval(sprintTimerId);
-        sprintTimerId = null;
+    function endQuickQuiz(awardStars) {
+      if (quickTimer) {
+        clearInterval(quickTimer);
+        quickTimer = null;
       }
-      if (completed && sprintRunning && sprintScore > 0) {
-        state.stars += sprintScore * 2;
-        state.xp += sprintScore * 5;
-        saveState();
+      if (awardStars && quickActive && quickPoints > 0) {
+        appState.stars += quickPoints * 2;
+        appState.xp += quickPoints * 5;
+        persistState();
       }
-      sprintRunning = false;
-      render();
+      quickActive = false;
+      renderApp();
     }
 
-    function answerSprint(choice) {
-      if (!sprintRunning || !sprintQuestion) return;
-      if (choice === sprintQuestion.answer) {
-        sprintScore += 1;
+    function answerQuickQuiz(opt) {
+      if (!quickActive || !quickItem) return;
+      if (opt === quickItem.answer) {
+        quickPoints += 1;
       }
-      sprintQuestion = makeSprintPrompt();
-      render();
+      quickItem = makeQuickPrompt();
+      renderApp();
     }
 
     // =========================================================================
-    // 7. UI RENDERING
+    // 7. VIEWS
     // =========================================================================
-    function renderTopBar() {
-      const dino = getActiveDino();
-      const buddyImg = getActiveBuddyImage();
-      const level = Math.floor(state.xp / 100) + 1;
+    function renderHeader() {
+      const dino = currentDino();
+      const imgUrl = currentDisplayImage();
+      const level = Math.floor(appState.xp / 100) + 1;
 
       return `
-        <header class="bg-white/90 backdrop-blur border border-sky-100 rounded-3xl shadow-sm p-3 md:p-4 mb-5">
+        <header class="bg-white/95 border border-sky-100 rounded-3xl shadow-sm p-4 mb-5">
           <div class="flex flex-wrap items-center justify-between gap-3">
-            <!-- Brand -->
             <div class="flex items-center gap-3">
               <img
-                src="./assets/chibi/logo.png"
-                alt="DinoNest Labs"
-                onerror="this.src='./assets/chibi/image_0.png'"
-                class="w-12 h-12 rounded-2xl object-contain bg-sky-50 p-1 border border-sky-100 shadow-xs"
+                src="${BRAND_LOGO}"
+                alt="DinoNest Labs Logo"
+                class="w-12 h-12 rounded-2xl object-contain bg-sky-50 p-1 border border-sky-100"
               />
               <div>
                 <div class="flex items-center gap-2">
-                  <h1 class="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">DinoNest Labs</h1>
-                  <span class="text-xs font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                    Grade ${state.grade}
+                  <h1 class="text-xl md:text-2xl font-bold text-slate-800">DinoNest Labs</h1>
+                  <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+                    Grade ${appState.grade}
                   </span>
                 </div>
-                <p class="text-xs text-slate-500 font-semibold">
-                  Buddy: <span class="text-sky-700 font-bold">${dino.name}</span> •${getActiveHolidayLabel()}
+                <p class="text-xs font-bold text-slate-500">
+                  ${dino.name} • ${currentHolidayLabel()}
                 </p>
               </div>
             </div>
 
-            <!-- Stats Pills -->
-            <div class="flex items-center gap-2 md:gap-3">
-              <div class="flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-2xl">
-                <span class="text-lg">⭐</span>
-                <div>
-                  <div class="text-[10px] uppercase font-extrabold text-amber-700 leading-none">Stars</div>
-                  <div class="text-sm font-extrabold text-amber-900">${state.stars}</div>
-                </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="px-3 py-1.5 rounded-2xl bg-amber-50 border border-amber-200 text-sm font-extrabold text-amber-900">
+                ⭐ ${appState.stars} Stars
               </div>
-
-              <div class="flex items-center gap-1.5 bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-2xl">
-                <span class="text-lg">🔥</span>
-                <div>
-                  <div class="text-[10px] uppercase font-extrabold text-orange-700 leading-none">Streak</div>
-                  <div class="text-sm font-extrabold text-orange-900">${state.streak}</div>
-                </div>
+              <div class="px-3 py-1.5 rounded-2xl bg-orange-50 border border-orange-200 text-sm font-extrabold text-orange-900">
+                🔥 ${appState.streak} Streak
               </div>
-
-              <div class="flex items-center gap-1.5 bg-indigo-50 border border-indigo-200 px-3 py-1.5 rounded-2xl">
-                <img src="${buddyImg}" alt="${dino.name}" class="w-7 h-7 rounded-full object-contain bg-white border border-indigo-100" />
-                <div>
-                  <div class="text-[10px] uppercase font-extrabold text-indigo-700 leading-none">Level ${level}</div>
-                  <div class="text-sm font-extrabold text-indigo-900">${state.xp} XP</div>
-                </div>
+              <div class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-sky-50 border border-sky-200 text-sm font-extrabold text-sky-900">
+                <img src="${imgUrl}" alt="${dino.name}" class="w-6 h-6 rounded-full object-contain bg-white" />
+                <span>Lv.${level} (${appState.xp} XP)</span>
               </div>
             </div>
           </div>
 
-          <!-- Navigation Tabs & Grade Selector -->
           <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
-            <nav class="flex flex-wrap gap-1.5">
+            <div class="flex flex-wrap gap-1.5">
               ${[
-                { id: 'practice', label: '🧭 Adventure Practice' },
-                { id: 'nest', label: '🥚 Dino Nest & Outfits' },
-                { id: 'minigames', label: '🎮 2D Mini-Games' },
-                { id: 'progress', label: '🏆 Progress & Birthday' }
-              ].map(t => `
+                { id: 'lesson', label: 'Practice' },
+                { id: 'wardrobe', label: 'Dinos & Holidays' },
+                { id: 'games', label: '2D Mini-Games' },
+                { id: 'stats', label: 'Progress & Birthday' }
+              ].map(tab => `
                 <button
-                  onclick="setTab('${t.id}')"
+                  onclick="changeView('${tab.id}')"
                   class="px-3.5 py-2 rounded-2xl text-sm font-extrabold transition ${
-                    state.tab === t.id
-                      ? 'bg-sky-600 text-white shadow-xs'
+                    appState.view === tab.id
+                      ? 'bg-sky-600 text-white'
                       : 'bg-slate-100 text-slate-600 hover:bg-sky-50 hover:text-sky-700'
                   }"
-                >${t.label}</button>
+                >${tab.label}</button>
               `).join('')}
-            </nav>
+            </div>
 
-            <!-- Grade Pills -->
             <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl">
               <span class="text-xs font-extrabold text-slate-500 px-2">Grade:</span>
               ${[1, 2, 3, 4, 5, 6].map(g => `
                 <button
-                  onclick="setGrade(${g})"
+                  onclick="changeGrade(${g})"
                   class="w-7 h-7 rounded-xl text-xs font-extrabold transition ${
-                    state.grade === g
-                      ? 'bg-emerald-600 text-white shadow-xs'
+                    appState.grade === g
+                      ? 'bg-emerald-600 text-white'
                       : 'text-slate-600 hover:bg-white'
                   }"
                 >${g}</button>
@@ -806,167 +718,125 @@
       `;
     }
 
-    function renderPracticeTab() {
-      if (!currentQuestion) currentQuestion = buildQuestion();
-      const dino = getActiveDino();
-      const buddyImg = getActiveBuddyImage();
-      const moodClass = buddyMood === 'celebrate' ? 'buddy-celebrate' : buddyMood === 'encourage' ? 'buddy-encourage' : 'buddy-idle';
-      const diffLabel = DIFFICULTY_LEVELS[state.difficultyIdx];
+    function renderLessonView() {
+      if (!question) question = generateNextQuestion();
+      const dino = currentDino();
+      const imgUrl = currentDisplayImage();
+      const tierName = TIERS[appState.tierIndex];
 
       return `
-        <!-- Subject Selector Strip -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-          ${SUBJECTS.map(s => {
-            const active = state.subject === s.key;
+          ${SUBJECTS.map(sub => {
+            const active = appState.subject === sub.id;
             return `
               <button
-                onclick="setSubject('${s.key}')"
+                onclick="changeSubject('${sub.id}')"
                 class="text-left p-3.5 rounded-3xl border-2 transition flex items-center gap-3 ${
-                  active
-                    ? 'bg-white border-sky-500 shadow-sm'
-                    : 'bg-white/75 border-slate-200/80 hover:border-sky-300'
+                  active ? 'bg-white border-sky-500 shadow-xs' : 'bg-white/80 border-slate-200 hover:border-sky-300'
                 }"
               >
-                <span class="text-3xl">${s.icon}</span>
+                <span class="text-2xl">${sub.badge}</span>
                 <div>
-                  <div class="font-display font-bold text-base ${active ? 'text-sky-700' : 'text-slate-800'}">${s.label}</div>
-                  <div class="text-xs text-slate-500 font-semibold">${s.desc}</div>
+                  <div class="font-display font-bold text-base ${active ? 'text-sky-700' : 'text-slate-800'}">${sub.title}</div>
+                  <div class="text-xs font-semibold text-slate-500">${sub.note}</div>
                 </div>
               </button>
             `;
           }).join('')}
         </div>
 
-        <!-- Main AdaptedMind-Style Stage: Left Companion + Right Interactive Card -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-          <!-- Left: 2D Dino Companion Card -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
           <aside class="lg:col-span-4 bg-white border border-sky-100 rounded-3xl p-5 shadow-sm flex flex-col items-center justify-between text-center">
             <div class="w-full flex items-center justify-between text-xs font-extrabold">
-              <span class="px-2.5 py-1 rounded-full bg-purple-100 text-purple-800">Tier: ${diffLabel}</span>
-              <span class="px-2.5 py-1 rounded-full bg-sky-100 text-sky-800">${dino.trait}</span>
+              <span class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800">${tierName}</span>
+              <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">${dino.specialty}</span>
             </div>
 
-            <div class="my-4 relative w-52 h-52 sm:w-60 sm:h-60 rounded-3xl bg-gradient-to-b from-sky-50 to-emerald-50 border border-sky-100 flex items-center justify-center p-3 overflow-hidden">
+            <div class="my-4 w-52 h-52 rounded-3xl bg-gradient-to-b from-sky-50 to-amber-50 border border-sky-100 flex items-center justify-center p-3">
               <img
-                src="${buddyImg}"
+                src="${imgUrl}"
                 alt="${dino.name}"
-                onerror="this.src='${dino.img}'"
-                class="w-full h-full object-contain ${moodClass} drop-shadow-sm select-none"
+                class="w-full h-full object-contain ${buddyAnim} select-none"
               />
             </div>
 
-            <div class="w-full bg-slate-50 border border-slate-200/80 rounded-2xl p-3">
+            <div class="w-full rounded-2xl bg-slate-50 border border-slate-200/80 p-3">
               <div class="font-display font-bold text-lg text-slate-800">${dino.name}</div>
-              <p class="text-xs font-bold text-slate-500 mt-0.5">
-                ${
-                  answerResult === 'correct'
-                    ? '“Roar-some! You nailed that one!”'
-                    : answerResult === 'wrong'
-                    ? '“Every explorer learns from clues—read the breakdown!”'
-                    : '“Take your time and pick the best answer!”'
-                }
-              </p>
+              <div class="text-xs font-bold text-slate-500">${dino.role}</div>
               <button
-                onclick="setTab('nest')"
-                class="mt-2.5 text-xs font-extrabold text-sky-700 hover:text-sky-800 underline"
-              >
-                Switch Dino or Holiday Outfit →
-              </button>
+                onclick="changeView('wardrobe')"
+                class="mt-2 text-xs font-extrabold text-sky-700 hover:underline"
+              >Change Dino or Holiday Photo</button>
             </div>
           </aside>
 
-          <!-- Right: Adaptive Question Card -->
           <section class="lg:col-span-8 bg-white border border-sky-100 rounded-3xl p-5 md:p-7 shadow-sm flex flex-col justify-between">
             <div>
-              <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div class="flex items-center justify-between gap-2 mb-4">
                 <span class="text-xs font-extrabold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-100 text-amber-900">
-                  ${currentQuestion.tag}
+                  ${question.topic}
                 </span>
                 <button
-                  onclick="showExplanation = !showExplanation; render();"
-                  class="text-xs font-extrabold px-3 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-amber-100 hover:text-amber-900 transition"
-                >
-                  ${showExplanation ? 'Hide Clue' : '💡 Need a Clue?'}
-                </button>
+                  onclick="showGuide = !showGuide; renderApp();"
+                  class="text-xs font-extrabold px-3 py-1 rounded-full bg-slate-100 text-slate-700 hover:bg-amber-100 hover:text-amber-900"
+                >${showGuide ? 'Hide Hint' : 'Show Hint'}</button>
               </div>
 
-              <h2 class="text-lg md:text-2xl font-bold text-slate-800 leading-snug">
-                ${currentQuestion.prompt}
-              </h2>
+              <h2 class="text-lg md:text-2xl font-bold text-slate-800">${question.text}</h2>
 
-              ${currentQuestion.equation ? `
+              ${question.display ? `
                 <div class="my-4 py-3.5 px-5 rounded-2xl bg-sky-50 border border-sky-200 text-center font-display text-xl md:text-2xl font-bold text-sky-950">
-                  ${currentQuestion.equation}
+                  ${question.display}
                 </div>
               ` : ''}
 
-              <!-- Answer Choices -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
-                ${currentQuestion.choices.map((choice, idx) => {
-                  const letter = ['A', 'B', 'C', 'D'][idx];
-                  let btnStyle = 'bg-white border-slate-200 text-slate-800 hover:border-sky-400';
-
-                  if (answerResult !== null) {
-                    if (choice === currentQuestion.answer) {
-                      btnStyle = 'bg-emerald-50 border-emerald-500 text-emerald-950 ring-2 ring-emerald-200';
-                    } else if (choice === selectedAnswer && answerResult === 'wrong') {
-                      btnStyle = 'bg-rose-50 border-rose-400 text-rose-950';
+                ${question.options.map((opt, i) => {
+                  const label = ['A', 'B', 'C', 'D'][i];
+                  let cls = 'bg-white border-slate-200 text-slate-800 hover:border-sky-400';
+                  if (outcome !== null) {
+                    if (opt === question.answer) {
+                      cls = 'bg-emerald-50 border-emerald-500 text-emerald-950 ring-2 ring-emerald-200';
+                    } else if (opt === pickedChoice && outcome === 'wrong') {
+                      cls = 'bg-rose-50 border-rose-400 text-rose-950';
                     } else {
-                      btnStyle = 'bg-slate-50 border-slate-200 text-slate-400';
+                      cls = 'bg-slate-50 border-slate-200 text-slate-400';
                     }
                   }
 
                   return `
                     <button
-                      ${answerResult !== null ? 'disabled' : ''}
-                      onclick='submitAnswer(${JSON.stringify(choice)})'
-                      class="choice-btn w-full text-left p-4 rounded-2xl border-2 font-bold text-base flex items-center gap-3 ${btnStyle}"
+                      ${outcome !== null ? 'disabled' : ''}
+                      onclick='answerQuestion(${JSON.stringify(opt)})'
+                      class="w-full text-left p-4 rounded-2xl border-2 font-bold text-base flex items-center gap-3 transition ${cls}"
                     >
                       <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 font-extrabold flex items-center justify-center shrink-0">
-                        ${letter}
+                        ${label}
                       </span>
-                      <span>${choice}</span>
+                      <span>${opt}</span>
                     </button>
                   `;
                 }).join('')}
               </div>
 
-              <!-- Clue / Step-by-Step Explanation Box -->
-              ${showExplanation ? `
-                <div class="mt-5 p-4 rounded-2xl ${
-                  answerResult === 'wrong'
-                    ? 'bg-amber-50 border border-amber-300 text-amber-950'
-                    : 'bg-sky-50 border border-sky-200 text-sky-950'
-                }">
-                  <div class="font-extrabold text-sm mb-1">
-                    ${answerResult === 'wrong' ? '📘 Step-by-Step Solution:' : '💡 Explorer Clue:'}
-                  </div>
-                  <p class="text-sm font-semibold leading-relaxed">
-                    ${answerResult === 'wrong' ? currentQuestion.explanation : currentQuestion.hint}
-                  </p>
+              ${showGuide ? `
+                <div class="mt-5 p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 text-sm font-semibold">
+                  <div class="font-extrabold mb-1">${outcome === 'wrong' ? 'Solution Walkthrough:' : 'Hint:'}</div>
+                  <div>${outcome === 'wrong' ? question.steps : question.hint}</div>
                 </div>
               ` : ''}
             </div>
 
-            <!-- Bottom Feedback & Next Button -->
             <div class="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
               <div class="text-sm font-extrabold ${
-                answerResult === 'correct'
-                  ? 'text-emerald-700'
-                  : answerResult === 'wrong'
-                  ? 'text-amber-700'
-                  : 'text-slate-500'
-              }">
-                ${bannerMessage || 'Answer correctly to earn Dino Stars and level up!'}
-              </div>
+                outcome === 'right' ? 'text-emerald-700' : outcome === 'wrong' ? 'text-amber-800' : 'text-slate-500'
+              }">${statusBanner}</div>
 
-              ${answerResult !== null ? `
+              ${outcome !== null ? `
                 <button
-                  onclick="nextQuestion()"
-                  class="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-base shadow-sm transition"
-                >
-                  Next Quest →
-                </button>
+                  onclick="advanceQuestion()"
+                  class="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-base"
+                >Next Question →</button>
               ` : ''}
             </div>
           </section>
@@ -974,9 +844,326 @@
       `;
     }
 
-    function renderNestTab() {
+    function renderWardrobeView() {
       return `
         <div class="space-y-6">
-          <!-- Holiday Outfits Section (JPGs) -->
           <section class="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm">
-            <div class="flex flex-wrap items-center justify-between gap-2
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div>
+                <h2 class="text-xl font-bold text-slate-800">Holiday Images (JPG)</h2>
+                <p class="text-xs font-semibold text-slate-500">Pick any holiday image or return to your selected dinosaur PNG.</p>
+              </div>
+              <span class="text-xs font-extrabold px-3 py-1 rounded-full bg-sky-100 text-sky-800">
+                Current: ${currentHolidayLabel()}
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
+              ${HOLIDAY_CARDS.map(item => {
+                const selected = appState.holidayKey === item.key;
+                const thumb = item.img || currentDino().img;
+                return `
+                  <button
+                    onclick="chooseHoliday('${item.key}')"
+                    class="p-2.5 rounded-2xl border-2 text-center flex flex-col items-center transition ${
+                      selected ? 'bg-amber-50 border-amber-500' : 'bg-slate-50 border-slate-200 hover:border-sky-300'
+                    }"
+                  >
+                    <img src="${thumb}" alt="${item.title}" class="w-16 h-16 rounded-xl object-contain bg-white p-1 border border-slate-100 mb-1.5" />
+                    <span class="text-xs font-extrabold text-slate-700">${item.title}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </section>
+
+          <section class="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <div>
+                <h2 class="text-xl font-bold text-slate-800">Dinosaur Characters (PNG)</h2>
+                <p class="text-xs font-semibold text-slate-500">Unlock new dinosaurs using Stars earned from practice.</p>
+              </div>
+              <span class="text-sm font-extrabold px-3.5 py-1.5 rounded-2xl bg-amber-100 text-amber-900">
+                ${appState.stars} Stars Available
+              </span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              ${DINO_ROSTER.map(dino => {
+                const isUnlocked = appState.unlocked.includes(dino.id);
+                const isCurrent = appState.buddyId === dino.id && !appState.holidayKey;
+                const affordable = appState.stars >= dino.cost;
+
+                return `
+                  <div class="rounded-3xl border-2 p-3.5 flex flex-col items-center text-center ${
+                    isCurrent ? 'bg-emerald-50/70 border-emerald-500' : 'bg-white border-slate-200'
+                  }">
+                    <div class="w-28 h-28 rounded-2xl bg-sky-50 flex items-center justify-center p-2 mb-2 relative">
+                      <img
+                        src="${dino.img}"
+                        alt="${dino.name}"
+                        class="w-full h-full object-contain ${isUnlocked ? '' : 'opacity-50 grayscale'}"
+                      />
+                      ${dino.isBirthday ? `
+                        <span class="absolute top-1 right-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-fuchsia-100 text-fuchsia-800">
+                          Birthday
+                        </span>
+                      ` : ''}
+                    </div>
+                    <div class="font-display font-bold text-base text-slate-800">${dino.name}</div>
+                    <div class="text-xs font-bold text-slate-500 mb-3">${dino.role}</div>
+
+                    ${
+                      isUnlocked
+                        ? `<button
+                            onclick="chooseDino('${dino.id}')"
+                            class="mt-auto w-full py-2 rounded-xl text-xs font-extrabold ${
+                              isCurrent ? 'bg-emerald-600 text-white' : 'bg-sky-100 text-sky-800 hover:bg-sky-200'
+                            }"
+                          >${isCurrent ? 'Selected' : 'Select'}</button>`
+                        : `<button
+                            ${affordable ? '' : 'disabled'}
+                            onclick="buyDino('${dino.id}')"
+                            class="mt-auto w-full py-2 rounded-xl text-xs font-extrabold ${
+                              affordable ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                            }"
+                          >Unlock • ${dino.cost} ⭐</button>`
+                    }
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderGamesView() {
+      return `
+        <div class="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+            <div>
+              <h2 class="text-xl font-bold text-slate-800">2D Mini-Games</h2>
+              <p class="text-xs font-semibold text-slate-500">Played using only your 2D PNG and JPG images.</p>
+            </div>
+            <div class="flex gap-2">
+              <button
+                onclick="arcadeMode = 'match'; if(cards.length===0) setupMatchCards(); renderApp();"
+                class="px-4 py-2 rounded-2xl text-sm font-extrabold ${
+                  arcadeMode === 'match' ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-700'
+                }"
+              >Card Match</button>
+              <button
+                onclick="arcadeMode = 'quiz'; renderApp();"
+                class="px-4 py-2 rounded-2xl text-sm font-extrabold ${
+                  arcadeMode === 'quiz' ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-700'
+                }"
+              >Speed Math (25s)</button>
+            </div>
+          </div>
+
+          ${
+            arcadeMode === 'match'
+              ? `
+                <div class="flex items-center justify-between bg-sky-50 border border-sky-100 rounded-2xl p-3 mb-4">
+                  <div class="text-sm font-extrabold text-sky-900">
+                    Matched: ${matchedCount} / 6 pairs • Moves: ${moveCount}
+                  </div>
+                  <button
+                    onclick="setupMatchCards(); renderApp();"
+                    class="px-3.5 py-1.5 rounded-xl bg-white border border-sky-200 text-xs font-extrabold text-sky-800 hover:bg-sky-100"
+                  >Reset Deck</button>
+                </div>
+
+                ${matchedCount === 6 ? `
+                  <div class="mb-4 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-sm font-extrabold text-center">
+                    Board cleared in ${moveCount} moves! +15 Stars added.
+                  </div>
+                ` : ''}
+
+                <div class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
+                  ${cards.map((card, i) => {
+                    const revealed = card.matched || flipped.includes(i);
+                    return `
+                      <button
+                        onclick="selectMatchCard(${i})"
+                        class="aspect-square rounded-2xl border-2 p-2 flex flex-col items-center justify-center transition ${
+                          card.matched
+                            ? 'bg-emerald-50 border-emerald-400'
+                            : revealed
+                            ? 'bg-white border-sky-400'
+                            : 'bg-sky-600 border-sky-700 text-white'
+                        }"
+                      >
+                        ${
+                          revealed
+                            ? `<img src="${card.img}" alt="${card.name}" class="w-4/5 h-4/5 object-contain" />
+                               <span class="text-[11px] font-extrabold text-slate-700 mt-1">${card.name}</span>`
+                            : `<img src="${BRAND_LOGO}" alt="Card Back" class="w-12 h-12 object-contain opacity-90" />`
+                        }
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+              `
+              : `
+                <div class="max-w-xl mx-auto text-center py-4">
+                  <img src="${currentDisplayImage()}" alt="Buddy" class="w-24 h-24 mx-auto object-contain mb-3 anim-float" />
+                  <div class="flex justify-center gap-4 mb-4">
+                    <span class="px-4 py-2 rounded-2xl bg-amber-50 border border-amber-200 font-extrabold text-amber-900">
+                      Time: ${quickSeconds}s
+                    </span>
+                    <span class="px-4 py-2 rounded-2xl bg-emerald-50 border border-emerald-200 font-extrabold text-emerald-900">
+                      Score: ${quickPoints}
+                    </span>
+                  </div>
+
+                  ${
+                    quickActive && quickItem
+                      ? `
+                        <div class="p-5 rounded-3xl bg-sky-50 border border-sky-200">
+                          <div class="font-display text-3xl font-bold text-sky-950 mb-4">${quickItem.label} = ?</div>
+                          <div class="grid grid-cols-2 gap-3">
+                            ${quickItem.options.map(opt => `
+                              <button
+                                onclick='answerQuickQuiz(${JSON.stringify(opt)})'
+                                class="py-3.5 rounded-2xl bg-white border-2 border-sky-200 hover:border-sky-500 font-display text-xl font-bold text-slate-800"
+                              >${opt}</button>
+                            `).join('')}
+                          </div>
+                        </div>
+                      `
+                      : `
+                        <p class="text-sm font-bold text-slate-600 mb-4">
+                          Answer as many Grade ${appState.grade} math problems as you can in 25 seconds (2 Stars per right answer).
+                        </p>
+                        <button
+                          onclick="startQuickQuiz()"
+                          class="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-display font-bold text-base"
+                        >${quickPoints > 0 ? 'Play Again' : 'Start Round'}</button>
+                      `
+                  }
+                </div>
+              `
+          }
+        </div>
+      `;
+    }
+
+    function renderStatsView() {
+      const accuracy = appState.totalAnswered > 0
+        ? Math.round((appState.totalCorrect / appState.totalAnswered) * 100)
+        : 0;
+      const hasAstra = appState.unlocked.includes('image_12');
+
+      return `
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <section class="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Progress Summary</h2>
+            <div class="grid grid-cols-3 gap-3 mb-5 text-center">
+              <div class="p-3 rounded-2xl bg-sky-50 border border-sky-100">
+                <div class="text-2xl font-display font-bold text-sky-800">${appState.totalAnswered}</div>
+                <div class="text-xs font-extrabold text-slate-500">Answered</div>
+              </div>
+              <div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-100">
+                <div class="text-2xl font-display font-bold text-emerald-800">${accuracy}%</div>
+                <div class="text-xs font-extrabold text-slate-500">Accuracy</div>
+              </div>
+              <div class="p-3 rounded-2xl bg-orange-50 border border-orange-100">
+                <div class="text-2xl font-display font-bold text-orange-800">${appState.bestStreak}</div>
+                <div class="text-xs font-extrabold text-slate-500">Best Streak</div>
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              ${SUBJECTS.map(sub => {
+                const st = appState.bySubject[sub.id] || { answered: 0, correct: 0 };
+                const pct = st.answered > 0 ? Math.round((st.correct / st.answered) * 100) : 0;
+                return `
+                  <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                    <div class="flex justify-between text-sm font-extrabold mb-1">
+                      <span>${sub.badge} ${sub.title}</span>
+                      <span class="text-sky-700">${st.correct}/${st.answered} (${pct}%)</span>
+                    </div>
+                    <div class="w-full h-2.5 rounded-full bg-slate-200 overflow-hidden">
+                      <div class="h-full bg-sky-500" style="width: ${pct}%"></div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </section>
+
+          <section class="bg-white border border-sky-100 rounded-3xl p-5 shadow-sm flex flex-col justify-between">
+            <div>
+              <h2 class="text-xl font-bold text-slate-800 mb-1">Learner Profile & Birthday Unlock</h2>
+              <p class="text-xs font-semibold text-slate-500 mb-4">
+                Set your birthday month and day to automatically unlock Astra on your birthday.
+              </p>
+
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-extrabold text-slate-600 mb-1">Name</label>
+                  <input
+                    type="text"
+                    value="${appState.name}"
+                    onchange="saveLearnerField('name', this.value)"
+                    class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-300 font-bold text-sm"
+                  />
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-extrabold text-slate-600 mb-1">Month (1–12)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="12"
+                      value="${appState.bdayMonth}"
+                      onchange="saveLearnerField('bdayMonth', this.value)"
+                      class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-300 font-bold text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-extrabold text-slate-600 mb-1">Day (1–31)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="31"
+                      value="${appState.bdayDay}"
+                      onchange="saveLearnerField('bdayDay', this.value)"
+                      class="w-full px-3.5 py-2.5 rounded-2xl border border-slate-300 font-bold text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-slate-100 flex items-center gap-3">
+              <img src="./assets/chibi/image_12.png" alt="Astra" class="w-12 h-12 rounded-xl object-contain bg-fuchsia-50 p-1" />
+              <div class="text-xs font-bold text-slate-600">
+                Astra: <span class="font-extrabold ${hasAstra ? 'text-emerald-700' : 'text-fuchsia-700'}">
+                  ${hasAstra ? 'Unlocked' : 'Locked until birthday or 500 Stars'}
+                </span>
+              </div>
+            </div>
+          </section>
+        </div>
+      `;
+    }
+
+    function renderApp() {
+      applyBirthdayUnlock();
+      const mount = document.getElementById('app');
+      let viewHtml = '';
+      if (appState.view === 'lesson') viewHtml = renderLessonView();
+      else if (appState.view === 'wardrobe') viewHtml = renderWardrobeView();
+      else if (appState.view === 'games') viewHtml = renderGamesView();
+      else viewHtml = renderStatsView();
+
+      mount.innerHTML = `${renderHeader()}<main>${viewHtml}</main>`;
+    }
+
+    renderApp();
+  </script>
+</body>
+</html>
